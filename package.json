@@ -1,0 +1,38 @@
+{
+  "name": "emergency-social-network",
+  "version": "0.0.1",
+  "description": "Emergency Social Network, or ESN, is to provide civilians with a social network that they can use during emergency situations. The system is different from other existing social networks because it is specifically designed to effectively support small communities of civilians seriously affected in case of natural disasters like earthquake, tsunami, tornado, wildfire, etc.",
+  "main": "main.mjs",
+  "scripts": {
+    "dev": "DEVELOPMENT=true node --import ./src/ESMLoader.mjs ./src/main.mjs",
+    "format": "prettier --write ./src",
+    "lint": "eslint ./src",
+    "serve": "node --import ./src/ESMLoader.mjs ./src/main.mjs",
+    "help": "node --import ./src/ESMLoader.mjs ./src/main.mjs -h"
+  },
+  "author": "FSE Team SB-1",
+  "type": "module",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "esm-module-alias": "^2.2.1",
+    "express": "^5.0.0",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.8.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3"
+  },
+  "aliases": {
+    "@": "./src",
+    "!config": "./app.config.mjs"
+  }
+}

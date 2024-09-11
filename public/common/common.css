@@ -1,0 +1,31 @@
+:root {
+    --primary-color: #9fc4f8;
+    --secondary-color: #f6b16a;
+
+    --success-color: #aaf8a0;
+    --danger-color: #f8a0a0;
+    --warning-color: #f8e8a0;
+    --info-color: #b2a0f8;
+
+    --text-light-color: white;
+    --text-dark-color: black;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    color: var(--text-dark-color)
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
