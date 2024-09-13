@@ -1,14 +1,34 @@
-# f24-fse-sb1
+# Emergency Social Network
+
+## Introduction
+
+Emergency Social Network, or ESN, is designed to provide civilians with a social network that they can use during
+emergency situations. The system is distinct from other existing social networks because it is specifically designed to
+effectively support small communities of civilians seriously affected by natural disasters like earthquakes, tsunamis,
+tornadoes, wildfires, etc.
+
 ## Choice of Technology
-### FrontEnd
-HTML: it helps define the structure and semantics for web pages, such as how the components are arranged on an interface. Also it is compatible with all browsers and integrates well with other technologies like CSS and JavaScript.<br>
-CSS: it provides the style and layout for web pages. Developers could do flexible customization, which helps make visually appealing and user-friendly interfaces.<br>
-JavaScript: <br>
-jQuery: it has a wealth of plug-ins and extensions, which greatly simplifies the construction of the HTML difficulty, but also solves the problem of browser incompatibility.<br>
-Bootstrap: it has responsive components, extensive documentation, and strong community support. These make it ready-to-use and quick to implement.
+
+### Frontend
+
+| Technology | Reason to Choose                                                                                                                                                                            |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| HTML       | Defines the structure and semantics of web pages, ensuring compatibility with all browsers and seamless integration with other technologies like CSS and JavaScript.                        |
+| CSS        | Provides the style and layout for web pages with flexible customization to create visually appealing and user-friendly interfaces.                                                          |
+| JavaScript | Enables dynamic and interactive web pages, allowing for real-time updates and enhanced user experiences. It is essential for client-side scripting and integrates well with HTML and CSS.   |
+| jQuery     | Offers a wealth of plugins and extensions, simplifying HTML document traversal and manipulation, event handling, and animation. It also addresses browser compatibility issues effectively. |
+| Bootstrap  | Provides responsive components, extensive documentation, and strong community support, making it quick to implement and ensuring a consistent and mobile-friendly design.                   |
+
 ### Database
-MongoDB: it is flexible, allowing us to easily adapt our data structure as needed. MongoDB Atlas helps our team work together and manage the database in one place. Plus, many team members are already familiar with MongoDB, which makes it easier for us to use it effectively.
-### BackEnd
-Node.js: <br>
-Express.js: <br>
-Socket.io: it enables real-time communication between server and client, which makes it ideal for applications requiring dynamic updates such as a chat application. All team members have had some experience using it (while doing the pre-course assignment). 
+
+| Technology | Reason to Choose                                                                                                                                                                                                                   |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MongoDB    | Offers flexibility in adapting the data structure as needed. MongoDB Atlas facilitates team collaboration and centralized database management. Familiarity among team members ensures effective usage and streamlined development. |
+
+### Backend
+
+| Technology | Reason to Choose                                                                                                                                                                                                                                   |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node.js    | Provides a scalable and efficient runtime environment for server-side applications. Its non-blocking, event-driven architecture makes it ideal for handling multiple concurrent connections.                                                       |
+| Express.js | A minimal and flexible Node.js web application framework that provides robust features for building web and mobile applications. It simplifies the development process by offering a wide range of HTTP utility methods and middleware.            |
+| Socket.IO  | Enables real-time, bidirectional communication between the server and clients, making it ideal for applications requiring dynamic updates, such as chat applications. Team members have prior experience using it, ensuring smooth implementation. |
