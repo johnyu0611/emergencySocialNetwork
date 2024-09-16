@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESN Community Login</title>
+    <link rel="stylesheet" href="register.css">
+    <script src="register.mjs" type="module"></script>
+</head>
+<body>
+    <div class="login-background"></div>
+
+    <a href="#" class="home-icon">
+        <img src="../resources/home.png" alt="Home Icon" onclick="location.href='../index.html'">
+    </a>
+
+    <div class="login-container mx-auto">
+        <img src="../resources/sos.gif" alt="SOS Logo">
+        <h3>Enter the ESN Community</h3>
+        <p class="fst-italic fw-light text-danger" id="message"></p>
+        <form id="userForm">
+            <div class="mb-4">
+                <div class="text-start">
+                    User Name
+                </div>
+                <input type="text" id="username" class="form-control user-input rounded w-100 mx-auto" placeholder="User Name" required>
+            </div>
+            <div class="mb-4">
+                <div class="text-start">
+                    Password
+                </div>
+                <input type="password" id="password" class="form-control user-input rounded w-100 mx-auto" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="checkUser">Join</button>
+        </form>
+    </div>
+  
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="static-backdrop-label-create-new-user" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="static-backdrop-label-create-new-user">Create New User</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Confirm to create this new user?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary bg-danger" data-bs-dismiss="modal">NO</button>
+          <button type="button" class="btn btn-primary bg-success" data-bs-toggle="modal" data-bs-target="#suggestion">YES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="suggestion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="static-backdrop-label-welcome" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="static-backdrop-label-welcome">Welcome to Our Community!</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h2>Status Rule:</h2>
+            <div>
+                <img src="../resources/ok.jpg" alt="ok Logo" class="icon">
+                <p>OK: I do not need help</p>
+            </div>
+            <div>
+                <img src="../resources/help.jpg" alt="help Logo" class="icon">
+                <p>Help: I need help (not a life-threatening emergency)</p>
+            </div>
+            <div>
+                <img src="../resources/emergency.jpg" alt="emergency Logo" class="icon">
+                <p>Emergency: I need help NOW, it is a life-threatening emergency!</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary bg-success" data-bs-dismiss="modal" onclick="location.href='../index.html'">Yes, I understand!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

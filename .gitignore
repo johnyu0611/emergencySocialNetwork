@@ -159,3 +159,5 @@ dist
 
 # Keys
 *.pem
+
+.env
