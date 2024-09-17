@@ -7,12 +7,13 @@ export const register = async (req, res) => {
     console.log(req.body);
     const { username, password } = req.body;
 
-    if (await UserSchema.findOne({ username })) {
-        if (UserSchema.findOne({ username }).password == password) {
+    const usernew = await UserSchema.findOne({ username });
+    if (usernew) {
+        if (usernew.password === password) {
             // Currently do nothing iter 0
-            return res.status(400).json({ message: 'User already exists' })
+            return res.status(400).json({ message: 'User already exists' });
         }
-        return res.status(403).json({ message: 'User exists but incorrect password' })
+        return res.status(403).json({ message: 'User exists but incorrect password' });
     }
 
     const user = new UserSchema({ username: username, password });
