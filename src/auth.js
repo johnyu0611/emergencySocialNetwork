@@ -31,6 +31,20 @@ export const register = async (req, res) => {
         }); // can change to 2 tokens in the future
 }
 
+export const check = async (req, res) => {
+    console.log(req.body);
+    const { username, password } = req.body;
+
+    const usernew = await UserSchema.findOne({ username });
+    if (usernew) {
+        if (usernew.password === password) {
+            // Currently do nothing iter 0
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        return res.status(403).json({ message: 'User exists but incorrect password' });
+    }
+}
+
 export const authenticateJWT = (req, res, next) => {
     const token = req.headers.authorization;
 
