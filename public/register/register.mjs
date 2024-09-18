@@ -61,7 +61,7 @@ $(document).ready(() => {
 
         const payload = { username:username, password:password };
         try {
-            const response = await fetch('/api/auth/users', {
+            const response = await fetch('/api/auth/username', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -82,16 +82,38 @@ $(document).ready(() => {
                 $('#message').text('User existed');
                 return;
             }
-
-            $('#userForm')[0].reset();
             const modal = new bootstrap.Modal($('#staticBackdrop')[0]);
             $('#message').text('');
             modal.show();
         } catch (error) {
             console.error('Error:', error);
-            const modal = new bootstrap.Modal($('#staticBackdrop')[0]);
-            $('#message').text('');
-            modal.show();
         }
     });
+    $('#createyes').on('click',async (event) => {
+        event.preventDefault();
+        const username = $('#username').val().trim();
+        const password = $('#password').val();
+        const payload = { username:username, password:password };
+        try {
+            const response = await fetch('/api/auth/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            console.dir(result);
+
+            $('#userForm')[0].reset();
+            const modal = new bootstrap.Modal($('#suggestion')[0]);
+            $('#message').text('');
+            modal.show();
+        } catch (error) {
+            console.error('Error:', error);
+            $('#message').text('');
+        }
+
+    })
 });

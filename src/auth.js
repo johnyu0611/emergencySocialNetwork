@@ -43,6 +43,8 @@ export const check = async (req, res) => {
         }
         return res.status(403).json({ message: 'User exists but incorrect password' });
     }
+
+    return res.status(200).json({ message: 'New user confirmed' });
 }
 
 export const authenticateJWT = (req, res, next) => {
