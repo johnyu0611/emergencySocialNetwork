@@ -5,8 +5,8 @@ const JWT_SECRET = 'FSE-SB1';
 
 export const register = async (req, res) => {
     console.log(req.body);
-    const { username, password } = req.body;
-
+    var { username, password } = req.body;
+    username = username.toLowerCase();
     const usernew = await UserSchema.findOne({ username });
     if (usernew) {
         if (usernew.password === password) {
@@ -16,7 +16,7 @@ export const register = async (req, res) => {
         return res.status(403).json({ message: 'User exists but incorrect password' });
     }
 
-    const user = new UserSchema({ username: username, password });
+    const user = new UserSchema({ username: username.toLowerCase(), password });
     user.save()
         .then(() => {
             res.status(201).json({ message: 'User registered successfully' })
@@ -33,7 +33,8 @@ export const register = async (req, res) => {
 
 export const check = async (req, res) => {
     console.log(req.body);
-    const { username, password } = req.body;
+    var { username, password } = req.body;
+    username = username.toLowerCase();
 
     const usernew = await UserSchema.findOne({ username });
     if (usernew) {
@@ -43,7 +44,6 @@ export const check = async (req, res) => {
         }
         return res.status(403).json({ message: 'User exists but incorrect password' });
     }
-
     return res.status(200).json({ message: 'New user confirmed' });
 }
 
