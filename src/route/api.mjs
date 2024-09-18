@@ -1,5 +1,5 @@
 import express from "express";
-import { register, authenticateJWT } from "../auth.js";
+import { register, authenticateJWT, check } from "../auth.js";
 
 const router = express.Router();
 // router.use(express.json());
