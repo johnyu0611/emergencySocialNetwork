@@ -85,10 +85,12 @@ $(document).ready(() => {
 
             $('#userForm')[0].reset();
             const modal = new bootstrap.Modal($('#staticBackdrop')[0]);
+            $('#message').text('');
             modal.show();
         } catch (error) {
             console.error('Error:', error);
             const modal = new bootstrap.Modal($('#staticBackdrop')[0]);
+            $('#message').text('');
             modal.show();
         }
     });
