@@ -2,12 +2,19 @@
 
 .login-container {
     max-width: 400px;
-    margin: 50px auto;
+    margin: 100px auto;
     padding: 30px;
-    background: #fff;
+    background-color: rgba(255, 255, 255, 0.6);
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    width: 80vw;
+    height: 60vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 .login-container img {
     width: 50px;
@@ -29,7 +36,7 @@
     right: 0;
     bottom: 0;
     z-index: -1;
-    opacity: 0.1;
+    opacity: 0.3;
 }
 
 .home-icon {
@@ -47,4 +54,26 @@
 .icon {
     width: 30px;
     margin-bottom: 10px;
+}
+
+input::placeholder {
+    font-family: 'Gill Sans', sans-serif;
+    font-size: 14px;
+}
+
+.iconwithinput {
+    position: relative;
+    width: 100%;
+}
+
+.iconwithinput i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999; 
+}
+
+.iconwithinput input {
+    padding-left: 30px;
 }
