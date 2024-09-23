@@ -15,29 +15,41 @@
 }
 
 .container {
-  width: 500px;
-  height: 400px;
-  margin: 50px auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: fit-content;
+  max-width: 400px;
+  margin: 100px auto;
   padding: 30px;
   background-color: rgba(255, 255, 255, 0.6);
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.container-upper {
-  height: 45%;
-}
-
-.container-lower {
-  height: 55%;
-}
-
 #logo {
-  width: 100px;
-  height: auto;
+  width: 50px;
+  margin-bottom: 25px;
 }
 
-#title {
-  font-size: 2rem;
-  font-weight: bold;
+#home {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.icon {
+  width: 50px;
+}
+
+#banner {
+  position: absolute;
+  top: 10px;
+  user-select: text;
+  display: none;
 }

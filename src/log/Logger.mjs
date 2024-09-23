@@ -1,6 +1,6 @@
+import { config } from "@/config/Config.mjs";
 import pino from "pino";
 import pinoPretty from "pino-pretty";
-import { config } from "@/config/Config.mjs";
 
 function messageFormatter(log, messageKey) {
   const messageComponents = [];

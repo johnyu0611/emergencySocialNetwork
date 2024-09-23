@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" />
+    <title>Join ESN Community</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="register.css" rel="stylesheet" />
+    <script src="register.mjs" type="module"></script>
+  </head>
+  <body>
+    <div class="background"></div>
+    <i class="fa fa-home" id="home" onclick="location.href='index.html'"></i>
+    <div
+      class="container d-flex flex-column align-items-center justify-content-between"
+    >
+      <img id="logo" alt="SOS Logo" src="asset/sos.gif" draggable="false" />
+      <h3 class="mt-2 mb-4">Join the ESN Community</h3>
+      <form id="form" class="w-100" novalidate>
+        <div class="mb-3">
+          <label for="input-username" class="form-label">Username</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa fa-user"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              id="input-username"
+              placeholder="Enter username"
+            />
+          </div>
+          <div class="invalid-feedback"></div>
+        </div>
+        <div class="mb-3">
+          <label for="input-password" class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa fa-lock"></i></span>
+            <input
+              type="password"
+              class="form-control"
+              id="input-password"
+              placeholder="Enter password"
+            />
+          </div>
+          <div id="invalid-feedback-password" class="invalid-feedback"></div>
+        </div>
+        <div class="mt-4 d-grid">
+          <button type="submit" class="btn btn-primary">Join</button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modal-confirm-join"
+      data-bs-backdrop="static"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Create a New User</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">Confirm to create a new user?</div>
+          <div class="modal-footer">
+            <button
+              id="modal-confirm-join-btn-cancel"
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              No
+            </button>
+            <button
+              id="modal-confirm-join-btn-confirm"
+              type="button"
+              class="btn btn-primary"
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modal-welcome"
+      data-bs-backdrop="static"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modal-welcome-title">
+              Welcome to the Community!
+            </h1>
+          </div>
+          <div class="modal-body">
+            <h2>Status Indicators:</h2>
+            <div>
+              <img src="asset/ok.jpg" alt="OK" class="icon" draggable="false" />
+              <p>OK: I do not need help</p>
+            </div>
+            <div>
+              <img
+                src="asset/help.jpg"
+                alt="Help"
+                class="icon"
+                draggable="false"
+              />
+              <p>Help: I need help (but not a life-threatening emergency)</p>
+            </div>
+            <div>
+              <img
+                src="asset/emergency.jpg"
+                alt="Emergency"
+                class="icon"
+                draggable="false"
+              />
+              <p>
+                Emergency: I need help NOW - it is a life-threatening emergency!
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              id="modal-welcome-btn-confirm"
+              type="button"
+              class="btn btn-primary btn-success"
+            >
+              Yes, I understand!
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="banner" class="alert" role="banner"></div>
+  </body>
+</html>

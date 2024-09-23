@@ -5,7 +5,7 @@
   "main": "main.mjs",
   "scripts": {
     "dev": "DEVELOPMENT=true node --import ./src/ESMLoader.mjs ./src/main.mjs",
-    "format": "prettier --write ./src",
+    "format": "prettier --write ./src ./public",
     "lint": "eslint ./src",
     "serve": "node --import ./src/ESMLoader.mjs ./src/main.mjs",
     "help": "node --import ./src/ESMLoader.mjs ./src/main.mjs -h"
@@ -13,23 +13,25 @@
   "author": "FSE Team SB-1",
   "type": "module",
   "dependencies": {
+    "argon2": "^0.41.1",
     "commander": "^12.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "esm-module-alias": "^2.2.1",
     "express": "^5.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.6.2",
-    "package.json": "^2.0.1",
+    "mongoose": "^8.6.3",
+    "ms": "^2.1.3",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.8.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.8.0",
+    "@eslint/js": "^9.11.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "eslint": "^9.10.0",
+    "eslint": "^9.11.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.9.0",
     "prettier": "^3.3.3"

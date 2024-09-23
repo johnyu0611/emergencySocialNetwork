@@ -1,0 +1,4 @@
+import "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js";
+import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js";
+import "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js";
+import "https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js";

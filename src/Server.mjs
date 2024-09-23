@@ -1,50 +1,71 @@
-import cors from "cors";
-import { createServer } from "http";
-import express from "express";
-import { Server } from "socket.io";
-import { logger } from "@/log/Logger.mjs";
+import { JWT } from "@/auth/JWT.mjs";
 import { config } from "@/config/Config.mjs";
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import { authRouter } from "@/route/api.mjs";
-
-dotenv.config();
-
-// const uri = `mongodb+srv://${process.env.DB_USER}:${encodeURIComponent(process.env.DB_PASS)}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=FSE`;
-const url = 'mongodb+srv://laineyl:123@fse.qw9qk.mongodb.net/?retryWrites=true&w=majority&appName=FSE'
-
-mongoose.connect(url)
-  .then(() => 
-    console.log('MongoDB connected successfully!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+import { logger } from "@/log/Logger.mjs";
+import { registerAuthRoute } from "@/route/Auth.mjs";
+import { PasswordHasher } from "@/util/PasswordHasher.mjs";
+import cors from "cors";
+import express from "express";
+import { createServer } from "http";
+import mongoose from "mongoose";
+import { Server } from "socket.io";
 
 const loggerContext = "Server";
 
 export async function runServer() {
   logger.debug({ context: loggerContext }, "Setting up Server");
-  
   const app = express();
-  
-  app.use(express.json());
-  app.use('/api/auth', authRouter);
- 
-  
-  app.use(express.static(config.server.staticFolder));
 
+  // Set up static assets
+  app.use(express.static(config.server.staticFolder));
+  logger.debug(
+    { context: loggerContext },
+    `Static assets served from ${config.server.staticFolder}`
+  );
+
+  // Set up Socket.IO
   const server = createServer(app);
   const io = new Server(server, {
     path: `${config.server.apiBasePath}/socket.io/`
   });
+  logger.debug(
+    { context: loggerContext },
+    `Socket.IO set up at ${config.server.apiBasePath}/socket.io/`
+  );
 
   // Set up CORS
   if (config.environment.development === "true") {
     app.use(cors());
     logger.warn({ context: loggerContext }, "CORS middleware enabled globally");
   }
-  
+
+  // Set up MongoDB
+  await mongoose.connect(
+    [
+      "mongodb+srv://",
+      `${config.environment.databaseUser}:${config.environment.databasePassword}`,
+      `@${config.environment.databaseCluster}/${config.environment.databaseName}`,
+      `?retryWrites=true&w=majority&appName=${config.environment.databaseAppName}`
+    ].join("")
+  );
+  logger.info(
+    { context: loggerContext },
+    `Connected to MongoDB as ${config.environment.databaseUser}`
+  );
+
+  // Create JWT instance
+  const jwt = new JWT();
+
+  // Create password hasher instance
+  const passwordHasher = new PasswordHasher(config.security.passwordHash);
+
+  registerAuthRoute({ app, io, jwt, passwordHasher });
 
   const { port } = config.server;
   server.listen(port, () => {
-    logger.info({ context: loggerContext }, "Server is listening at port %d", port);
+    logger.info(
+      { context: loggerContext },
+      "Server is listening at port %d",
+      port
+    );
   });
 }
