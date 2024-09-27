@@ -2,7 +2,7 @@ import { bannedUsernameSet } from "./common/banned-username-set.mjs";
 import { Banner } from "./common/banner.mjs";
 import { FormValidator } from "./common/form-validator.mjs";
 import { createUser } from "./lib/create-user.mjs";
-import { verify } from "./lib/verify.mjs";
+import { login } from "./lib/login.mjs";
 
 const banner = new Banner($("#banner"));
 const $form = $("#form");
@@ -42,16 +42,16 @@ async function onSubmit(event) {
   const password = $inputPassword.val();
   const payload = { username, password };
   try {
-    const result = await verify(payload, {
-      403: () => {
-        banner.showErrorMessage("User exists but wrong password");
-      },
-      400: () => {
+    const result = await login(payload, {
+      201: () => {
         banner.showErrorMessage("User exists");
+      },
+      404: () => {
+        modalConfirmJoin.show();
       }
     });
-    modalConfirmJoin.show();
   } catch (error) {
+    void banner.showError(error);
     console.error(error);
   }
 }
@@ -70,6 +70,7 @@ async function onConfirmJoin(event) {
     modalConfirmJoin.hide();
     modalWelcome.show();
   } catch (error) {
+    void banner.showError(error);
     console.error(error);
   }
 }

@@ -35,22 +35,28 @@ export async function callRestfulApiGet({
 }
 
 async function handleRestfulResponse(response, handlerMap) {
-  if (response.ok) {
-    return await response.json();
-  }
+  let throwIfError = true;
 
   if (
     typeof handlerMap === "object" &&
     handlerMap.hasOwnProperty(response.status) &&
     typeof handlerMap[response.status] === "function"
   ) {
-    handlerMap[response.status]();
+    handlerMap[response.status](response);
+    throwIfError = false;
+  }
+
+  if (response.ok) {
+    return await response.json();
+  }
+
+  if (!throwIfError) {
+    return;
   }
 
   if (response.headers.get("Content-Type")?.includes("application/json")) {
     const data = await response.json();
     throw new Error(data.reason ?? JSON.stringify(data));
   }
-
   throw new Error(`${response.status} (${response.statusText})`);
 }

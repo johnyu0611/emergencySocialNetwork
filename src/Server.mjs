@@ -1,7 +1,7 @@
 import { JWT } from "@/auth/JWT.mjs";
 import { config } from "@/config/Config.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { registerAuthRoute } from "@/route/Auth.mjs";
+import { registerRootRouter } from "@/router/Root.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
@@ -58,7 +58,7 @@ export async function runServer() {
   // Create password hasher instance
   const passwordHasher = new PasswordHasher(config.security.passwordHash);
 
-  registerAuthRoute({ app, io, jwt, passwordHasher });
+  registerRootRouter({ app, io, jwt, passwordHasher });
 
   const { port } = config.server;
   server.listen(port, () => {
