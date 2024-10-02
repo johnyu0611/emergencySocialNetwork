@@ -111,7 +111,7 @@ async function onSocketIOConnect() {
 async function onSocketIOConnectError(error) {
   console.error(error);
   // From https://socket.io/docs/v4/client-socket-instance/#connect_error
-  if (socket.active) {
+  if (socketChatRoom.active) {
     // Temporary failure, the socket will automatically try to reconnect
     await banner.showWarningMessage(
       "Cannot establish connection to server, retrying...",
