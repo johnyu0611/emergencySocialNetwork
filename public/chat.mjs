@@ -14,7 +14,8 @@ import { KEY_TOKEN } from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/parse-query-parameters.mjs";
 import {
   ENDPOINT_SOCKET_IO,
-  NAMESPACE_SOCKET_IO_CHATROOM
+  NAMESPACE_SOCKET_IO_CHATROOM,
+  NAMESPACE_SOCKET_IO_CONNECTED
 } from "./lib/endpoints.mjs";
 import { getHistoryMessages } from "./lib/get-history-messages.mjs";
 import { logout } from "./lib/logout.mjs";
@@ -163,7 +164,7 @@ $(document).ready(async () => {
     location.href = "register.html";
   }
 
-  const socket = io(NAMESPACE_SOCKET_IO_CHATROOM, {
+  const socketChatRoom = io(NAMESPACE_SOCKET_IO_CHATROOM, {
     path: ENDPOINT_SOCKET_IO,
     query: {
       roomId
@@ -173,9 +174,19 @@ $(document).ready(async () => {
     }
   });
 
-  socket.on("connect", onSocketIOConnect);
-  socket.on("connect_error", onSocketIOConnectError);
-  socket.on("message", onSocketIOMessage);
+  const socketConnected = io(NAMESPACE_SOCKET_IO_CONNECTED, {
+    path: ENDPOINT_SOCKET_IO,
+    auth: {
+      token: localStorage.getItem(KEY_TOKEN)
+    }
+  });
+
+  socketChatRoom.on("connect", onSocketIOConnect);
+  socketChatRoom.on("connect_error", onSocketIOConnectError);
+  socketChatRoom.on("message", onSocketIOMessage);
+
+  socketConnected.on("connect", onSocketIOConnect);
+  socketConnected.on("connect", onSocketIOConnectError);
 
   try {
     const { messages } = await getHistoryMessages({ token, roomId });

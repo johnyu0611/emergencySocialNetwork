@@ -30,7 +30,7 @@ export class TokenController extends AbstractController {
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/tokens"
+    path = "/tokens",
   ) {
     if (!TokenController.#instance) {
       TokenController.#instance = new TokenController({

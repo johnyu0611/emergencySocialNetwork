@@ -13,4 +13,4 @@ export const ENDPOINT_SOCKET_IO = `${API_ROOT}/socket.io`;
 
 export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatrooms";
 
-export const NAMESPACE_SOCKET_IO_DIRECTORY = "/directory";
+export const NAMESPACE_SOCKET_IO_CONNECTED = "/directory";

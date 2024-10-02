@@ -27,8 +27,6 @@ export function registerChatroomChannel(io, jwt, namespace = "/chatrooms") {
   async function handleDisconnect(socket) {
     const loggerContext = "ChatroomOnDisconnectHandler";
     const { username } = socket.handshake.auth;
-    console.log(username);
-    await userDAO.getUserOffline({ username });
     logger.info({ context: loggerContext }, `User ${username} disconnected`);
   }
 

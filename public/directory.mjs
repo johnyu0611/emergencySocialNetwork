@@ -3,7 +3,7 @@ import { KEY_TOKEN } from "./common/constants.mjs";
 import { sleep } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
-  NAMESPACE_SOCKET_IO_DIRECTORY
+  NAMESPACE_SOCKET_IO_CONNECTED
 } from "./lib/endpoints.mjs";
 import { getESNDirectory } from "./lib/get-esndirectory.mjs";
 import { logout } from "./lib/logout.mjs";
@@ -81,6 +81,10 @@ async function onLogout() {
   postLogout();
 }
 
+async function onSocketIOReloadPage() {
+  await onPost();
+}
+
 async function onSocketIOConnect() {
   void banner.showSuccessMessage("Connected");
 }
@@ -106,7 +110,7 @@ async function onSocketIOConnectError(error) {
 
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
-  const socket = io(NAMESPACE_SOCKET_IO_DIRECTORY, {
+  const socket = io(NAMESPACE_SOCKET_IO_CONNECTED, {
     path: ENDPOINT_SOCKET_IO,
     auth: {
       token: localStorage.getItem(KEY_TOKEN)
@@ -115,6 +119,8 @@ $(document).ready(async () => {
 
   socket.on("connect", onSocketIOConnect);
   socket.on("connect_error", onSocketIOConnectError);
+  socket.on("join", onSocketIOReloadPage);
+  socket.on("leave", onSocketIOReloadPage);
 
   await onPost();
 });

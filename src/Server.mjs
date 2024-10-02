@@ -4,7 +4,7 @@ import { mongoDBConnection } from "@/database/Connections.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { registerRoutes } from "@/route/Register.mjs";
 import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
-import { registerDirectoryChannel } from "@/socket/RegisterDirectoryChannel.mjs";
+import { registerConnectedChannel } from "@/socket/RegisterConnectedChannel.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
@@ -64,7 +64,7 @@ export async function runServer() {
 
   const chatroomChannel = registerChatroomChannel(io, jwt);
   registerRoutes({ app, io, jwt, passwordHasher, chatroomChannel });
-  registerDirectoryChannel(io, jwt);
+  registerConnectedChannel(io, jwt);
 
   const { port } = config.server;
   server.listen(port, () => {
