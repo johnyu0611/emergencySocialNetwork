@@ -5,10 +5,10 @@ import {
   GetRequestSchema,
   GetResponseSchema
 } from "@/controller/schema/ChatroomMessage.mjs";
+import { messageDAO } from "@/database/MessageDataAccess.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { MessageModel } from "@/model/Message.mjs";
 import { HTTP_CREATED } from "@/util/Constants.mjs";
-import { messageDAO } from "@/database/MessageDataAccess.mjs";
 
 export class ChatroomMessageController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -72,7 +72,7 @@ export class ChatroomMessageController extends AbstractController {
     };
     await messageDAO.saveMessage(message);
 
-    const {chatroomChannel} = this.context;
+    const { chatroomChannel } = this.context;
     chatroomChannel.emit("message", message);
 
     const responseBody = PostResponseSchema.parse({});

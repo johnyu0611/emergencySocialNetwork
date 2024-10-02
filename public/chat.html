@@ -11,34 +11,48 @@
     <script src="chat.mjs" type="module"></script>
   </head>
   <body>
-  <div id="container">
-    <div id="banner" class="alert" role="banner"></div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" id="chatroom-title">
-          <img src="asset/sos.gif" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
-          ESN Community
-        </a>
-        <button id="button-logout" class="btn btn-outline-danger" type="button">
-          <span>Logout</span>
-          <i class="fas fa-sign-out-alt"></i>
+    <div id="container">
+      <div id="banner" class="alert" role="banner"></div>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" id="chatroom-title">
+            <img
+              src="asset/sos.gif"
+              alt="Logo"
+              width="30"
+              height="30"
+              class="d-inline-block align-text-top"
+            />
+            ESN Community
+          </a>
+          <button
+            id="button-logout"
+            class="btn btn-outline-danger"
+            type="button"
+          >
+            <span>Logout</span>
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </nav>
+      <div id="chat-history-container" class="container">
+        <!-- Chat messages will be appended here -->
+      </div>
+      <div id="input-area" class="container">
+        <label for="input-box" class="form-label"></label>
+        <textarea
+          id="input-box"
+          class="form-control"
+          placeholder="Type your message..."
+        ></textarea>
+        <button
+          id="button-post"
+          class="btn btn-primary color-white"
+          type="button"
+        >
+          <i id="button-post-icon" class="fa fa-paper-plane"></i>
         </button>
       </div>
-    </nav>
-    <div id="chat-history-container" class="container">
-      <!-- Chat messages will be appended here -->
     </div>
-    <div id="input-area" class="container">
-      <label for="input-box" class="form-label"></label>
-      <textarea
-        id="input-box"
-        class="form-control"
-        placeholder="Type your message..."
-      ></textarea>
-      <button id="button-post" class="btn btn-primary color-white" type="button">
-        <i id="button-post-icon" class="fa fa-paper-plane"></i>
-      </button>
-    </div>
-  </div>
   </body>
 </html>

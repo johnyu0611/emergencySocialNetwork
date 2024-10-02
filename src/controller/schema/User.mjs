@@ -26,24 +26,22 @@ export const PostResponseSchema = z.object({
 });
 
 /**
-* `GET /api/users`
-*
-* Request payload schema
-*/
+ * `GET /api/users`
+ *
+ * Request payload schema
+ */
 export const GetRequestSchema = z.object({});
 
-
 /**
-* `GET /api/users`
-*
-* Response payload schema
-*/
+ * `GET /api/users`
+ *
+ * Response payload schema
+ */
 export const GetResponseSchema = z.object({
- users: z.array(
-   z.object({
-     username: UsernameSchema,
-     status: StatusSchema
-   })
- )
+  users: z.array(
+    z.object({
+      username: UsernameSchema,
+      status: StatusSchema
+    })
+  )
 });
-

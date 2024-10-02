@@ -1,4 +1,4 @@
-import { HTTPError } from "../common/errors.mjs"
+import { HTTPError } from "../common/errors.mjs";
 
 export async function callRestfulApi({
   method,

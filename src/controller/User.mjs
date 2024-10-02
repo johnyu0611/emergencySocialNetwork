@@ -5,12 +5,12 @@ import {
   GetRequestSchema,
   GetResponseSchema
 } from "@/controller/schema/User.mjs";
+import { userDAO } from "@/database/UserDataAccess.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { UserModel } from "@/model/User.mjs";
 import { HTTP_CONFLICT, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
 import { json } from "express";
-import { userDAO } from "@/database/UserDataAccess.mjs";
 
 export class UserController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -72,17 +72,16 @@ export class UserController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "UserControllerGETHandler";
- 
+
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
- 
-    const users = await UserModel.find({}).sort({status:-1,username:1}).select('username status');
- 
+
+    const users = await userDAO.getAllUsers();
+
     const responseBody = GetResponseSchema.parse({
       users
     });
     res.json(responseBody);
     res.status(HTTP_OK);
   }
- 
 }

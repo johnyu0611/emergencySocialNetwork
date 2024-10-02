@@ -5,10 +5,10 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/Token.mjs";
+import { userDAO } from "@/database/UserDataAccess.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { UserModel } from "@/model/User.mjs";
-import { userDAO } from "@/database/UserDataAccess.mjs";
 import {
   HTTP_CREATED,
   HTTP_FORBIDDEN,
@@ -67,7 +67,7 @@ export class TokenController extends AbstractController {
     }
 
     await userDAO.getUserOnline({ username });
-    
+
     const token = jwt.encode({ username });
     const responseBody = PostResponseSchema.parse({
       token

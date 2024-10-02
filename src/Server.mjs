@@ -1,16 +1,16 @@
 import { JWT } from "@/auth/JWT.mjs";
 import { config } from "@/config/Config.mjs";
+import { mongoDBConnection } from "@/database/Connections.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { registerRoutes } from "@/route/Register.mjs";
+import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
+import { registerDirectoryChannel } from "@/socket/RegisterDirectoryChannel.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
-import { mongoDBConnection } from "@/database/Connections.mjs";
-import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
-import { registerDirectoryChannel } from "@/socket/RegisterDirectoryChannel.mjs";
 
 const loggerContext = "Server";
 
@@ -42,7 +42,7 @@ export async function runServer() {
   }
 
   // Set up MongoDB
- await mongoDBConnection.connect();
+  await mongoDBConnection.connect();
   // await mongoose.connect(
   //   [
   //     "mongodb+srv://",

@@ -12,12 +12,14 @@
 import { Banner } from "./common/banner.mjs";
 import { KEY_TOKEN } from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/parse-query-parameters.mjs";
-import { ENDPOINT_SOCKET_IO, NAMESPACE_SOCKET_IO_CHATROOM } from "./lib/endpoints.mjs";
+import {
+  ENDPOINT_SOCKET_IO,
+  NAMESPACE_SOCKET_IO_CHATROOM
+} from "./lib/endpoints.mjs";
 import { getHistoryMessages } from "./lib/get-history-messages.mjs";
 import { logout } from "./lib/logout.mjs";
 import { postMessage } from "./lib/post-message.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
-
 
 const banner = new Banner($("#banner"));
 const $inputBox = $("#input-box");
@@ -177,7 +179,11 @@ $(document).ready(async () => {
 
   try {
     const { messages } = await getHistoryMessages({ token, roomId });
-    $chatHistoryContainer.append(messages.map((e) => messageBox(e.author, e.timestamp, e.content, "Registered")));
+    $chatHistoryContainer.append(
+      messages.map((e) =>
+        messageBox(e.author, e.timestamp, e.content, "Registered")
+      )
+    );
     $chatHistoryContainer.scrollTop($chatHistoryContainer.prop("scrollHeight"));
   } catch (error) {
     console.error(error);

@@ -1,7 +1,6 @@
 import { logger } from "@/log/Logger.mjs";
 import { HTTP_FORBIDDEN, HTTP_UNAUTHORIZED } from "@/util/Constants.mjs";
 
-
 const loggerContext = "AuthMiddleware";
 
 export function auth(jwt) {
