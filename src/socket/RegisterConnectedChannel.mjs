@@ -3,7 +3,7 @@ import { userDAO } from "@/database/UserDataAccess.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
 
-export function registerConnectedChannel(io, jwt, namespace = "/directory") {
+export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   const subChannel = io.of(namespace);
   subChannel.use(authSocketIO(jwt));
 

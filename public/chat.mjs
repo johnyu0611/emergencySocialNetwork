@@ -108,22 +108,24 @@ async function onSocketIOConnect() {
   $chatHistoryContainer.empty();
 }
 
-async function onSocketIOConnectError(error) {
-  console.error(error);
-  // From https://socket.io/docs/v4/client-socket-instance/#connect_error
-  if (socketChatRoom.active) {
-    // Temporary failure, the socket will automatically try to reconnect
-    await banner.showWarningMessage(
-      "Cannot establish connection to server, retrying...",
-      error.message
-    );
-  } else {
-    // The connection was denied by the server
-    // In that case, `socket.connect()` must be manually called in order to reconnect
-    await banner.showErrorMessage(
-      "Server rejected the connection, please log in again",
-      error.message
-    );
+function onSocketIOConnectError(socket) {
+  return async function (error) {
+    console.error(error);
+    // From https://socket.io/docs/v4/client-socket-instance/#connect_error
+    if (socket.active) {
+      // Temporary failure, the socket will automatically try to reconnect
+      await banner.showWarningMessage(
+        "Cannot establish connection to server, retrying...",
+        error.message
+      );
+    } else {
+      // The connection was denied by the server
+      // In that case, `socket.connect()` must be manually called in order to reconnect
+      await banner.showErrorMessage(
+        "Server rejected the connection, please log in again",
+        error.message
+      );
+    }
   }
 }
 
@@ -164,7 +166,7 @@ $(document).ready(async () => {
     location.href = "register.html";
   }
 
-  const socketChatRoom = io(NAMESPACE_SOCKET_IO_CHATROOM, {
+  const socketChatroom = io(NAMESPACE_SOCKET_IO_CHATROOM, {
     path: ENDPOINT_SOCKET_IO,
     query: {
       roomId
@@ -181,12 +183,12 @@ $(document).ready(async () => {
     }
   });
 
-  socketChatRoom.on("connect", onSocketIOConnect);
-  socketChatRoom.on("connect_error", onSocketIOConnectError);
-  socketChatRoom.on("message", onSocketIOMessage);
+  socketChatroom.on("connect", onSocketIOConnect);
+  socketChatroom.on("connect_error", onSocketIOConnectError(socketChatroom));
+  socketChatroom.on("message", onSocketIOMessage);
 
   socketConnected.on("connect", onSocketIOConnect);
-  socketConnected.on("connect", onSocketIOConnectError);
+  socketConnected.on("connect_error", onSocketIOConnectError(socketConnected));
 
   try {
     const { messages } = await getHistoryMessages({ token, roomId });
