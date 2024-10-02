@@ -8,7 +8,6 @@ import {
 import { userDAO } from "@/database/UserDataAccess.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { UserModel } from "@/model/User.mjs";
 import {
   HTTP_CREATED,
   HTTP_FORBIDDEN,
@@ -30,7 +29,7 @@ export class TokenController extends AbstractController {
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/tokens",
+    path = "/tokens"
   ) {
     if (!TokenController.#instance) {
       TokenController.#instance = new TokenController({

@@ -1,8 +1,8 @@
 import {
   PasswordSchema,
+  StatusSchema,
   TokenSchema,
-  UsernameSchema,
-  StatusSchema
+  UsernameSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 

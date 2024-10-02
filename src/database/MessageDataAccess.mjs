@@ -11,6 +11,7 @@ class MessageDataAccess {
     MessageDataAccess.instance = this;
     return MessageDataAccess.instance;
   }
+
   async getAllMessage() {
     return await MessageModel.find().sort({ timestamp: 1 });
   }

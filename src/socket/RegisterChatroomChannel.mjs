@@ -1,5 +1,4 @@
 import { ChatroomIdSchema } from "@/controller/schema/Common.mjs";
-import { userDAO } from "@/database/UserDataAccess.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
 

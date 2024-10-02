@@ -9,7 +9,6 @@ import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
-import mongoose from "mongoose";
 import { Server } from "socket.io";
 
 const loggerContext = "Server";

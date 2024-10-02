@@ -1,13 +1,12 @@
 import { AbstractController } from "@/controller/Abstract.mjs";
 import {
-  PostRequestSchema,
-  PostResponseSchema,
   GetRequestSchema,
-  GetResponseSchema
+  GetResponseSchema,
+  PostRequestSchema,
+  PostResponseSchema
 } from "@/controller/schema/ChatroomMessage.mjs";
 import { messageDAO } from "@/database/MessageDataAccess.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { MessageModel } from "@/model/Message.mjs";
 import { HTTP_CREATED } from "@/util/Constants.mjs";
 
 export class ChatroomMessageController extends AbstractController {

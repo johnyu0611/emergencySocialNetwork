@@ -1,16 +1,14 @@
 import { AbstractController } from "@/controller/Abstract.mjs";
 import {
-  PostRequestSchema,
-  PostResponseSchema,
   GetRequestSchema,
-  GetResponseSchema
+  GetResponseSchema,
+  PostRequestSchema,
+  PostResponseSchema
 } from "@/controller/schema/User.mjs";
 import { userDAO } from "@/database/UserDataAccess.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { UserModel } from "@/model/User.mjs";
 import { HTTP_CONFLICT, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
-import { json } from "express";
 
 export class UserController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -64,7 +62,8 @@ export class UserController extends AbstractController {
     const responseBody = PostResponseSchema.parse({
       token
     });
-    userDAO.getUserOnline({ username });
+    await userDAO.getUserOnline({ username });
+
     res.status(HTTP_CREATED);
     res.json(responseBody);
     logger.info({ context: loggerContext }, `User ${username} has joined`);

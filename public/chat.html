@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="asset/sos-icon.png" type="image/x-icon" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
     <title>ESN Chat</title>
     <link href="common/common.css" rel="stylesheet" />
     <script src="common/common.mjs" type="module"></script>
@@ -12,22 +12,22 @@
   </head>
   <body>
     <div id="container">
-      <div id="banner" class="alert" role="banner"></div>
+      <div class="alert" id="banner" role="banner"></div>
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
           <a class="navbar-brand" id="chatroom-title">
             <img
-              src="asset/sos.gif"
               alt="Logo"
-              width="30"
-              height="30"
               class="d-inline-block align-text-top"
+              height="30"
+              src="asset/sos.gif"
+              width="30"
             />
             ESN Community
           </a>
           <button
-            id="button-logout"
             class="btn btn-outline-danger"
+            id="button-logout"
             type="button"
           >
             <span>Logout</span>
@@ -35,22 +35,22 @@
           </button>
         </div>
       </nav>
-      <div id="chat-history-container" class="container">
+      <div class="container" id="chat-history-container">
         <!-- Chat messages will be appended here -->
       </div>
-      <div id="input-area" class="container">
-        <label for="input-box" class="form-label"></label>
+      <div class="container" id="input-area">
+        <label class="form-label" for="input-box"></label>
         <textarea
-          id="input-box"
           class="form-control"
+          id="input-box"
           placeholder="Type your message..."
         ></textarea>
         <button
-          id="button-post"
           class="btn btn-primary color-white"
+          id="button-post"
           type="button"
         >
-          <i id="button-post-icon" class="fa fa-paper-plane"></i>
+          <i class="fa fa-paper-plane" id="button-post-icon"></i>
         </button>
       </div>
     </div>

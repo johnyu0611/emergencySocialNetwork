@@ -16,74 +16,74 @@
     <div
       class="container d-flex flex-column align-items-center justify-content-between"
     >
-      <img id="logo" alt="SOS Logo" src="asset/sos.gif" draggable="false" />
+      <img alt="SOS Logo" draggable="false" id="logo" src="asset/sos.gif" />
       <h3 class="mt-2 mb-4">Join the ESN Community</h3>
-      <form id="form" class="w-100" novalidate>
+      <form class="w-100" id="form" novalidate>
         <div class="mb-3">
-          <label for="input-username" class="form-label">Username</label>
+          <label class="form-label" for="input-username">Username</label>
           <div class="input-group">
             <span class="input-group-text"><i class="fa fa-user"></i></span>
             <input
-              type="text"
               class="form-control"
               id="input-username"
               placeholder="Enter username"
+              type="text"
             />
           </div>
           <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
-          <label for="input-password" class="form-label">Password</label>
+          <label class="form-label" for="input-password">Password</label>
           <div class="input-group">
             <span class="input-group-text"><i class="fa fa-lock"></i></span>
             <input
-              type="password"
               class="form-control"
               id="input-password"
               placeholder="Enter password"
+              type="password"
             />
           </div>
-          <div id="invalid-feedback-password" class="invalid-feedback"></div>
+          <div class="invalid-feedback" id="invalid-feedback-password"></div>
         </div>
         <div class="mt-4 d-grid">
-          <button type="submit" class="btn btn-primary">Join</button>
+          <button class="btn btn-primary" type="submit">Join</button>
         </div>
       </form>
     </div>
 
     <div
-      class="modal fade"
-      id="modal-confirm-join"
-      data-bs-backdrop="static"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
       aria-hidden="true"
+      aria-labelledby="exampleModalLabel"
+      class="modal fade"
+      data-bs-backdrop="static"
+      id="modal-confirm-join"
+      tabindex="-1"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5">Create a New User</h1>
             <button
-              type="button"
+              aria-label="Close"
               class="btn-close"
               data-bs-dismiss="modal"
-              aria-label="Close"
+              type="button"
             ></button>
           </div>
           <div class="modal-body">Confirm to create a new user?</div>
           <div class="modal-footer">
             <button
-              id="modal-confirm-join-btn-cancel"
-              type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
+              id="modal-confirm-join-btn-cancel"
+              type="button"
             >
               No
             </button>
             <button
+              class="btn btn-primary"
               id="modal-confirm-join-btn-confirm"
               type="button"
-              class="btn btn-primary"
             >
               Yes
             </button>
@@ -93,12 +93,12 @@
     </div>
 
     <div
-      class="modal fade"
-      id="modal-welcome"
-      data-bs-backdrop="static"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
       aria-hidden="true"
+      aria-labelledby="exampleModalLabel"
+      class="modal fade"
+      data-bs-backdrop="static"
+      id="modal-welcome"
+      tabindex="-1"
     >
       <div class="modal-dialog">
         <div class="modal-content">
@@ -110,24 +110,24 @@
           <div class="modal-body">
             <h2>Status Indicators:</h2>
             <div>
-              <img src="asset/ok.jpg" alt="OK" class="icon" draggable="false" />
+              <img alt="OK" class="icon" draggable="false" src="asset/ok.jpg" />
               <p>OK: I do not need help</p>
             </div>
             <div>
               <img
-                src="asset/help.jpg"
                 alt="Help"
                 class="icon"
                 draggable="false"
+                src="asset/help.jpg"
               />
               <p>Help: I need help (but not a life-threatening emergency)</p>
             </div>
             <div>
               <img
-                src="asset/emergency.jpg"
                 alt="Emergency"
                 class="icon"
                 draggable="false"
+                src="asset/emergency.jpg"
               />
               <p>
                 Emergency: I need help NOW - it is a life-threatening emergency!
@@ -136,9 +136,9 @@
           </div>
           <div class="modal-footer">
             <button
+              class="btn btn-primary btn-success"
               id="modal-welcome-btn-confirm"
               type="button"
-              class="btn btn-primary btn-success"
             >
               Yes, I understand!
             </button>
@@ -147,6 +147,6 @@
       </div>
     </div>
 
-    <div id="banner" class="alert" role="banner"></div>
+    <div class="alert" id="banner" role="banner"></div>
   </body>
 </html>

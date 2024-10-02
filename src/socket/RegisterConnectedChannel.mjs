@@ -1,4 +1,3 @@
-import { ChatroomIdSchema } from "@/controller/schema/Common.mjs";
 import { userDAO } from "@/database/UserDataAccess.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
@@ -8,7 +7,7 @@ export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   subChannel.use(authSocketIO(jwt));
 
   async function handleConnect(socket) {
-    const loggerContext = "DirectoryOnConnectHandler";
+    const loggerContext = "ConnectedOnConnectHandler";
     const { username } = socket.handshake.auth;
     await userDAO.getUserOnline({ username });
     subChannel.emit("join", username);
@@ -16,7 +15,7 @@ export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   }
 
   async function handleDisconnect(socket) {
-    const loggerContext = "DirectoryOnDisconnectHandler";
+    const loggerContext = "ConnectedOnDisconnectHandler";
     const { username } = socket.handshake.auth;
     await userDAO.getUserOffline({ username });
     subChannel.emit("leave", username);

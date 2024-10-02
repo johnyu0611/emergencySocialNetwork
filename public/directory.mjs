@@ -28,8 +28,12 @@ function displayUsers(users) {
   const userList = document.getElementById("user-list");
   userList.innerHTML = "";
   const sortedUsers = users.sort((a, b) => {
-    if (a.status === "online" && b.status === "offline") return -1;
-    if (a.status === "offline" && b.status === "online") return 1;
+    if (a.status === "online" && b.status === "offline") {
+      return -1;
+    }
+    if (a.status === "offline" && b.status === "online") {
+      return 1;
+    }
     // If both users have the same status, sort alphabetically
     return a.username.localeCompare(b.username);
   });

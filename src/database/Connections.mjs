@@ -6,12 +6,16 @@ class MongoDBConnection {
   dbInstance = null;
 
   constructor() {
-    if (MongoDBConnection.dbInstance) return MongoDBConnection.dbInstance;
+    if (MongoDBConnection.dbInstance) {
+      return MongoDBConnection.dbInstance;
+    }
     this.loggerContext = "MongoDBConnection";
   }
 
   async connect() {
-    if (MongoDBConnection.dbInstance) return MongoDB.dbInstance;
+    if (MongoDBConnection.dbInstance) {
+      return MongoDB.dbInstance;
+    }
 
     await mongoose.connect(
       [

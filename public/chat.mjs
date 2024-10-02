@@ -1,14 +1,3 @@
-// function fetchHistoryMessages() {
-//   fetch("http://localhost:3000/api/auth/messages")
-//     .then((response) => response.json())
-//     .then((messages) => {
-//       displayMessages(messages);
-//     })
-//     .catch((error) => {
-//       console.error("Error fetching messages:", error);
-//     });
-// }
-//
 import { Banner } from "./common/banner.mjs";
 import { KEY_TOKEN } from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/parse-query-parameters.mjs";
@@ -97,7 +86,9 @@ function onSocketIOMessage(socketIOMessage) {
     $chatHistoryContainer.scrollTop() + $chatHistoryContainer.innerHeight() >=
     $chatHistoryContainer.prop("scrollHeight") - 1;
   const { author, content, timestamp } = socketIOMessage;
-  $chatHistoryContainer.append(messageBox(author, timestamp, content, "Registered"));
+  $chatHistoryContainer.append(
+    messageBox(author, timestamp, content, "Registered")
+  );
   if (scroll) {
     $chatHistoryContainer.scrollTop($chatHistoryContainer.prop("scrollHeight"));
   }
@@ -126,7 +117,7 @@ function onSocketIOConnectError(socket) {
         error.message
       );
     }
-  }
+  };
 }
 
 // async function populateHistoryMessages(anchorMessageId) {

@@ -10,6 +10,7 @@ class UserDataAccess {
 
     UserDataAccess.instance = this;
   }
+
   async createUser(user) {
     return await new UserModel(user).save();
   }
