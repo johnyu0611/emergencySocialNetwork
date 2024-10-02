@@ -93,22 +93,24 @@ async function onSocketIOConnect() {
   void banner.showSuccessMessage("Connected");
 }
 
-async function onSocketIOConnectError(error) {
-  console.error(error);
-  // From https://socket.io/docs/v4/client-socket-instance/#connect_error
-  if (socket.active) {
-    // Temporary failure, the socket will automatically try to reconnect
-    await banner.showWarningMessage(
-      "Cannot establish connection to server, retrying...",
-      error.message
-    );
-  } else {
-    // The connection was denied by the server
-    // In that case, `socket.connect()` must be manually called in order to reconnect
-    await banner.showErrorMessage(
-      "Server rejected the connection, please log in again",
-      error.message
-    );
+function onSocketIOConnectError(socket) {
+  return async function (error) {
+    console.error(error);
+    // From https://socket.io/docs/v4/client-socket-instance/#connect_error
+    if (socket.active) {
+      // Temporary failure, the socket will automatically try to reconnect
+      await banner.showWarningMessage(
+        "Cannot establish connection to server, retrying...",
+        error.message
+      );
+    } else {
+      // The connection was denied by the server
+      // In that case, `socket.connect()` must be manually called in order to reconnect
+      await banner.showErrorMessage(
+        "Server rejected the connection, please log in again",
+        error.message
+      );
+    }
   }
 }
 
@@ -122,7 +124,7 @@ $(document).ready(async () => {
   });
 
   socket.on("connect", onSocketIOConnect);
-  socket.on("connect_error", onSocketIOConnectError);
+  socket.on("connect_error", onSocketIOConnectError(socket));
   socket.on("join", onSocketIOReloadPage);
   socket.on("leave", onSocketIOReloadPage);
 

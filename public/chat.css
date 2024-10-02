@@ -8,10 +8,9 @@
 
 #banner {
   position: absolute;
-  top: 5px;
+  top: 70px;
   user-select: text;
   display: none;
-  z-index: 1;
 }
 
 nav {

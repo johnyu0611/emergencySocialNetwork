@@ -1,3 +1,10 @@
+#banner {
+  position: absolute;
+  top: 70px;
+  user-select: text;
+  display: none;
+}
+
 .public-chat-icon {
   position: absolute;
   top: 20px;
