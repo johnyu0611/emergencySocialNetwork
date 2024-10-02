@@ -69,9 +69,7 @@ async function onConfirmJoin(event) {
 
     modalConfirmJoin.hide();
     modalWelcome.show();
-
     localStorage.setItem(KEY_TOKEN, token);
-    location.href = "directory.html";
   } catch (error) {
     void banner.showError(error);
     console.error(error);

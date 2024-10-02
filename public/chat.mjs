@@ -94,7 +94,7 @@ function onSocketIOMessage(socketIOMessage) {
     $chatHistoryContainer.scrollTop() + $chatHistoryContainer.innerHeight() >=
     $chatHistoryContainer.prop("scrollHeight") - 1;
   const { author, content, timestamp } = socketIOMessage;
-  $chatHistoryContainer.append(messageBox(author, timestamp, content));
+  $chatHistoryContainer.append(messageBox(author, timestamp, content, "Registered"));
   if (scroll) {
     $chatHistoryContainer.scrollTop($chatHistoryContainer.prop("scrollHeight"));
   }
