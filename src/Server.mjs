@@ -1,13 +1,16 @@
 import { JWT } from "@/auth/JWT.mjs";
 import { config } from "@/config/Config.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { registerRootRouter } from "@/router/Root.mjs";
+import { registerRoutes } from "@/route/Register.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
+import { mongoDBConnection } from "@/database/Connections.mjs";
+import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
+import { registerDirectoryChannel } from "@/socket/RegisterDirectoryChannel.mjs";
 
 const loggerContext = "Server";
 
@@ -39,18 +42,19 @@ export async function runServer() {
   }
 
   // Set up MongoDB
-  await mongoose.connect(
-    [
-      "mongodb+srv://",
-      `${config.environment.databaseUser}:${config.environment.databasePassword}`,
-      `@${config.environment.databaseCluster}/${config.environment.databaseName}`,
-      `?retryWrites=true&w=majority&appName=${config.environment.databaseAppName}`
-    ].join("")
-  );
-  logger.info(
-    { context: loggerContext },
-    `Connected to MongoDB as ${config.environment.databaseUser}`
-  );
+ await mongoDBConnection.connect();
+  // await mongoose.connect(
+  //   [
+  //     "mongodb+srv://",
+  //     `${config.environment.databaseUser}:${config.environment.databasePassword}`,
+  //     `@${config.environment.databaseCluster}/${config.environment.databaseName}`,
+  //     `?retryWrites=true&w=majority&appName=${config.environment.databaseAppName}`
+  //   ].join("")
+  // );
+  // logger.info(
+  //   { context: loggerContext },
+  //   `Connected to MongoDB as ${config.environment.databaseUser}`
+  // );
 
   // Create JWT instance
   const jwt = new JWT();
@@ -58,7 +62,9 @@ export async function runServer() {
   // Create password hasher instance
   const passwordHasher = new PasswordHasher(config.security.passwordHash);
 
-  registerRootRouter({ app, io, jwt, passwordHasher });
+  const chatroomChannel = registerChatroomChannel(io, jwt);
+  registerRoutes({ app, io, jwt, passwordHasher, chatroomChannel });
+  registerDirectoryChannel(io, jwt);
 
   const { port } = config.server;
   server.listen(port, () => {

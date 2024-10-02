@@ -25,7 +25,15 @@ export const TokenSchema = z
   .trim()
   .min(1, { message: "Token cannot be empty" });
 
+export const ChatroomIdSchema = z.string().uuid();
+export const ChatroomTitleSchema = z.string();
+export const MessageContentSchema = z.string();
+
+export const TimestampSchema = z.date();
+
 export const ErrorReasonSchema = z
   .string({ message: "Error reason must be a string" })
   .trim()
   .min(1, { message: "Error reason cannot be empty" });
+
+export const StatusSchema = z.string();

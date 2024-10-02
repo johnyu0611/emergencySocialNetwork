@@ -1,7 +1,8 @@
 import {
   PasswordSchema,
   TokenSchema,
-  UsernameSchema
+  UsernameSchema,
+  StatusSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 
@@ -23,3 +24,26 @@ export const PostRequestSchema = z.object({
 export const PostResponseSchema = z.object({
   token: TokenSchema
 });
+
+/**
+* `GET /api/users`
+*
+* Request payload schema
+*/
+export const GetRequestSchema = z.object({});
+
+
+/**
+* `GET /api/users`
+*
+* Response payload schema
+*/
+export const GetResponseSchema = z.object({
+ users: z.array(
+   z.object({
+     username: UsernameSchema,
+     status: StatusSchema
+   })
+ )
+});
+

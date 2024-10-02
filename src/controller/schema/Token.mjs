@@ -23,3 +23,17 @@ export const PostRequestSchema = z.object({
 export const PostResponseSchema = z.object({
   token: TokenSchema
 });
+
+/**
+ * `DELETE /api/tokens`
+ *
+ * Request payload schema
+ */
+export const DeleteRequestSchema = z.object({});
+
+/**
+ * `DELETE /api/tokens`
+ *
+ * Response payload schema
+ */
+export const DeleteResponseSchema = z.object({});

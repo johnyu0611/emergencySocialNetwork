@@ -33,24 +33,21 @@ export default [{
 
         "accessor-pairs": ["error", {
             setWithoutGet: true,
-            getWithoutSet: true,
+            getWithoutSet: false,
         }],
 
         "arrow-body-style": "error",
         "block-scoped-var": "error",
         camelcase: "error",
-        "class-methods-use-this": "error",
 
-        "consistent-return": ["error", {
-            treatUndefinedAsUnspecified: true,
-        }],
+        "consistent-return": ["error"],
 
         "consistent-this": "error",
         curly: "error",
         "default-case-last": "error",
         "default-param-last": "error",
         "dot-notation": "error",
-        eqeqeq: "error",
+        eqeqeq: ["error", "smart"],
         "grouped-accessor-pairs": "error",
         "guard-for-in": "error",
         "init-declarations": "error",

@@ -1,3 +1,5 @@
+import { HTTPError } from "../common/errors.mjs"
+
 export async function callRestfulApi({
   method,
   endpoint,
@@ -35,28 +37,21 @@ export async function callRestfulApiGet({
 }
 
 async function handleRestfulResponse(response, handlerMap) {
-  let throwIfError = true;
-
   if (
     typeof handlerMap === "object" &&
-    handlerMap.hasOwnProperty(response.status) &&
+    Object.hasOwn(handlerMap, response.status) &&
     typeof handlerMap[response.status] === "function"
   ) {
-    handlerMap[response.status](response);
-    throwIfError = false;
+    return handlerMap[response.status](response);
   }
 
   if (response.ok) {
     return await response.json();
   }
 
-  if (!throwIfError) {
-    return;
-  }
-
   if (response.headers.get("Content-Type")?.includes("application/json")) {
     const data = await response.json();
-    throw new Error(data.reason ?? JSON.stringify(data));
+    throw new HTTPError(response.status, data.reason ?? JSON.stringify(data));
   }
-  throw new Error(`${response.status} (${response.statusText})`);
+  throw new HTTPError(response.status, response.statusText);
 }

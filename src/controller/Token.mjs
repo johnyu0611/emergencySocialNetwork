@@ -1,36 +1,42 @@
-import { AbstractController } from "@/controller/AbstractController.mjs";
+import { AbstractController } from "@/controller/Abstract.mjs";
 import {
+  DeleteRequestSchema,
+  DeleteResponseSchema,
   PostRequestSchema,
   PostResponseSchema
-} from "@/controller/schema/Tokens.mjs";
+} from "@/controller/schema/Token.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { UserModal } from "@/model/User.mjs";
+import { UserModel } from "@/model/User.mjs";
+import { userDAO } from "@/database/UserDataAccess.mjs";
 import {
   HTTP_CREATED,
   HTTP_FORBIDDEN,
-  HTTP_NOT_FOUND,
-  HTTP_UNIMPLEMENTED
+  HTTP_NOT_FOUND
 } from "@/util/Constants.mjs";
-import { json } from "express";
 
 export class TokenController extends AbstractController {
-  static #initializationSymbol = Symbol();
+  static #initializationSymbol = Symbol("");
   static #instance = null;
 
-  constructor({ upstreamRouter, path, context, symbol }) {
+  constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== TokenController.#initializationSymbol) {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
-    super({ upstreamRouter, path, context });
-    this.router.use(json());
+    super({ upstreamRouter, path, middlewareMap, context });
   }
 
-  static getInstance({ upstreamRouter, context = {}, path = "/tokens" }) {
-    if (TokenController.#instance == null) {
+  static getInstance(
+    upstreamRouter = undefined,
+    context = {},
+    middlewareMap = {},
+    path = "/tokens"
+  ) {
+    if (!TokenController.#instance) {
       TokenController.#instance = new TokenController({
         upstreamRouter,
         path,
+        middlewareMap,
         context,
         symbol: TokenController.#initializationSymbol
       });
@@ -48,7 +54,7 @@ export class TokenController extends AbstractController {
     const { username, password } = payload;
 
     let hashedPassword = await passwordHasher.hash("");
-    const existingUser = await UserModal.findOne({ username });
+    const existingUser = await userDAO.getUserByUsername({ username });
 
     if (existingUser) {
       hashedPassword = existingUser.password;
@@ -60,6 +66,8 @@ export class TokenController extends AbstractController {
       throw new HTTPError(HTTP_FORBIDDEN, "Incorrect password");
     }
 
+    await userDAO.getUserOnline({ username });
+    
     const token = jwt.encode({ username });
     const responseBody = PostResponseSchema.parse({
       token
@@ -69,9 +77,17 @@ export class TokenController extends AbstractController {
     logger.info({ context: loggerContext }, `User ${username} has logged in`);
   }
 
-  handleDelete(req, res) {
+  async handleDelete(req, res) {
     const loggerContext = "TokenControllerDELETEHandler";
-    const { jwt } = this.context;
-    throw new HTTPError(HTTP_UNIMPLEMENTED, "Unimplemented");
+    const { username } = req.auth;
+
+    const payload = DeleteRequestSchema.parse(req.body);
+    logger.debug({ context: loggerContext }, "Request received: %o", payload);
+
+    await userDAO.getUserOffline({ username });
+
+    const responseBody = DeleteResponseSchema.parse({});
+    res.json(responseBody);
+    logger.info({ context: loggerContext }, `User ${username} has logged out`);
   }
 }

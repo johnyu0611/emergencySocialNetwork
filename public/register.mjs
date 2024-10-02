@@ -1,5 +1,6 @@
 import { bannedUsernameSet } from "./common/banned-username-set.mjs";
 import { Banner } from "./common/banner.mjs";
+import { KEY_TOKEN } from "./common/constants.mjs";
 import { FormValidator } from "./common/form-validator.mjs";
 import { createUser } from "./lib/create-user.mjs";
 import { login } from "./lib/login.mjs";
@@ -42,16 +43,15 @@ async function onSubmit(event) {
   const password = $inputPassword.val();
   const payload = { username, password };
   try {
-    const result = await login(payload, {
-      201: () => {
-        banner.showErrorMessage("User exists");
-      },
-      404: () => {
-        modalConfirmJoin.show();
-      }
-    });
+    const { token } = await login(payload);
+    localStorage.setItem(KEY_TOKEN, token);
+    location.href = "directory.html";
   } catch (error) {
-    void banner.showError(error);
+    if (error.status === 404) {
+      modalConfirmJoin.show();
+      return;
+    }
+    banner.showError(error);
     console.error(error);
   }
 }
@@ -64,11 +64,14 @@ async function onConfirmJoin(event) {
     const password = $inputPassword.val();
 
     const payload = { username, password };
-    const result = await createUser(payload);
+    const { token } = await createUser(payload);
     $form[0].reset();
 
     modalConfirmJoin.hide();
     modalWelcome.show();
+
+    localStorage.setItem(KEY_TOKEN, token);
+    location.href = "directory.html";
   } catch (error) {
     void banner.showError(error);
     console.error(error);
@@ -78,6 +81,7 @@ async function onConfirmJoin(event) {
 function onConfirmWelcome(event) {
   event.preventDefault();
   modalWelcome.hide();
+  location.href = "directory.html";
 }
 
 function onUsernameInputChange() {

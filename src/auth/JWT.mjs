@@ -3,9 +3,6 @@ import { config } from "@/config/Config.mjs";
 import jwt from "jsonwebtoken";
 
 export class JWT {
-  #signOptions;
-  #verifyOptions;
-
   constructor() {
     this.preSharedKey = config.environment.jwtPreSharedKey;
     this.signOptions = config.security.jwt.signOptions;

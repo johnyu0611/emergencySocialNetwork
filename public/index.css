@@ -15,8 +15,9 @@
 }
 
 .container {
-  width: 500px;
+  width: 95vw;
   height: 400px;
+  max-width: 500px;
   margin: 50px auto;
   padding: 30px;
   background-color: rgba(255, 255, 255, 0.6);

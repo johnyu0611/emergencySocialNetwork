@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="icon" href="asset/sos-icon.png" type="image/x-icon">
+    <link href="./common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="directory.css" rel="stylesheet" />
+    <title>ESN Directory</title>
+    <script src="directory.mjs" type="module"></script>
+  </head>
+
+  <body>
+    <div class="background"></div>
+      <div class="contain">
+        <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary navlocation">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+              <img src="asset/sos.gif" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+              ESN Community
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item fs-6">
+                  <a class="nav-link active" aria-current="page" href="#" onclick="location.href='chat.html?roomId=00000000-0000-0000-0000-000000000000'">
+                    <i class="fa-regular fa-message" style="color: green;"></i>
+                    Chat 
+                  </a>
+                </li>
+                <li class="nav-item fs-6">
+                  <a class="nav-link active" aria-current="page" href="#" id="button-logout">
+                    <i class="fas fa-sign-out-alt" style="color: red;"></i>
+                    Logout 
+                  </a>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <div class="container user-directory">
+          <div class="row">
+              <div class="col-12 col-md-6 offset-md-3">
+                  <div class="card mb-4">
+                      <div class="card-header text-center">
+                          <h2>ESN Directory</h2>
+                      </div>
+                      <div class="card-body scrollable-list">
+                          <ul id="user-list" class="list-group">
+                              <!-- Users will be inserted here dynamically -->
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+    </div>
+
+      
+  </div>
+    <!-- <div class="home-container">
+      <img src="resources/sos.gif" alt="SOS Logo" class="logo" />
+      <h1>Emergency Social Network</h1>
+      <button class="join-btn" onclick="location.href='register/register.html'">JOIN</button>
+    </div> -->
+  </body>
+</html>
