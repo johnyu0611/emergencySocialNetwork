@@ -1,6 +1,6 @@
 import { JWT } from "@/auth/JWT.mjs";
 import { config } from "@/config/Config.mjs";
-import { mongoDBConnection } from "@/database/Connections.mjs";
+import { MongoDBConnection } from "@/database/Connections.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { registerRoutes } from "@/route/Register.mjs";
 import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
@@ -41,7 +41,13 @@ export async function runServer() {
   }
 
   // Set up MongoDB
-  await mongoDBConnection.connect();
+  await MongoDBConnection.connect(
+    config.environment.databaseUser,
+    config.environment.databasePassword,
+    config.environment.databaseCluster,
+    config.environment.databaseName,
+    config.environment.databaseAppName
+  )
   // await mongoose.connect(
   //   [
   //     "mongodb+srv://",

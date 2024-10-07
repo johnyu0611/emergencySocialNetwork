@@ -5,7 +5,7 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/User.mjs";
-import { userDAO } from "@/database/UserDataAccess.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { HTTP_CONFLICT, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
@@ -13,12 +13,14 @@ import { HTTP_CONFLICT, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
 export class UserController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== UserController.#initializationSymbol) {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
     super({ upstreamRouter, path, middlewareMap, context });
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -47,13 +49,13 @@ export class UserController extends AbstractController {
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
     const { username, password } = payload;
-    const existingUser = await userDAO.getUserByUsername({ username });
+    const existingUser = await this.#userDAO.findByUsername({ username });
 
     if (existingUser) {
       throw new HTTPError(HTTP_CONFLICT, "User already exists");
     }
 
-    await userDAO.createUser({
+    await this.#userDAO.create({
       username,
       password: await passwordHasher.hash(password)
     });
@@ -62,7 +64,7 @@ export class UserController extends AbstractController {
     const responseBody = PostResponseSchema.parse({
       token
     });
-    await userDAO.getUserOnline({ username });
+    await this.#userDAO.update({ username }, { status: "online" });
 
     res.status(HTTP_CREATED);
     res.json(responseBody);
@@ -75,7 +77,7 @@ export class UserController extends AbstractController {
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const users = await userDAO.getAllUsers();
+    const users = await this.#userDAO.findAll();
 
     const responseBody = GetResponseSchema.parse({
       users

@@ -5,19 +5,21 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/ChatroomMessage.mjs";
-import { messageDAO } from "@/database/MessageDataAccess.mjs";
+import { MessageDataAccess } from "@/model/Message.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { HTTP_CREATED } from "@/util/Constants.mjs";
 
 export class ChatroomMessageController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
+  #messageDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== ChatroomMessageController.#initializationSymbol) {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
     super({ upstreamRouter, path, middlewareMap, context });
+    this.#messageDAO = MessageDataAccess.getInstance();
   }
 
   static getInstance(
@@ -46,7 +48,7 @@ export class ChatroomMessageController extends AbstractController {
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const messages = await messageDAO.getAllMessage();
+    const messages = await this.#messageDAO.findAll();
 
     const responseBody = GetResponseSchema.parse({
       messages
@@ -69,7 +71,7 @@ export class ChatroomMessageController extends AbstractController {
       content,
       timestamp: Date.now()
     };
-    await messageDAO.saveMessage(message);
+    await this.#messageDAO.create(message);
 
     const { chatroomChannel } = this.context;
     chatroomChannel.emit("message", message);

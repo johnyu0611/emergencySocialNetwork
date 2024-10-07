@@ -5,7 +5,7 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/Token.mjs";
-import { userDAO } from "@/database/UserDataAccess.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import {
@@ -17,12 +17,14 @@ import {
 export class TokenController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== TokenController.#initializationSymbol) {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
     super({ upstreamRouter, path, middlewareMap, context });
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -53,7 +55,7 @@ export class TokenController extends AbstractController {
     const { username, password } = payload;
 
     let hashedPassword = await passwordHasher.hash("");
-    const existingUser = await userDAO.getUserByUsername({ username });
+    const existingUser = await this.#userDAO.findByUsername({ username });
 
     if (existingUser) {
       hashedPassword = existingUser.password;
@@ -65,7 +67,7 @@ export class TokenController extends AbstractController {
       throw new HTTPError(HTTP_FORBIDDEN, "Incorrect password");
     }
 
-    await userDAO.getUserOnline({ username });
+    await this.#userDAO.update({ username }, { status: "online" });
 
     const token = jwt.encode({ username });
     const responseBody = PostResponseSchema.parse({
@@ -83,7 +85,7 @@ export class TokenController extends AbstractController {
     const payload = DeleteRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    await userDAO.getUserOffline({ username });
+    await this.#userDAO.update({ username }, { status: "offline" });
 
     const responseBody = DeleteResponseSchema.parse({});
     res.json(responseBody);

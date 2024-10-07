@@ -1,15 +1,16 @@
-import { userDAO } from "@/database/UserDataAccess.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
 
 export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   const subChannel = io.of(namespace);
+  const userDAO = UserDataAccess.getInstance();
   subChannel.use(authSocketIO(jwt));
 
   async function handleConnect(socket) {
     const loggerContext = "ConnectedOnConnectHandler";
     const { username } = socket.handshake.auth;
-    await userDAO.getUserOnline({ username });
+    await userDAO.update({ username }, { status: "online" });
     subChannel.emit("join", username);
     logger.info({ context: loggerContext }, `User ${username} connected`);
   }
@@ -17,7 +18,7 @@ export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   async function handleDisconnect(socket) {
     const loggerContext = "ConnectedOnDisconnectHandler";
     const { username } = socket.handshake.auth;
-    await userDAO.getUserOffline({ username });
+    await userDAO.update({ username }, { status: "offline" });
     subChannel.emit("leave", username);
     logger.info({ context: loggerContext }, `User ${username} disconnected`);
   }

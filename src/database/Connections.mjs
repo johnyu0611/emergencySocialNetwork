@@ -1,46 +1,65 @@
 import { config } from "@/config/Config.mjs";
 import { logger } from "@/log/Logger.mjs";
+import { AbstractDatabase } from "@/database/Abstract.mjs";
 import mongoose from "mongoose";
 
-class MongoDBConnection {
-  dbInstance = null;
+export class MongoDBConnection extends AbstractDatabase{
+  static #instance = null;
+  static #initializationSymbol = '*';
+  static #loggerContext = "MongoDBConnection";
+  static #user
+  static #password
+  static #dbCluster;
+  static #dbName;
+  static #dbAppName;
 
-  constructor() {
-    if (MongoDBConnection.dbInstance) {
-      return MongoDBConnection.dbInstance;
+  constructor({ user, password, dbCluster, dbName, dbAppName, symbol, dbType }) {
+    if (symbol !== MongoDBConnection.#initializationSymbol) {
+      throw new Error("Cannot initialize a singleton MongoDBConnection class via constructor");
     }
-    this.loggerContext = "MongoDBConnection";
+    super({ dbType:dbType });
+    MongoDBConnection.#user = user;
+    MongoDBConnection.#password = password;
+    MongoDBConnection.#dbCluster = dbCluster;
+    MongoDBConnection.#dbName = dbName;
+    MongoDBConnection.#dbAppName = dbAppName;
   }
 
-  async connect() {
-    if (MongoDBConnection.dbInstance) {
-      return MongoDB.dbInstance;
+  static async connect(user, password, dbCluster, dbName, dbAppName) {
+    if (!MongoDBConnection.#instance) {
+      new MongoDBConnection({ 
+        user, 
+        password, 
+        dbCluster, 
+        dbName, 
+        dbAppName, 
+        symbol: MongoDBConnection.#initializationSymbol, 
+        dbType: 'MongoDB'});
+
+      await mongoose.connect(
+        [
+          "mongodb+srv://",
+          `${MongoDBConnection.#user}:${MongoDBConnection.#password}`,
+          `@${MongoDBConnection.#dbCluster}/${MongoDBConnection.#dbName}`,
+          `?retryWrites=true&w=majority&appName=${MongoDBConnection.#dbAppName}`
+        ].join("")
+      );
+
+      MongoDBConnection.#instance = mongoose.connection;
+      logger.info(
+        { context: MongoDBConnection.#loggerContext },
+        `Connected to MongoDB as ${MongoDBConnection.#user}`
+      );
     }
 
-    await mongoose.connect(
-      [
-        "mongodb+srv://",
-        `${config.environment.databaseUser}:${config.environment.databasePassword}`,
-        `@${config.environment.databaseCluster}/${config.environment.databaseName}`,
-        `?retryWrites=true&w=majority&appName=${config.environment.databaseAppName}`
-      ].join("")
-    );
-    this.dbInstance = mongoose.connection;
-    logger.info(
-      { context: this.loggerContext },
-      `Connected to MongoDB as ${config.environment.databaseUser}`
-    );
-
-    return this.dbInstance;
+    return MongoDBConnection.#instance;
   }
 
   async closeConnection() {
-    if (this.dbInstance) {
-      await this.dbInstance.close();
-      this.dbInstance = null;
-      logger.info({ context: loggerContext }, "Disconnected to MongoDB");
+    if (MongoDBConnection.#instance) {
+      await MongoDBConnection.#instance.close();
+      MongoDBConnection.#instance = null;
+      logger.info({ context: MongoDBConnection.#loggerContext }, "Disconnected to MongoDB");
     }
   }
 }
-
-export const mongoDBConnection = new MongoDBConnection();
