@@ -55,7 +55,17 @@ export class MongoDBConnection extends AbstractDatabase{
     return MongoDBConnection.#instance;
   }
 
-  async closeConnection() {
+  // reserved for test db
+  static async getNewConnection(user, password, dbCluster, dbName, dbAppName) {
+    if (MongoDBConnection.#instance) {
+      MongoDBConnection.#instance.closeConnection(); // discard old instance and initiate a new one
+      MongoDBConnection.#instance = null;
+    }
+
+    MongoDBConnection.connect(user, password, dbCluster, dbName, dbAppName)
+  }
+
+  static async closeConnection() {
     if (MongoDBConnection.#instance) {
       await MongoDBConnection.#instance.close();
       MongoDBConnection.#instance = null;
