@@ -10,9 +10,13 @@ export const UserSchema = new Schema({
     type: String,
     required: true
   },
+  isOnline: {
+    type: Boolean,
+    default: true
+  },
   status: {
     type: String,
-    enum: ["online", "offline"],
-    default: "online"
+    enum: ["OK", "Help", "Emergency", "Undefined"],
+    default: "Undefined"
   }
 });

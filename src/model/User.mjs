@@ -29,8 +29,8 @@ export class UserDataAccess extends AbstractModel{
 
   async findAll() {
     return await this.model.find({})
-      .sort({ status: -1, username: 1 })
-      .select("username status");
+      .sort({ isOnline: -1, username: 1 })
+      .select("username isOnline");
   }
 
   async findByUsername({ username }) {

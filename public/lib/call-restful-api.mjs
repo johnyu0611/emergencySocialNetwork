@@ -32,7 +32,6 @@ export async function callRestfulApiGet({
       Authorization: token ? `Bearer ${token}` : undefined
     })
   });
-
   return await handleRestfulResponse(response, handlerMap);
 }
 

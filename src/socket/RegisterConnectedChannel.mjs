@@ -10,7 +10,7 @@ export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   async function handleConnect(socket) {
     const loggerContext = "ConnectedOnConnectHandler";
     const { username } = socket.handshake.auth;
-    await userDAO.update({ username }, { status: "online" });
+    await userDAO.update({ username }, { isOnline: true });
     subChannel.emit("join", username);
     logger.info({ context: loggerContext }, `User ${username} connected`);
   }
@@ -18,7 +18,7 @@ export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   async function handleDisconnect(socket) {
     const loggerContext = "ConnectedOnDisconnectHandler";
     const { username } = socket.handshake.auth;
-    await userDAO.update({ username }, { status: "offline" });
+    await userDAO.update({ username }, { isOnline: false });
     subChannel.emit("leave", username);
     logger.info({ context: loggerContext }, `User ${username} disconnected`);
   }

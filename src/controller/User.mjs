@@ -64,7 +64,7 @@ export class UserController extends AbstractController {
     const responseBody = PostResponseSchema.parse({
       token
     });
-    await this.#userDAO.update({ username }, { status: "online" });
+    await this.#userDAO.update({ username }, { isOnline: true });
 
     res.status(HTTP_CREATED);
     res.json(responseBody);

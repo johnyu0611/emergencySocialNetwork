@@ -17,6 +17,7 @@ async function onPost() {
     await sleep(50);
     const token = localStorage.getItem(KEY_TOKEN);
     const response = await getESNDirectory({ token });
+    console.log(response);
     const users = response.users;
     displayUsers(users);
   } catch (e) {
@@ -28,10 +29,10 @@ function displayUsers(users) {
   const userList = document.getElementById("user-list");
   userList.innerHTML = "";
   const sortedUsers = users.sort((a, b) => {
-    if (a.status === "online" && b.status === "offline") {
+    if (a.isOnline === true && b.isOnline === false) {
       return -1;
     }
-    if (a.status === "offline" && b.status === "online") {
+    if (a.isOnline === false && b.isOnline === true) {
       return 1;
     }
     // If both users have the same status, sort alphabetically
@@ -44,7 +45,7 @@ function displayUsers(users) {
     listItem.style.display = "flex";
     listItem.style.justifyContent = "space-between";
     listItem.style.alignItems = "center";
-    listItem.style.color = user.status === "online" ? "green" : "grey";
+    listItem.style.color = user.isOnline === true ? "green" : "grey";
 
     // Create a span for the username
     const usernameSpan = document.createElement("span");
@@ -57,7 +58,7 @@ function displayUsers(users) {
     statusDot.style.borderRadius = "50%";
     statusDot.style.display = "inline-block";
     statusDot.style.backgroundColor =
-      user.status === "online" ? "green" : "grey";
+      user.isOnline === true ? "green" : "grey";
 
     // Append the username and status dot to the list item
     listItem.appendChild(usernameSpan);

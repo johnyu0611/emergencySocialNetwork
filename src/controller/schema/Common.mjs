@@ -36,4 +36,4 @@ export const ErrorReasonSchema = z
   .trim()
   .min(1, { message: "Error reason cannot be empty" });
 
-export const StatusSchema = z.string();
+export const IsOnlineSchema = z.boolean();

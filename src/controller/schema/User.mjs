@@ -1,6 +1,6 @@
 import {
   PasswordSchema,
-  StatusSchema,
+  IsOnlineSchema,
   TokenSchema,
   UsernameSchema
 } from "@/controller/schema/Common.mjs";
@@ -41,7 +41,7 @@ export const GetResponseSchema = z.object({
   users: z.array(
     z.object({
       username: UsernameSchema,
-      status: StatusSchema
+      isOnline: IsOnlineSchema
     })
   )
 });

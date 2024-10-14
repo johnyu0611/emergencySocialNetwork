@@ -67,7 +67,7 @@ export class TokenController extends AbstractController {
       throw new HTTPError(HTTP_FORBIDDEN, "Incorrect password");
     }
 
-    await this.#userDAO.update({ username }, { status: "online" });
+    await this.#userDAO.update({ username }, { isOnline: true });
 
     const token = jwt.encode({ username });
     const responseBody = PostResponseSchema.parse({
@@ -85,7 +85,7 @@ export class TokenController extends AbstractController {
     const payload = DeleteRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    await this.#userDAO.update({ username }, { status: "offline" });
+    await this.#userDAO.update({ username }, { isOnline: false });
 
     const responseBody = DeleteResponseSchema.parse({});
     res.json(responseBody);
