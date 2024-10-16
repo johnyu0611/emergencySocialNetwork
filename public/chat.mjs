@@ -183,7 +183,6 @@ $(document).ready(async () => {
 
   try {
     const { messages } = await getHistoryMessages({ token, roomId });
-    console.log(messages);
     $chatHistoryContainer.append(
       messages.map((e) =>
         messageBox(e.author, e.timestamp, e.content, "Registered")

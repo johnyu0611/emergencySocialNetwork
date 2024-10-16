@@ -1,14 +1,16 @@
 import { MessageSchema } from "@/database/schema/Message.mjs";
-import mongoose from "mongoose";
 import { AbstractModel } from "@/model/Abstract.mjs";
+import mongoose from "mongoose";
 
 export class MessageDataAccess extends AbstractModel {
-  static #initializationSymbol = '~';
+  static #initializationSymbol = "~";
   static #instance = null;
 
   constructor(collectionName, schema, symbol) {
     if (symbol !== MessageDataAccess.#initializationSymbol) {
-      throw new Error("Cannot initialize a singleton MessageDataAccess class via constructor");
+      throw new Error(
+        "Cannot initialize a singleton MessageDataAccess class via constructor"
+      );
     }
     super({ collectionName, schema });
     MessageDataAccess.#instance = this;
@@ -17,7 +19,11 @@ export class MessageDataAccess extends AbstractModel {
 
   static getInstance() {
     if (!MessageDataAccess.#instance) {
-      new MessageDataAccess('messages', MessageSchema, MessageDataAccess.#initializationSymbol);
+      new MessageDataAccess(
+        "messages",
+        MessageSchema,
+        MessageDataAccess.#initializationSymbol
+      );
     }
     return MessageDataAccess.#instance;
   }

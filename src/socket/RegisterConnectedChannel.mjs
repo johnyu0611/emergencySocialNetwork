@@ -1,6 +1,6 @@
-import { UserDataAccess } from "@/model/User.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 
 export function registerConnectedChannel(io, jwt, namespace = "/connected") {
   const subChannel = io.of(namespace);

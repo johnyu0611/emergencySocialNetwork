@@ -1,23 +1,33 @@
 import { config } from "@/config/Config.mjs";
-import { logger } from "@/log/Logger.mjs";
 import { AbstractDatabase } from "@/database/Abstract.mjs";
+import { logger } from "@/log/Logger.mjs";
 import mongoose from "mongoose";
 
-export class MongoDBConnection extends AbstractDatabase{
+export class MongoDBConnection extends AbstractDatabase {
   static #instance = null;
-  static #initializationSymbol = '*';
+  static #initializationSymbol = "*";
   static #loggerContext = "MongoDBConnection";
-  static #user
-  static #password
+  static #user;
+  static #password;
   static #dbCluster;
   static #dbName;
   static #dbAppName;
 
-  constructor({ user, password, dbCluster, dbName, dbAppName, symbol, dbType }) {
+  constructor({
+    user,
+    password,
+    dbCluster,
+    dbName,
+    dbAppName,
+    symbol,
+    dbType
+  }) {
     if (symbol !== MongoDBConnection.#initializationSymbol) {
-      throw new Error("Cannot initialize a singleton MongoDBConnection class via constructor");
+      throw new Error(
+        "Cannot initialize a singleton MongoDBConnection class via constructor"
+      );
     }
-    super({ dbType:dbType });
+    super({ dbType: dbType });
     MongoDBConnection.#user = user;
     MongoDBConnection.#password = password;
     MongoDBConnection.#dbCluster = dbCluster;
@@ -27,14 +37,15 @@ export class MongoDBConnection extends AbstractDatabase{
 
   static async connect(user, password, dbCluster, dbName, dbAppName) {
     if (!MongoDBConnection.#instance) {
-      new MongoDBConnection({ 
-        user, 
-        password, 
-        dbCluster, 
-        dbName, 
-        dbAppName, 
-        symbol: MongoDBConnection.#initializationSymbol, 
-        dbType: 'MongoDB'});
+      new MongoDBConnection({
+        user,
+        password,
+        dbCluster,
+        dbName,
+        dbAppName,
+        symbol: MongoDBConnection.#initializationSymbol,
+        dbType: "MongoDB"
+      });
 
       await mongoose.connect(
         [
@@ -62,14 +73,17 @@ export class MongoDBConnection extends AbstractDatabase{
       MongoDBConnection.#instance = null;
     }
 
-    MongoDBConnection.connect(user, password, dbCluster, dbName, dbAppName)
+    MongoDBConnection.connect(user, password, dbCluster, dbName, dbAppName);
   }
 
   static async closeConnection() {
     if (MongoDBConnection.#instance) {
       await MongoDBConnection.#instance.close();
       MongoDBConnection.#instance = null;
-      logger.info({ context: MongoDBConnection.#loggerContext }, "Disconnected to MongoDB");
+      logger.info(
+        { context: MongoDBConnection.#loggerContext },
+        "Disconnected to MongoDB"
+      );
     }
   }
 }

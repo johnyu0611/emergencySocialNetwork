@@ -5,9 +5,9 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/Token.mjs";
-import { UserDataAccess } from "@/model/User.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import {
   HTTP_CREATED,
   HTTP_FORBIDDEN,

@@ -47,7 +47,7 @@ export async function runServer() {
     config.environment.databaseCluster,
     config.environment.databaseName,
     config.environment.databaseAppName
-  )
+  );
   // await mongoose.connect(
   //   [
   //     "mongodb+srv://",

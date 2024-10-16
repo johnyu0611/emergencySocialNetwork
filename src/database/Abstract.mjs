@@ -7,7 +7,7 @@ export class AbstractDatabase {
   static #errorMessageMethodNotAllowed = "Abstract method not allowed";
   #dbType;
 
-  constructor({ dbType=undefined }) {
+  constructor({ dbType = undefined }) {
     if (this.constructor === AbstractDatabase) {
       throw new Error("Cannot instantiate an abstract db");
     }

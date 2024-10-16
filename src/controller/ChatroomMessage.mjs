@@ -5,8 +5,8 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/ChatroomMessage.mjs";
-import { MessageDataAccess } from "@/model/Message.mjs";
 import { logger } from "@/log/Logger.mjs";
+import { MessageDataAccess } from "@/model/Message.mjs";
 import { HTTP_CREATED } from "@/util/Constants.mjs";
 
 export class ChatroomMessageController extends AbstractController {

@@ -17,7 +17,6 @@ async function onPost() {
     await sleep(50);
     const token = localStorage.getItem(KEY_TOKEN);
     const response = await getESNDirectory({ token });
-    console.log(response);
     const users = response.users;
     displayUsers(users);
   } catch (e) {
@@ -57,8 +56,7 @@ function displayUsers(users) {
     statusDot.style.width = "10px";
     statusDot.style.borderRadius = "50%";
     statusDot.style.display = "inline-block";
-    statusDot.style.backgroundColor =
-      user.isOnline === true ? "green" : "grey";
+    statusDot.style.backgroundColor = user.isOnline === true ? "green" : "grey";
 
     // Append the username and status dot to the list item
     listItem.appendChild(usernameSpan);
@@ -112,7 +110,7 @@ function onSocketIOConnectError(socket) {
         error.message
       );
     }
-  }
+  };
 }
 
 $(document).ready(async () => {

@@ -3,13 +3,15 @@ import { AbstractModel } from "@/model/Abstract.mjs";
 import mongoose from "mongoose";
 import { model } from "mongoose";
 
-export class UserDataAccess extends AbstractModel{
-  static #initializationSymbol = '%';
+export class UserDataAccess extends AbstractModel {
+  static #initializationSymbol = "%";
   static #instance = null;
 
   constructor(collectionName, schema, symbol) {
     if (symbol !== UserDataAccess.#initializationSymbol) {
-      throw new Error("Cannot initialize a singleton UserDataAccess class via constructor");
+      throw new Error(
+        "Cannot initialize a singleton UserDataAccess class via constructor"
+      );
     }
     super({ collectionName, schema });
     UserDataAccess.#instance = this;
@@ -18,7 +20,11 @@ export class UserDataAccess extends AbstractModel{
 
   static getInstance() {
     if (!UserDataAccess.#instance) {
-      new UserDataAccess('users', UserSchema, UserDataAccess.#initializationSymbol);
+      new UserDataAccess(
+        "users",
+        UserSchema,
+        UserDataAccess.#initializationSymbol
+      );
     }
     return UserDataAccess.#instance;
   }
@@ -28,7 +34,8 @@ export class UserDataAccess extends AbstractModel{
   }
 
   async findAll() {
-    return await this.model.find({})
+    return await this.model
+      .find({})
       .sort({ isOnline: -1, username: 1 })
       .select("username isOnline");
   }
@@ -36,7 +43,7 @@ export class UserDataAccess extends AbstractModel{
   async findByUsername({ username }) {
     return await this.model.findOne({ username });
   }
-  
+
   async update({ username }, updateFields) {
     return await this.model.findOneAndUpdate({ username }, updateFields);
   }
