@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "DEVELOPMENT=true node --import ./src/ESMLoader.mjs ./src/main.mjs",
     "format": "prettier --write ./src ./public",
-    "lint": "eslint ./src",
+    "lint": "eslint",
     "serve": "node --import ./src/ESMLoader.mjs ./src/main.mjs",
-    "help": "node --import ./src/ESMLoader.mjs ./src/main.mjs -h"
+    "help": "node --import ./src/ESMLoader.mjs ./src/main.mjs -h",
+    "ci-check-code-style": "prettier --check ./src ./public",
+    "ci-lint": "eslint",
+    "ci-test": "jest"
   },
   "author": "FSE Team SB-1",
   "type": "module",

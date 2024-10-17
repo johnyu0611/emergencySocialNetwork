@@ -1,0 +1,28 @@
+name: Code Quality Check
+on:
+  pull_request:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking Out Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setting Up Node.js Environment
+        uses: actions/setup-node@v4.0.4
+        with:
+          node-version: 20
+      - name: Installing Dependencies
+        run: |
+          npm ci
+      - name: Checking Code Style
+        run: |
+          npm run ci-check-code-style
+      - name: Running Linter
+        run: |
+          npm run ci-lint
+      - name: Running Tests
+        run: |
+          npm run ci-test

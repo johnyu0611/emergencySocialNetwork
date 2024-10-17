@@ -1,0 +1,15 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      render_deploy_hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+    steps:
+      - name: Calling Render Deploy Hook
+        run: |
+          curl "$render_deploy_hook"
