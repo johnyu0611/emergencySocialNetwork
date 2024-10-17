@@ -1,7 +1,5 @@
 import { UserSchema } from "@/database/schema/User.mjs";
 import { AbstractModel } from "@/model/Abstract.mjs";
-import mongoose from "mongoose";
-import { model } from "mongoose";
 
 export class UserDataAccess extends AbstractModel {
   static #initializationSymbol = "%";

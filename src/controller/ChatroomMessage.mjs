@@ -42,8 +42,8 @@ export class ChatroomMessageController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "ChatroomMessageControllerGETHandler";
-    const { username } = req.auth;
-    const { chatroomId } = req.params;
+    // const { username } = req.auth;
+    // const { chatroomId } = req.params;
 
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);

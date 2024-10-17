@@ -71,12 +71,11 @@ export async function runServer() {
   registerRoutes({ app, io, jwt, passwordHasher, chatroomChannel });
   registerConnectedChannel(io, jwt);
 
-  const { port } = config.server;
+  const port = config.environment.port || config.server.port;
   server.listen(port, () => {
     logger.info(
       { context: loggerContext },
-      "Server is listening at port %d",
-      port
+      `Server is listening at port ${port}`
     );
   });
 }

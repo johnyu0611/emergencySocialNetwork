@@ -1,6 +1,5 @@
 import { MessageSchema } from "@/database/schema/Message.mjs";
 import { AbstractModel } from "@/model/Abstract.mjs";
-import mongoose from "mongoose";
 
 export class MessageDataAccess extends AbstractModel {
   static #initializationSymbol = "~";

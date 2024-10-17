@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  render:
+  deploy-render:
     runs-on: ubuntu-latest
     env:
       render_deploy_hook: ${{ secrets.RENDER_DEPLOY_HOOK }}

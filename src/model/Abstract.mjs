@@ -1,21 +1,20 @@
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { HTTP_METHOD_NOT_ALLOWED } from "@/util/Constants.mjs";
-import { parseError } from "@/util/ErrorParser.mjs";
 import mongoose from "mongoose";
 
 export class AbstractModel {
   static #errorMessageMethodNotAllowed = "Abstract method not allowed";
-  _model = null;
+  #model = null;
 
   constructor({ collectionName, schema }) {
     if (this.constructor === AbstractModel) {
       throw new Error("Cannot instantiate an abstract db");
     }
-    this._model = mongoose.model(collectionName, schema);
+    this.#model = mongoose.model(collectionName, schema);
   }
 
   get model() {
-    return this._model;
+    return this.#model;
   }
 
   async findAll() {

@@ -3,7 +3,7 @@ on:
   pull_request:
 
 jobs:
-  main:
+  code-quality-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checking Out Repository

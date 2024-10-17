@@ -3,9 +3,7 @@ import {
   GetRequestSchema,
   GetResponseSchema
 } from "@/controller/schema/Chatroom.mjs";
-import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { HTTP_NOT_IMPLEMENTED } from "@/util/Constants.mjs";
 
 export class ChatroomController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -38,7 +36,7 @@ export class ChatroomController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "ChatroomControllerGETHandler";
-    const { username } = req.auth;
+    // const { username } = req.auth;
 
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
@@ -55,9 +53,11 @@ export class ChatroomController extends AbstractController {
     res.json(responseBody);
   }
 
+  // TODO
+  /*
   async handlePost(req, res) {
-    // TODO: Possible in Iteration 4
     const loggerContext = "ChatroomControllerPOSTHandler";
     throw new HTTPError(HTTP_NOT_IMPLEMENTED, "Not implemented");
   }
+  */
 }

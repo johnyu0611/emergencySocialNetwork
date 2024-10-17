@@ -1,4 +1,3 @@
-import { config } from "@/config/Config.mjs";
 import { AbstractDatabase } from "@/database/Abstract.mjs";
 import { logger } from "@/log/Logger.mjs";
 import mongoose from "mongoose";

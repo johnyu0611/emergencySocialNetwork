@@ -1,6 +1,4 @@
 import { AbstractController } from "@/controller/Abstract.mjs";
-import { HTTPError } from "@/error/HTTPError.mjs";
-import { HTTP_NOT_IMPLEMENTED } from "@/util/Constants.mjs";
 
 export class ChatroomIdController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -31,8 +29,11 @@ export class ChatroomIdController extends AbstractController {
     return ChatroomIdController.#instance;
   }
 
+  // TODO
+  /*
   async handleGet(req, res) {
     const loggerContext = "ChatroomIDControllerGETHandler";
     throw new HTTPError(HTTP_NOT_IMPLEMENTED, "Not implemented");
   }
+  */
 }

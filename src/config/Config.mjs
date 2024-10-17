@@ -3,6 +3,7 @@ import { camelToUpper } from "@/util/Naming.mjs";
 import dotenv from "dotenv";
 
 const environmentConfig = {
+  port: "",
   development: "",
   databaseUser: "",
   databasePassword: "",
