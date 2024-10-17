@@ -51,7 +51,7 @@ async function onSubmit(event) {
       modalConfirmJoin.show();
       return;
     }
-    banner.showError(error);
+    void banner.showError(error);
     console.error(error);
   }
 }

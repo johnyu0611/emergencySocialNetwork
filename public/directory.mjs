@@ -98,16 +98,14 @@ function onSocketIOConnectError(socket) {
     // From https://socket.io/docs/v4/client-socket-instance/#connect_error
     if (socket.active) {
       // Temporary failure, the socket will automatically try to reconnect
-      await banner.showWarningMessage(
-        "Cannot establish connection to server, retrying...",
-        error.message
+      void banner.showWarningMessage(
+        "Cannot establish connection to server, retrying..."
       );
     } else {
       // The connection was denied by the server
       // In that case, `socket.connect()` must be manually called in order to reconnect
-      await banner.showErrorMessage(
-        "Server rejected the connection, please log in again",
-        error.message
+      void banner.showErrorMessage(
+        "Server rejected the connection, please log in again"
       );
     }
   };

@@ -74,7 +74,7 @@ async function onPost() {
     await postMessage({ roomId, token, content: message });
     $inputBox.val("");
   } catch (e) {
-    await banner.showError(e);
+    void banner.showError(e);
     console.error(e);
   } finally {
     $buttonPost.prop("disabled", false);
@@ -97,6 +97,7 @@ function onSocketIOMessage(socketIOMessage) {
 async function onSocketIOConnect() {
   void banner.showSuccessMessage("Connected");
   $chatHistoryContainer.empty();
+  await populateHistoryMessages();
 }
 
 function onSocketIOConnectError(socket) {
@@ -105,19 +106,36 @@ function onSocketIOConnectError(socket) {
     // From https://socket.io/docs/v4/client-socket-instance/#connect_error
     if (socket.active) {
       // Temporary failure, the socket will automatically try to reconnect
-      await banner.showWarningMessage(
-        "Cannot establish connection to server, retrying...",
-        error.message
+      void banner.showWarningMessage(
+        "Cannot establish connection to server, retrying..."
       );
     } else {
       // The connection was denied by the server
       // In that case, `socket.connect()` must be manually called in order to reconnect
-      await banner.showErrorMessage(
-        "Server rejected the connection, please log in again",
-        error.message
+      void banner.showErrorMessage(
+        "Server rejected the connection, please log in again"
       );
     }
   };
+}
+
+async function populateHistoryMessages() {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) {
+    location.href = "register.html";
+  }
+
+  try {
+    const { messages } = await getHistoryMessages({ token, roomId });
+    $chatHistoryContainer.append(
+      messages.map((e) =>
+        messageBox(e.author, e.timestamp, e.content, "Registered")
+      )
+    );
+    $chatHistoryContainer.scrollTop($chatHistoryContainer.prop("scrollHeight"));
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // async function populateHistoryMessages(anchorMessageId) {
@@ -152,10 +170,6 @@ $(document).ready(async () => {
   $buttonPost.click(onPost);
 
   roomId = parseQueryParameters(location.href).roomId;
-  const token = localStorage.getItem(KEY_TOKEN);
-  if (!token) {
-    location.href = "register.html";
-  }
 
   const socketChatroom = io(NAMESPACE_SOCKET_IO_CHATROOM, {
     path: ENDPOINT_SOCKET_IO,
@@ -167,7 +181,7 @@ $(document).ready(async () => {
     }
   });
 
-  const socketConnected = io(NAMESPACE_SOCKET_IO_CONNECTED, {
+  io(NAMESPACE_SOCKET_IO_CONNECTED, {
     path: ENDPOINT_SOCKET_IO,
     auth: {
       token: localStorage.getItem(KEY_TOKEN)
@@ -177,19 +191,4 @@ $(document).ready(async () => {
   socketChatroom.on("connect", onSocketIOConnect);
   socketChatroom.on("connect_error", onSocketIOConnectError(socketChatroom));
   socketChatroom.on("message", onSocketIOMessage);
-
-  socketConnected.on("connect", onSocketIOConnect);
-  socketConnected.on("connect_error", onSocketIOConnectError(socketConnected));
-
-  try {
-    const { messages } = await getHistoryMessages({ token, roomId });
-    $chatHistoryContainer.append(
-      messages.map((e) =>
-        messageBox(e.author, e.timestamp, e.content, "Registered")
-      )
-    );
-    $chatHistoryContainer.scrollTop($chatHistoryContainer.prop("scrollHeight"));
-  } catch (error) {
-    console.error(error);
-  }
 });
