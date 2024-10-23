@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
+    <title>Performance Test</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="performance-test.css" rel="stylesheet" />
+    <script src="performance-test.mjs" type="module"></script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="alert" id="banner" role="banner"></div>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Performance Test</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  aria-current="page"
+                  href="directory.html"
+                  >ESN Directory</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div id="form-container" class="d-flex align-items-center">
+        <form class="d-flex align-items-center w-100">
+          <div class="me-3">
+            <label for="input-duration" class="form-label">Duration (s)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="input-duration"
+              placeholder="Enter duration"
+            />
+          </div>
+          <div class="me-3">
+            <label for="input-interval" class="form-label">Interval (ms)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="input-interval"
+              placeholder="Enter interval"
+            />
+          </div>
+          <button id="button-start-stop" type="button" class="btn btn-primary">
+            <i class="fas fa-play"></i>
+            <span>Start</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="output-container">
+        <textarea
+          class="form-control"
+          id="output"
+          readonly
+          placeholder="Output will be displayed here..."
+        ></textarea>
+      </div>
+    </div>
+  </body>
+</html>

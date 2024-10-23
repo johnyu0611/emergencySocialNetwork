@@ -15,18 +15,28 @@
       <div class="alert" id="banner" role="banner"></div>
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-          <a class="navbar-brand" id="chatroom-title">
-            <img
-              alt="Logo"
-              class="d-inline-block align-text-top"
-              height="30"
-              src="asset/sos.gif"
-              width="30"
-            />
-            ESN Community
-          </a>
+          <img
+            alt="Logo"
+            class="d-inline-block align-text-top"
+            height="30"
+            src="asset/sos.gif"
+            width="30"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasChatList"
+            aria-controls="offcanvasChatList"
+            id="get-chatrooms"
+          />
+          <a class="navbar-brand" id="chatroom-title"></a>
           <button
-            class="btn btn-outline-danger"
+            class="btn btn-outline-primary btn-sm"
+            id="button-directoty"
+            type="button"
+            onclick="location.href='directory.html'"
+          >
+            <span>Directory</span>
+          </button>
+          <button
+            class="btn btn-outline-danger btn-sm"
             id="button-logout"
             type="button"
           >
@@ -35,6 +45,29 @@
           </button>
         </div>
       </nav>
+
+      <div
+        class="offcanvas offcanvas-start"
+        tabindex="-1"
+        id="offcanvasChatList"
+        aria-labelledby="offcanvasChatListLabel"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasChatListLabel">Chat Room</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="nav nav-pills flex-column" id="chat-list" role="tablist">
+            <div class="chatroom-container" id="chat-room-container"></div>
+          </ul>
+        </div>
+      </div>
+
       <div class="container" id="chat-history-container">
         <!-- Chat messages will be appended here -->
       </div>

@@ -68,11 +68,45 @@ export class MongoDBConnection extends AbstractDatabase {
   // reserved for test db
   static async getNewConnection(user, password, dbCluster, dbName, dbAppName) {
     if (MongoDBConnection.#instance) {
-      MongoDBConnection.#instance.closeConnection(); // discard old instance and initiate a new one
+      await MongoDBConnection.closeConnection(); // discard old instance and initiate a new one
       MongoDBConnection.#instance = null;
     }
 
-    MongoDBConnection.connect(user, password, dbCluster, dbName, dbAppName);
+    await MongoDBConnection.connect(
+      user,
+      password,
+      dbCluster,
+      dbName,
+      dbAppName
+    );
+  }
+
+  static async clearCollection(collectionName) {
+    const collection = mongoose.connection.collection(collectionName);
+    await collection.deleteMany({});
+    logger.info(
+      { context: MongoDBConnection.#loggerContext },
+      `Cleared collection ${collectionName}`
+    );
+  }
+
+  static async clearDB() {
+    // const db = MongoDBConnection.#instance;
+    const collections = Object.keys(MongoDBConnection.#instance.collections);
+
+    await Promise.all(
+      collections.map(async (collectionName) => {
+        const collection =
+          MongoDBConnection.#instance.collections[collectionName];
+        await collection.deleteMany({});
+      })
+    );
+    logger.info({ context: MongoDBConnection.#loggerContext }, `Cleared DB`);
+  }
+
+  static dropDB() {
+    MongoDBConnection.#instance.dropDatabase();
+    logger.info({ context: MongoDBConnection.#loggerContext }, `Dropped DB`);
   }
 
   static async closeConnection() {

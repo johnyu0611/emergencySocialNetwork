@@ -2,7 +2,8 @@ import {
   PasswordSchema,
   IsOnlineSchema,
   TokenSchema,
-  UsernameSchema
+  UsernameSchema,
+  StatusSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 
@@ -13,7 +14,8 @@ import { z } from "zod";
  */
 export const PostRequestSchema = z.object({
   username: UsernameSchema,
-  password: PasswordSchema
+  password: PasswordSchema,
+  status: StatusSchema.optional()
 });
 
 /**
@@ -41,7 +43,8 @@ export const GetResponseSchema = z.object({
   users: z.array(
     z.object({
       username: UsernameSchema,
-      isOnline: IsOnlineSchema
+      isOnline: IsOnlineSchema,
+      status: StatusSchema
     })
   )
 });

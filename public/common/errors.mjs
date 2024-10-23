@@ -4,3 +4,5 @@ export class HTTPError extends Error {
     this.status = status;
   }
 }
+
+export class CancelledException extends Error {}

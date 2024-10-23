@@ -5,21 +5,27 @@ import {
   PostRequestSchema,
   PostResponseSchema
 } from "@/controller/schema/ChatroomMessage.mjs";
+import { MessageFactory } from "@/model/MessageFactory.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import { logger } from "@/log/Logger.mjs";
-import { MessageDataAccess } from "@/model/Message.mjs";
-import { HTTP_CREATED } from "@/util/Constants.mjs";
+
+import { v7 as uuid } from "uuid";
+import {
+  CHANNEL_CHATROOM_EVENT_MESSAGE,
+  HTTP_CREATED
+} from "@/util/Constants.mjs";
 
 export class ChatroomMessageController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
-  #messageDAO = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== ChatroomMessageController.#initializationSymbol) {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
     super({ upstreamRouter, path, middlewareMap, context });
-    this.#messageDAO = MessageDataAccess.getInstance();
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -42,13 +48,24 @@ export class ChatroomMessageController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "ChatroomMessageControllerGETHandler";
-    // const { username } = req.auth;
-    // const { chatroomId } = req.params;
+    const { username } = req.auth;
+    const { chatroomId } = req.params;
+    const messageModel = MessageFactory.getModel(chatroomId);
 
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const messages = await this.#messageDAO.findAll();
+    const messages = await messageModel.findAll();
+
+    for (const message of messages) {
+      if (message.sender !== username && !message.readBy.includes(username)) {
+        await messageModel.update(
+          // eslint-disable-next-line no-underscore-dangle
+          { _id: message._id },
+          { $push: { readBy: username } }
+        );
+      }
+    }
 
     const responseBody = GetResponseSchema.parse({
       messages
@@ -60,23 +77,36 @@ export class ChatroomMessageController extends AbstractController {
     const loggerContext = "ChatroomMessageControllerPOSTHandler";
     const { username } = req.auth;
     const { chatroomId } = req.params;
+    const messageModel = MessageFactory.getModel(chatroomId);
 
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
     const { content } = payload;
+    const { receiver } = payload;
+    let status = await this.#userDAO.findByUsername({ username })?.status;
+    if (!status) {
+      status = "Undefined";
+    }
+
+    const messageId = uuid();
 
     const message = {
-      author: username,
-      content,
-      timestamp: Date.now()
+      id: messageId,
+      chatroomId,
+      sender: username,
+      receiver: receiver,
+      status: status,
+      timestamp: Date.now(),
+      content: content
     };
-    await this.#messageDAO.create(message);
+    await messageModel.create(message);
 
-    const { chatroomChannel } = this.context;
-    chatroomChannel.emit("message", message);
+    this.context.channel.chatroom.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
 
-    const responseBody = PostResponseSchema.parse({});
+    const responseBody = PostResponseSchema.parse({
+      id: messageId
+    });
     res.status(HTTP_CREATED);
     res.json(responseBody);
     logger.info(

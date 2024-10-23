@@ -8,7 +8,13 @@ import {
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { UserDataAccess } from "@/model/User.mjs";
-import { HTTP_CONFLICT, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
+import {
+  HTTP_CONFLICT,
+  HTTP_CREATED,
+  HTTP_OK,
+  HTTP_BAD_REQUEST
+} from "@/util/Constants.mjs";
+import { bannedUsernameSet } from "@/util/BannedUsername.mjs";
 
 export class UserController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -41,6 +47,10 @@ export class UserController extends AbstractController {
     return UserController.#instance;
   }
 
+  setUserDAO(userDAO) {
+    this.#userDAO = userDAO;
+  }
+
   async handlePost(req, res) {
     const loggerContext = "UserControllerPOSTHandler";
     const { jwt, passwordHasher } = this.context;
@@ -48,7 +58,61 @@ export class UserController extends AbstractController {
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { username, password } = payload;
+    let { username } = payload;
+    const { password, status } = payload;
+
+    username = username.toLowerCase().trim();
+
+    // TODO: Use zod to handle validation
+    if (username.length < 3) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Username should be at least 3 characters long"
+      );
+    }
+
+    if (username.length > 32) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Username should be at most 32 characters long"
+      );
+    }
+
+    if (!/^[a-z0-9]+$/u.test(username)) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Username should only contain letters and digits"
+      );
+    }
+
+    if (password.length < 4) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Password should be at least 4 characters long"
+      );
+    }
+
+    if (password.length > 64) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Password should be at most 64 characters long"
+      );
+    }
+
+    if (!/^[ -~]+$/u.test(password)) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Password should only contain printable ASCII characters"
+      );
+    }
+
+    if (bannedUsernameSet.has(username)) {
+      throw new HTTPError(
+        HTTP_BAD_REQUEST,
+        "Username should not be a banned name"
+      );
+    }
+
     const existingUser = await this.#userDAO.findByUsername({ username });
 
     if (existingUser) {
@@ -57,7 +121,8 @@ export class UserController extends AbstractController {
 
     await this.#userDAO.create({
       username,
-      password: await passwordHasher.hash(password)
+      password: await passwordHasher.hash(password),
+      status: status ? status : "Undefined"
     });
 
     const token = jwt.encode({ username });

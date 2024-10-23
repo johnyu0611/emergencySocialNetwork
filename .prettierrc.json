@@ -8,8 +8,5 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "bracketSameLine": false,
-  "arrowParens": "always",
-  "plugins": [
-    "@trivago/prettier-plugin-sort-imports"
-  ]
+  "arrowParens": "always"
 }

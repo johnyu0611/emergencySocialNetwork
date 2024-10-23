@@ -1,30 +1,31 @@
 import { MessageSchema } from "@/database/schema/Message.mjs";
-import { AbstractModel } from "@/model/Abstract.mjs";
+import mongoose from "mongoose";
 
-export class MessageDataAccess extends AbstractModel {
-  static #initializationSymbol = "~";
-  static #instance = null;
+export class MessageDataAccess {
+  // static #initializationSymbol = '~';
+  // static #instance = null;
 
-  constructor(collectionName, schema, symbol) {
-    if (symbol !== MessageDataAccess.#initializationSymbol) {
-      throw new Error(
-        "Cannot initialize a singleton MessageDataAccess class via constructor"
-      );
-    }
-    super({ collectionName, schema });
-    MessageDataAccess.#instance = this;
-    return MessageDataAccess.#instance;
+  // constructor(collectionName, schema, symbol) {
+  //   if (symbol !== MessageDataAccess.#initializationSymbol) {
+  //     throw new Error("Cannot initialize a singleton MessageDataAccess class via constructor");
+  //   }
+  //   super({ collectionName, schema });
+  //   MessageDataAccess.#instance = this;
+  //   return MessageDataAccess.#instance;
+  // }
+
+  // static getInstance(collectionName) {
+  //   if (!MessageDataAccess.#instance) {
+  //     new MessageDataAccess('messages', MessageSchema, MessageDataAccess.#initializationSymbol);
+  //   }
+  // }
+
+  constructor(collectionName) {
+    this.model = mongoose.model(collectionName, MessageSchema);
   }
 
-  static getInstance() {
-    if (!MessageDataAccess.#instance) {
-      new MessageDataAccess(
-        "messages",
-        MessageSchema,
-        MessageDataAccess.#initializationSymbol
-      );
-    }
-    return MessageDataAccess.#instance;
+  async findOne(filter) {
+    return await this.model.findOne(filter);
   }
 
   async findAll() {
@@ -33,5 +34,9 @@ export class MessageDataAccess extends AbstractModel {
 
   async create(msg) {
     return await new this.model(msg).save();
+  }
+
+  async update({ _id }, updateFields) {
+    return await this.model.findOneAndUpdate({ _id }, updateFields);
   }
 }

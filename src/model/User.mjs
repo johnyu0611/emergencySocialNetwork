@@ -35,11 +35,19 @@ export class UserDataAccess extends AbstractModel {
     return await this.model
       .find({})
       .sort({ isOnline: -1, username: 1 })
-      .select("username isOnline");
+      .select("username isOnline status");
   }
 
   async findByUsername({ username }) {
     return await this.model.findOne({ username });
+  }
+
+  async findByChatroomId({ chatroomId }) {
+    return await this.model.findOne({ "chatrooms.id": chatroomId });
+  }
+
+  async find({ query }) {
+    return await this.model.find({ query });
   }
 
   async update({ username }, updateFields) {

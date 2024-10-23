@@ -17,6 +17,13 @@ export class AbstractModel {
     return this.#model;
   }
 
+  async findOne() {
+    throw new HTTPError(
+      HTTP_METHOD_NOT_ALLOWED,
+      AbstractModel.#errorMessageMethodNotAllowed
+    );
+  }
+
   async findAll() {
     throw new HTTPError(
       HTTP_METHOD_NOT_ALLOWED,

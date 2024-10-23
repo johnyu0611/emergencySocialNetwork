@@ -3,3 +3,9 @@ export const KEY_TOKEN = "token";
 export const BANNER_AUTOCLOSE_MILLIS = 3000;
 
 export const CHAT_RECORD_LOAD_COUNT = 10;
+
+export const PUBLIC_CHATROOM_ID = "00000000-0000-0000-0000-000000000000";
+
+export const TEST_POST_PORTION = 0.5;
+
+export const TEST_GET_PORTION = 0.5;

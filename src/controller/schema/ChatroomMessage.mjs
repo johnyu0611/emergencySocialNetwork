@@ -1,7 +1,9 @@
 import {
   MessageContentSchema,
+  MessageIdSchema,
   TimestampSchema,
-  UsernameSchema
+  UsernameSchema,
+  StatusSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 
@@ -20,7 +22,10 @@ export const GetRequestSchema = z.object({});
 export const GetResponseSchema = z.object({
   messages: z.array(
     z.object({
-      author: UsernameSchema,
+      id: MessageIdSchema,
+      sender: UsernameSchema,
+      receiver: UsernameSchema.optional(), // not need for public
+      status: StatusSchema.optional(),
       timestamp: TimestampSchema,
       content: MessageContentSchema
     })
@@ -33,6 +38,7 @@ export const GetResponseSchema = z.object({
  * Request payload schema
  */
 export const PostRequestSchema = z.object({
+  receiver: UsernameSchema.optional(),
   content: MessageContentSchema
 });
 
@@ -41,4 +47,6 @@ export const PostRequestSchema = z.object({
  *
  * Response payload schema
  */
-export const PostResponseSchema = z.object({});
+export const PostResponseSchema = z.object({
+  id: MessageIdSchema
+});

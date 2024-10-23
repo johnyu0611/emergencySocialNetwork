@@ -1,0 +1,50 @@
+#banner {
+  position: absolute;
+  top: 70px;
+  user-select: text;
+  display: none;
+}
+
+#container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+nav {
+  width: 100%;
+}
+
+#form-container {
+  width: 100%;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+#form-container form {
+  height: 100%;
+}
+
+#output-container {
+  width: 100%;
+  flex-grow: 1;
+  padding: 10px;
+  font-family: monospace;
+}
+
+#output-container textarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+}
+
+#button-start-stop {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

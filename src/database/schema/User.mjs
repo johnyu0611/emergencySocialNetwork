@@ -18,5 +18,22 @@ export const UserSchema = new Schema({
     type: String,
     enum: ["OK", "Help", "Emergency", "Undefined"],
     default: "Undefined"
+  },
+  chatrooms: {
+    type: [
+      {
+        id: {
+          type: String
+        },
+        receiver: {
+          type: String
+        }
+      }
+    ],
+    default: [
+      {
+        id: "00000000-0000-0000-0000-000000000000"
+      }
+    ]
   }
 });

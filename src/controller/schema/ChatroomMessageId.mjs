@@ -1,5 +1,6 @@
 import {
   MessageContentSchema,
+  MessageIdSchema,
   TimestampSchema,
   UsernameSchema
 } from "@/controller/schema/Common.mjs";
@@ -18,7 +19,8 @@ export const GetRequestSchema = z.object({});
  * Response payload schema
  */
 export const GetResponseSchema = z.object({
+  id: MessageIdSchema,
   content: MessageContentSchema,
   timestamp: TimestampSchema,
-  author: UsernameSchema
+  sender: UsernameSchema
 });

@@ -17,7 +17,7 @@ export const GetResponseSchema = z.object({
   title: z.string(),
   users: z.array(
     z.object({
-      username: UsernameSchema
+      sender: UsernameSchema
     })
   )
 });

@@ -1,6 +1,9 @@
 import {
   ChatroomIdSchema,
-  ChatroomTitleSchema
+  ChatroomTitleSchema,
+  UsernameSchema,
+  HasUnreadSchema,
+  StatusSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 
@@ -19,8 +22,11 @@ export const GetRequestSchema = z.object({});
 export const GetResponseSchema = z.object({
   chatrooms: z.array(
     z.object({
-      id: ChatroomIdSchema,
-      title: ChatroomTitleSchema
+      id: ChatroomIdSchema.optional(),
+      title: ChatroomTitleSchema.optional(),
+      receiver: UsernameSchema.optional(),
+      status: StatusSchema.optional(),
+      hasUnread: HasUnreadSchema.optional()
     })
   )
 });
@@ -30,7 +36,9 @@ export const GetResponseSchema = z.object({
  *
  * Request payload schema
  */
-export const PostRequestSchema = z.object({});
+export const PostRequestSchema = z.object({
+  receiver: UsernameSchema.optional()
+});
 
 /**
  * `POST /api/chatrooms`
@@ -38,5 +46,7 @@ export const PostRequestSchema = z.object({});
  * Response payload schema
  */
 export const PostResponseSchema = z.object({
-  id: ChatroomIdSchema
+  id: ChatroomIdSchema,
+  receiver: UsernameSchema.optional(),
+  status: StatusSchema.optional()
 });

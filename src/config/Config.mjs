@@ -10,7 +10,12 @@ const environmentConfig = {
   databaseCluster: "",
   databaseName: "",
   databaseAppName: "",
-  jwtPreSharedKey: ""
+  jwtPreSharedKey: "",
+  testDatabaseUser: "",
+  testDatabasePassword: "",
+  testDatabaseCluster: "",
+  testDatabaseName: "",
+  testDatabaseAppName: ""
 };
 
 const commandLineConfig = {

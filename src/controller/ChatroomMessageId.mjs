@@ -1,4 +1,10 @@
 import { AbstractController } from "@/controller/Abstract.mjs";
+import {
+  GetRequestSchema,
+  GetResponseSchema
+} from "@/controller/schema/ChatroomMessageId.mjs";
+import { logger } from "@/log/Logger.mjs";
+import { MessageFactory } from "@/model/MessageFactory.mjs";
 
 export class ChatroomMessageIdController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -29,16 +35,23 @@ export class ChatroomMessageIdController extends AbstractController {
     return ChatroomMessageIdController.#instance;
   }
 
-  // TODO
-  /*
   async handleGet(req, res) {
     const loggerContext = "ChatroomMessageIDControllerGETHandler";
-    throw new HTTPError(HTTP_NOT_IMPLEMENTED, "Not implemented");
-  }
+    const { chatroomId, messageId } = req.params;
+    logger.debug(
+      { context: loggerContext },
+      "Parameter received: %o",
+      req.params
+    );
 
-  async handlePost(req, res) {
-    const loggerContext = "ChatroomMessageIDControllerPOSTHandler";
-    throw new HTTPError(HTTP_NOT_IMPLEMENTED, "Not implemented");
+    const model = MessageFactory.getModel(chatroomId);
+
+    const payload = GetRequestSchema.parse(req.body);
+    logger.debug({ context: loggerContext }, "Request received: %o", payload);
+
+    const message = await model.findOne({ id: messageId });
+
+    const responseBody = GetResponseSchema.parse(message);
+    res.json(responseBody);
   }
-  */
 }

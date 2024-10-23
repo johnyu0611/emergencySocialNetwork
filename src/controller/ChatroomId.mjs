@@ -29,11 +29,19 @@ export class ChatroomIdController extends AbstractController {
     return ChatroomIdController.#instance;
   }
 
-  // TODO
-  /*
-  async handleGet(req, res) {
-    const loggerContext = "ChatroomIDControllerGETHandler";
-    throw new HTTPError(HTTP_NOT_IMPLEMENTED, "Not implemented");
-  }
-  */
+  // async handleGet(req, res) {
+  // 	const loggerContext = "ChatroomIdControllerGETHandler";
+  // 	const { username } = req.auth;
+  // 	const { chatroomId } = req.params;
+  // 	const messageModel = MessageFactory.getModel(chatroomId);
+
+  // 	const payload = GetRequestSchema.parse(req.body);
+  // 	logger.debug({ context: loggerContext }, "Request received: %o", payload);
+
+  // 	const messages = await messageModel.findAll();
+  // 	const responseBody = GetResponseSchema.parse({
+  // 		messages
+  // 	});
+  // 	res.json(responseBody);
+  // }
 }

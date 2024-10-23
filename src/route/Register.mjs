@@ -3,10 +3,13 @@ import { ChatroomController } from "@/controller/Chatroom.mjs";
 import { ChatroomIdController } from "@/controller/ChatroomId.mjs";
 import { ChatroomMessageController } from "@/controller/ChatroomMessage.mjs";
 import { ChatroomMessageIdController } from "@/controller/ChatroomMessageId.mjs";
+import { TestController } from "@/controller/SystemState.mjs";
 import { TokenController } from "@/controller/Token.mjs";
 import { UserController } from "@/controller/User.mjs";
+import { StatusController } from "@/controller/Status.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { auth } from "@/middleware/Auth.mjs";
+import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
 import { getWithBody } from "@/middleware/GetWithBody.mjs";
 import { json, Router } from "express";
 
@@ -20,12 +23,15 @@ export function registerRoutes(context) {
   const getWithBodyMiddleware = getWithBody();
   const authMiddleware = auth(jwt);
 
+  // Added for speed test
+  const testMiddleware = checkSystemStatus();
+
   UserController.getInstance(router, context, {
-    all: [jsonMiddleware],
+    all: [jsonMiddleware, testMiddleware],
     get: [authMiddleware, getWithBodyMiddleware]
   });
   TokenController.getInstance(router, context, {
-    all: [jsonMiddleware],
+    all: [jsonMiddleware, testMiddleware],
     delete: [authMiddleware]
   });
   ChatroomController.getInstance(router, context, {
@@ -56,6 +62,13 @@ export function registerRoutes(context) {
       get: [getWithBodyMiddleware]
     }
   );
+  TestController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    put: []
+  });
+  StatusController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware]
+  });
 
   app.use(`${config.server.apiBasePath}`, router);
   logger.debug(

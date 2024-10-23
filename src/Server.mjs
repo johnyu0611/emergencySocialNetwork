@@ -3,8 +3,7 @@ import { config } from "@/config/Config.mjs";
 import { MongoDBConnection } from "@/database/Connections.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { registerRoutes } from "@/route/Register.mjs";
-import { registerChatroomChannel } from "@/socket/RegisterChatroomChannel.mjs";
-import { registerConnectedChannel } from "@/socket/RegisterConnectedChannel.mjs";
+import { registerChannel } from "@/socket/Register.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
@@ -48,18 +47,6 @@ export async function runServer() {
     config.environment.databaseName,
     config.environment.databaseAppName
   );
-  // await mongoose.connect(
-  //   [
-  //     "mongodb+srv://",
-  //     `${config.environment.databaseUser}:${config.environment.databasePassword}`,
-  //     `@${config.environment.databaseCluster}/${config.environment.databaseName}`,
-  //     `?retryWrites=true&w=majority&appName=${config.environment.databaseAppName}`
-  //   ].join("")
-  // );
-  // logger.info(
-  //   { context: loggerContext },
-  //   `Connected to MongoDB as ${config.environment.databaseUser}`
-  // );
 
   // Create JWT instance
   const jwt = new JWT();
@@ -67,12 +54,12 @@ export async function runServer() {
   // Create password hasher instance
   const passwordHasher = new PasswordHasher(config.security.passwordHash);
 
-  const chatroomChannel = registerChatroomChannel(io, jwt);
-  registerRoutes({ app, io, jwt, passwordHasher, chatroomChannel });
-  registerConnectedChannel(io, jwt);
+  const channel = registerChannel({ io, jwt });
+
+  registerRoutes({ app, io, jwt, passwordHasher, channel });
 
   const port = config.environment.port || config.server.port;
-  server.listen(port, () => {
+  return server.listen(port, () => {
     logger.info(
       { context: loggerContext },
       `Server is listening at port ${port}`

@@ -1,13 +1,15 @@
 import { ChatroomIdSchema } from "@/controller/schema/Common.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { authSocketIO } from "@/middleware/Auth.mjs";
+import { checkSystemStatusSocketIO } from "@/middleware/CheckSystemStatus.mjs";
 
-export function registerChatroomChannel(io, jwt, namespace = "/chatrooms") {
+export function registerChatroomChannel(io, jwt, namespace = "/chatroom") {
   const subChannel = io.of(namespace);
   subChannel.use(authSocketIO(jwt));
+  subChannel.use(checkSystemStatusSocketIO());
 
   function handleConnect(socket) {
-    const loggerContext = "ChatroomOnConnectHandler";
+    const loggerContext = "ChatroomChannelOnConnectHandler";
     const { username } = socket.handshake.auth;
 
     try {
@@ -24,7 +26,7 @@ export function registerChatroomChannel(io, jwt, namespace = "/chatrooms") {
   }
 
   async function handleDisconnect(socket) {
-    const loggerContext = "ChatroomOnDisconnectHandler";
+    const loggerContext = "ChatroomChannelOnDisconnectHandler";
     const { username } = socket.handshake.auth;
     logger.info({ context: loggerContext }, `User ${username} disconnected`);
   }

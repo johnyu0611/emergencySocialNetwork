@@ -196,6 +196,13 @@ const config = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+  testEnvironment: "node",
+  verbose: true,
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "!config": "<rootDir>/app.config.mjs"
+  },
+  moduleFileExtensions: ["js", "jsx", "mjs", "json", "node"],
 };
 
 export default config;
