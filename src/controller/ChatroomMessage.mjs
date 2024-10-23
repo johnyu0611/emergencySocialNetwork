@@ -84,7 +84,8 @@ export class ChatroomMessageController extends AbstractController {
 
     const { content } = payload;
     const { receiver } = payload;
-    let status = await this.#userDAO.findByUsername({ username })?.status;
+    const user = await this.#userDAO.findByUsername({ username });
+    let status = user?.status;
     if (!status) {
       status = "Undefined";
     }
