@@ -1,26 +1,31 @@
 import { z } from "zod";
+import { bannedUsernameSet } from "@/util/BannedUsername.mjs";
 
-export const UsernameSchema = z.string({
-  message: "Username should be a string"
-});
-// .trim()
-// .min(3, { message: "Username should be at least 3 characters long" })
-// .max(32, { message: "Username exceeded maximum length limit" })
-// .regex(/^[a-z0-9]+$/u, {
-//   message:
-//     "Username contains illegal characters. Only lowercase letters and numbers are accepted"
-// });
+export const UsernameSchema = z
+  .string({
+    message: "Username should be a string"
+  })
+  .trim()
+  .toLowerCase()
+  .min(3, { message: "Username should be at least 3 characters long" })
+  .max(32, { message: "Username exceeded maximum length limit" })
+  .regex(/^[a-z0-9]+$/u, {
+    message: "Username contains illegal characters"
+  })
+  .refine((username) => !bannedUsernameSet.has(username), {
+    message: "Username should not be a banned name"
+  });
 
-export const PasswordSchema = z.string({
-  message: "Password should be a string"
-});
-// .trim()
-// .min(4, { message: "Password should be at least 4 characters long" })
-// .max(64, { message: "Password exceeded maximum length limit" })
-// .regex(/^[ -~]+$/u, {
-//   message:
-//     "Password contains illegal characters. Only printable ASCII characters are accepted"
-// });
+export const PasswordSchema = z
+  .string({
+    message: "Password should be a string"
+  })
+  .trim()
+  .min(4, { message: "Password should be at least 4 characters long" })
+  .max(64, { message: "Password exceeded maximum length limit" })
+  .regex(/^[ -~]+$/u, {
+    message: "Password contains illegal characters"
+  });
 
 export const TokenSchema = z
   .string({ message: "Token must be a string" })

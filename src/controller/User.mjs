@@ -14,7 +14,9 @@ import {
   HTTP_OK,
   HTTP_BAD_REQUEST
 } from "@/util/Constants.mjs";
-import { bannedUsernameSet } from "@/util/BannedUsername.mjs";
+import { validateUsername } from "@/util/ValidateUsername.mjs";
+import { validatePassword } from "@/util/ValidatePassword.mjs";
+import { z } from "zod";
 
 export class UserController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -59,58 +61,29 @@ export class UserController extends AbstractController {
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
     let { username } = payload;
-    const { password, status } = payload;
+    let { password } = payload;
+    const { status } = payload;
 
-    username = username.toLowerCase().trim();
-
-    // TODO: Use zod to handle validation
-    if (username.length < 3) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Username should be at least 3 characters long"
-      );
+    try {
+      username = validateUsername(username);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.errors[0].message;
+        throw new HTTPError(HTTP_BAD_REQUEST, errorMessage);
+      } else {
+        throw error;
+      }
     }
 
-    if (username.length > 32) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Username should be at most 32 characters long"
-      );
-    }
-
-    if (!/^[a-z0-9]+$/u.test(username)) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Username should only contain letters and digits"
-      );
-    }
-
-    if (password.length < 4) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Password should be at least 4 characters long"
-      );
-    }
-
-    if (password.length > 64) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Password should be at most 64 characters long"
-      );
-    }
-
-    if (!/^[ -~]+$/u.test(password)) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Password should only contain printable ASCII characters"
-      );
-    }
-
-    if (bannedUsernameSet.has(username)) {
-      throw new HTTPError(
-        HTTP_BAD_REQUEST,
-        "Username should not be a banned name"
-      );
+    try {
+      password = validatePassword(password);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.errors[0].message;
+        throw new HTTPError(HTTP_BAD_REQUEST, errorMessage);
+      } else {
+        throw error;
+      }
     }
 
     const existingUser = await this.#userDAO.findByUsername({ username });
