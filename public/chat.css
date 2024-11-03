@@ -17,6 +17,10 @@ nav {
   width: 100%;
 }
 
+#get-chatrooms {
+  display: none;
+}
+
 #chat-history-container {
   flex-grow: 1;
   overflow-y: auto;

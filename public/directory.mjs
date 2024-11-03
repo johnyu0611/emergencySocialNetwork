@@ -1,5 +1,5 @@
 import { Banner } from "./common/banner.mjs";
-import { KEY_TOKEN } from "./common/constants.mjs";
+import { KEY_TOKEN, ANNOUCEMENT_SPACE_ID } from "./common/constants.mjs";
 import { sleep } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
@@ -15,6 +15,8 @@ const $buttonLogout = $("#button-logout");
 const $statusButton = $("#share-status");
 const statusModal = new bootstrap.Modal($("#modal-status"));
 const modalBody = $("#modal-status .modal-body");
+const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
+const $viewButton = $("#modal-announcement .modal-body #viewButton");
 
 async function onPost() {
   try {
@@ -184,6 +186,20 @@ function onSystemMaintenance(...channels) {
   };
 }
 
+$viewButton.on("click", function (event) {
+  event.preventDefault();
+  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+});
+
+function onNewAnnouncement() {
+  return async function () {
+    await banner.showWarningMessage(
+      "New Annoucement available. Action needed..."
+    );
+    annoucementModal.show();
+  };
+}
+
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
@@ -199,6 +215,8 @@ $(document).ready(async () => {
   socket.on("status_change", reloadPage);
   socket.on("user_leave", reloadPage);
   socket.on("system_maintenance", onSystemMaintenance(socket));
+
+  socket.on("new_announcement", onNewAnnouncement());
 
   await onPost();
 });

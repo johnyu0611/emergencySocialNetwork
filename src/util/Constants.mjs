@@ -25,3 +25,7 @@ export const CHANNEL_CHATROOM_EVENT_MESSAGE = "message";
 export const CHANNEL_SYSTEM_EVENT_USER_JOIN = "user_join";
 export const CHANNEL_SYSTEM_EVENT_USER_LEAVE = "user_leave";
 export const CHANNEL_SYSTEM_EVENT_SYSTEM_MAINTENANCE = "system_maintenance";
+export const CHANNEL_SYSTEM_EVENT_NEW_ANNOUNCEMENT = "new_announcement";
+
+// Other constants
+export const ANNOUCEMENT_SPACE_ID = "11111111-1111-1111-1111-111111111111";

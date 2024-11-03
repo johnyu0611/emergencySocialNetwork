@@ -15,9 +15,14 @@
       <div class="alert" id="banner" role="banner"></div>
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
+          <!-- <span class="navbar-text me-3" id="announcement-text">Announcement Space</span> -->
+          <a class="navbar-brand" href="#" id="announcement-text"
+            >Announcement Space</a
+          >
+
           <img
             alt="Logo"
-            class="d-inline-block align-text-top"
+            class="align-text-top"
             height="30"
             src="asset/sos.gif"
             width="30"
@@ -87,5 +92,15 @@
         </button>
       </div>
     </div>
+
+    <div id="modal-container"></div>
+    <script>
+      fetch("modal-announcement.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("modal-container").innerHTML = data;
+        })
+        .catch((error) => console.error("Error loading modal:", error));
+    </script>
   </body>
 </html>

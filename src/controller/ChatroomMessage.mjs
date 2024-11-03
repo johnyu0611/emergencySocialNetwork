@@ -12,8 +12,10 @@ import { logger } from "@/log/Logger.mjs";
 import { v7 as uuid } from "uuid";
 import {
   CHANNEL_CHATROOM_EVENT_MESSAGE,
+  CHANNEL_SYSTEM_EVENT_NEW_ANNOUNCEMENT,
   HTTP_CREATED
 } from "@/util/Constants.mjs";
+import { ANNOUCEMENT_SPACE_ID } from "../util/Constants.mjs";
 
 export class ChatroomMessageController extends AbstractController {
   static #initializationSymbol = Symbol("");
@@ -104,6 +106,12 @@ export class ChatroomMessageController extends AbstractController {
     await messageModel.create(message);
 
     this.context.channel.chatroom.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
+    if (chatroomId === ANNOUCEMENT_SPACE_ID) {
+      this.context.channel.system.emit(
+        CHANNEL_SYSTEM_EVENT_NEW_ANNOUNCEMENT,
+        message
+      );
+    }
 
     const responseBody = PostResponseSchema.parse({
       id: messageId

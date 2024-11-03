@@ -3,7 +3,8 @@ import {
   KEY_TOKEN,
   PUBLIC_CHATROOM_ID,
   TEST_POST_PORTION,
-  TEST_GET_PORTION
+  TEST_GET_PORTION,
+  ANNOUCEMENT_SPACE_ID
 } from "./common/constants.mjs";
 import { sleep } from "./common/utils.mjs";
 import { changeSystemState } from "./lib/change-system-state.mjs";
@@ -93,6 +94,9 @@ const buttonStartStop = new StartStopButton(
   onStop
 );
 const $output = $("#output");
+
+const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
+const $viewButton = $("#modal-announcement .modal-body #viewButton");
 
 function print(string) {
   $output.val($output.val() + string + "\n");
@@ -244,6 +248,20 @@ function onSystemMaintenance() {
   void banner.showWarningMessage("System is in maintenance mode");
 }
 
+$viewButton.on("click", function (event) {
+  event.preventDefault();
+  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+});
+
+function onNewAnnouncement() {
+  return async function () {
+    await banner.showWarningMessage(
+      "New Annoucement available. Action needed..."
+    );
+    annoucementModal.show();
+  };
+}
+
 $(document).ready(() => {
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
     path: ENDPOINT_SOCKET_IO,
@@ -255,4 +273,6 @@ $(document).ready(() => {
   socket.on("connect", onSystemConnect);
   socket.on("connect_error", onSystemConnectError(socket));
   socket.on("system_maintenance", onSystemMaintenance);
+
+  socket.on("new_announcement", onNewAnnouncement());
 });

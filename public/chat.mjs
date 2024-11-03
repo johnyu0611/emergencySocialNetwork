@@ -1,5 +1,5 @@
 import { Banner } from "./common/banner.mjs";
-import { KEY_TOKEN } from "./common/constants.mjs";
+import { KEY_TOKEN, ANNOUCEMENT_SPACE_ID } from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
@@ -20,10 +20,11 @@ const $buttonLogout = $("#button-logout");
 const $chatHistoryContainer = $("#chat-history-container");
 const $chatRoomContainer = $("#chat-room-container");
 const $buttonroomid = $("#get-chatrooms");
-let roomId = undefined;
 let socketChatroom = undefined;
 let roomStatus = {};
 let userStatus = {};
+const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
+const $viewButton = $("#modal-announcement .modal-body #viewButton");
 
 function messageBox(username, timestampMillis, message, status) {
   const time = new Date(timestampMillis).toLocaleString();
@@ -286,6 +287,23 @@ function onSystemMaintenance(...channels) {
   };
 }
 
+$viewButton.on("click", function (event) {
+  event.preventDefault();
+  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+});
+
+function onNewAnnouncement(roomId) {
+  return async function () {
+    if (roomId != ANNOUCEMENT_SPACE_ID) {
+      await banner.showWarningMessage(
+        "New Annoucement available. Action needed..."
+      );
+      // location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+      annoucementModal.show();
+    }
+  };
+}
+
 async function populateHistoryMessages(roomId) {
   const token = localStorage.getItem(KEY_TOKEN);
   if (!token) {
@@ -334,6 +352,10 @@ async function populateHistoryMessages(roomId) {
 
 $(document).ready(async () => {
   const roomId = parseQueryParameters(location.href).roomId;
+  if (roomId != ANNOUCEMENT_SPACE_ID) {
+    $("#get-chatrooms").show();
+    $("#announcement-text").hide();
+  }
   $buttonLogout.click(onLogout);
   $buttonPost.click(onPost);
   $buttonroomid.click(() => {
@@ -372,4 +394,6 @@ $(document).ready(async () => {
     "system_maintenance",
     onSystemMaintenance(socketChatroom, socketSystem)
   );
+
+  socketSystem.on("new_announcement", onNewAnnouncement(roomId));
 });

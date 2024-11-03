@@ -78,5 +78,47 @@
         ></textarea>
       </div>
     </div>
+
+    <div
+      class="modal fade"
+      id="modal-announcement"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Announcement posted</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Would you like to see it?</p>
+            <div class="d-flex">
+              <button
+                type="button"
+                class="btn btn-primary flex-fill me-1"
+                id="viewButton"
+                data-status="View"
+              >
+                View
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary flex-fill ms-1"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
