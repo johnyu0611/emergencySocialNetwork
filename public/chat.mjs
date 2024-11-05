@@ -1,5 +1,9 @@
 import { Banner } from "./common/banner.mjs";
-import { KEY_TOKEN, ANNOUCEMENT_SPACE_ID } from "./common/constants.mjs";
+import {
+  KEY_TOKEN,
+  ANNOUCEMENT_SPACE_ID,
+  PUBLIC_CHATROOM_ID
+} from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
@@ -61,10 +65,9 @@ function chatroomBox(currentRoomId, roomid, title, isread, status) {
   const box = $(`
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="pill" role="tab" aria-controls="chat${roomid}" aria-selected="false" data-bs-dismiss="offcanvas" aria-label="Close">
-      ${title}
-      <span class="icon" id="icon">
-      </span>
       <span class="unread-dot" id="dot"></span>
+      ${title}
+      <span class="icon" id="icon"></span>
       </a>
     </li>
   `);
@@ -104,7 +107,7 @@ function chatroomBox(currentRoomId, roomid, title, isread, status) {
   });
   if (!isread) {
     const dot = box.find("span.unread-dot");
-    dot.hide();
+    dot.css("visibility", "hidden");
   }
   return box;
 }
@@ -135,7 +138,7 @@ async function getChatRoomList(roomId) {
       chatroomlist.map((e) => {
         let box;
         if (e.id) {
-          if (e.id === "00000000-0000-0000-0000-000000000000") {
+          if (e.id === PUBLIC_CHATROOM_ID) {
             box = chatroomBox(roomId, e.id, e.title, roomStatus[e.id], null);
           } else {
             box = chatroomBox(
@@ -232,7 +235,7 @@ function onChatroomMessage(roomId) {
       }
     } else {
       if (chatroomId in roomStatus) {
-        if (chatroomId !== "00000000-0000-0000-0000-000000000000") {
+        if (chatroomId !== PUBLIC_CHATROOM_ID) {
           updateStatus(chatroomId, true);
           banner.showWarningMessage(`New Message from ${sender}`);
         }
@@ -322,33 +325,6 @@ async function populateHistoryMessages(roomId) {
     console.error(error);
   }
 }
-
-// async function populateHistoryMessages(anchorMessageId) {
-//   if (anchorMessageId < 2) {
-//     return anchorMessageId;
-//   }
-//
-//   const token = localStorage.getItem(KEY_TOKEN);
-//   const { chatRecords } = await getChatRecords({
-//     token,
-//     count: CHAT_RECORD_LOAD_COUNT,
-//     anchorMessageId
-//   });
-//
-//   const previousScrollHeight = $chatHistoryContainer.prop("scrollHeight");
-//   $chatHistoryContainer.prepend(
-//     chatRecords.map(({ username, timestamp, message }) =>
-//       messageBox(username, timestamp, message)
-//     )
-//   );
-//   const currentScrollHeight = $chatHistoryContainer.prop("scrollHeight");
-//   $chatHistoryContainer.scrollTop(
-//     (_, previousScrollTop) =>
-//       previousScrollTop + currentScrollHeight - previousScrollHeight
-//   );
-//
-//   return chatRecords[0].id;
-// }
 
 $(document).ready(async () => {
   const roomId = parseQueryParameters(location.href).roomId;

@@ -1,0 +1,73 @@
+import jwt from "jsonwebtoken";
+import { UserSchema } from "@/model/user.mjs";
+
+const JWT_SECRET = "FSE-SB1";
+
+export const register = async (req, res) => {
+  console.log(req.body);
+  const { username: rawUsername, password } = req.body;
+  const username = rawUsername.toLowerCase();
+  const usernew = await UserSchema.findOne({ username });
+  if (usernew) {
+    if (usernew.password === password) {
+      // Currently do nothing iter 0
+      return res.status(400).json({ message: "User already exists" });
+    }
+    return res
+      .status(403)
+      .json({ message: "User exists but incorrect password" });
+  }
+
+  const user = new UserSchema({ username: username.toLowerCase(), password });
+  user
+    .save()
+    .then(() => {
+      res.status(201).json({ message: "User registered successfully" });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: err.message });
+    });
+
+  return jwt.sign({ username: username }, JWT_SECRET, {
+    expiresIn: "1h"
+  }); // can change to 2 tokens in the future
+};
+
+export const check = async (req, res) => {
+  console.log(req.body);
+  const { username: rawUsername, password } = req.body;
+  const username = rawUsername.toLowerCase();
+
+  const usernew = await UserSchema.findOne({ username });
+  if (usernew) {
+    if (usernew.password === password) {
+      // Currently do nothing iter 0
+      return res.status(400).json({ message: "User already exists" });
+    }
+    return res
+      .status(403)
+      .json({ message: "User exists but incorrect password" });
+  }
+  return res.status(200).json({ message: "New user confirmed" });
+};
+
+export const authenticateJWT = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    req.user = user;
+    next();
+    return undefined;
+  });
+
+  return res.status(200);
+};

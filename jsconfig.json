@@ -6,18 +6,10 @@
     "checkJs": true,
     "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "!config": [
-        "./app.config.mjs"
-      ]
+      "@/*": ["./*"],
+      "!config": ["./app.config.mjs"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

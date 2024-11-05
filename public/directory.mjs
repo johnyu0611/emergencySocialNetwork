@@ -1,14 +1,21 @@
 import { Banner } from "./common/banner.mjs";
-import { KEY_TOKEN, ANNOUCEMENT_SPACE_ID } from "./common/constants.mjs";
+import {
+  KEY_TOKEN,
+  ANNOUCEMENT_SPACE_ID,
+  PUBLIC_CHATROOM_ID
+} from "./common/constants.mjs";
 import { sleep } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
-  NAMESPACE_SOCKET_IO_SYSTEM
+  NAMESPACE_SOCKET_IO_SYSTEM,
+  NAMESPACE_SOCKET_IO_CHATROOM
 } from "./lib/endpoints.mjs";
 import { getESNDirectory } from "./lib/get-esndirectory.mjs";
 import { logout } from "./lib/logout.mjs";
 import { updateStatus as apiUpdateStatus } from "./lib/change-status.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
+import { getChatroom } from "./lib/get-chatroom.mjs";
+import { postChatroom } from "./lib/post-new-chatroom.mjs";
 
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
@@ -17,6 +24,8 @@ const statusModal = new bootstrap.Modal($("#modal-status"));
 const modalBody = $("#modal-status .modal-body");
 const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 const $viewButton = $("#modal-announcement .modal-body #viewButton");
+let socketChatroom = undefined;
+let roomStatus = {};
 
 async function onPost() {
   try {
@@ -24,6 +33,7 @@ async function onPost() {
     const token = localStorage.getItem(KEY_TOKEN);
     const response = await getESNDirectory({ token });
     const users = response.users;
+    await getChatRoomList({ token });
     displayUsers(users);
   } catch (e) {
     console.error(e);
@@ -41,7 +51,7 @@ function displayUsers(users) {
       return 1;
     }
     // If both users have the same status, sort alphabetically
-    return a.username.localeCompare(b.userame);
+    return a.username.localeCompare(b.username);
   });
 
   sortedUsers.forEach((user) => {
@@ -52,9 +62,14 @@ function displayUsers(users) {
     listItem.style.alignItems = "center";
     listItem.style.color = user.isOnline === true ? "green" : "grey";
 
+    const userInfoContainer = document.createElement("div");
+    userInfoContainer.style.display = "flex";
+    userInfoContainer.style.alignItems = "center";
+    userInfoContainer.style.width = "50%";
     // Create a span for the username
     const usernameSpan = document.createElement("span");
     usernameSpan.textContent = user.username;
+    usernameSpan.style.marginLeft = "10px";
 
     // Create a span for the status dot
     const statusDot = document.createElement("span");
@@ -64,31 +79,47 @@ function displayUsers(users) {
     statusDot.style.display = "inline-block";
     statusDot.style.backgroundColor = user.isOnline === true ? "green" : "grey";
 
-    const userStatusSpan = document.createElement("span");
     const userStatusIcon = document.createElement("i");
 
     // Set the appropriate icon and color based on the user's status
     if (user.status === "OK") {
       userStatusIcon.classList.add("fa-solid", "fa-circle-check");
-      userStatusSpan.style.color = "green";
-      userStatusSpan.textContent = " OK"; // Add some text
+      userStatusIcon.style.color = "green";
+      //userStatusSpan.textContent = " OK"; // Add some text
     } else if (user.status === "Help") {
       userStatusIcon.classList.add("fa-solid", "fa-circle-exclamation");
-      userStatusSpan.style.color = "#DAA520";
-      userStatusSpan.textContent = " Help";
+      userStatusIcon.style.color = "#DAA520";
+      //userStatusSpan.textContent = " Help";
     } else if (user.status === "Emergency") {
       userStatusIcon.classList.add("fa-solid", "fa-triangle-exclamation");
-      userStatusSpan.style.color = "red";
-      userStatusSpan.textContent = " Emergency";
+      userStatusIcon.style.color = "red";
+      //userStatusSpan.textContent = " Emergency";
+    } else {
+      userStatusIcon.classList.add("fa-solid", "fa-triangle-exclamation");
+      userStatusIcon.style.visibility = "hidden";
     }
+    userInfoContainer.appendChild(userStatusIcon);
+    userInfoContainer.appendChild(usernameSpan);
+
+    const messageIcon = document.createElement("i");
+    messageIcon.classList.add("fa-solid", "fa-message");
+    if (roomStatus[user.username] && roomStatus[user.username].hasUnread) {
+      messageIcon.style.color = "red";
+    } else {
+      messageIcon.style.color = "grey";
+    }
+    //messageIcon.style.color = "blue"; // Set the color of the message icon
+    messageIcon.style.marginLeft = "auto";
+    messageIcon.style.marginRight = "15px";
+    messageIcon.setAttribute("data-username", user.username);
 
     // Add spacing between the icon and the text
-    userStatusSpan.style.marginLeft = "10px"; // Space between username and status
-    userStatusSpan.prepend(userStatusIcon); // Prepend the icon to the status text
+    //userStatusSpan.style.marginRight = "10px"; // Space between username and status
+    //userStatusSpan.prepend(userStatusIcon); // Prepend the icon to the status text
 
     // Append the username and status dot to the list item
-    listItem.appendChild(usernameSpan);
-    listItem.appendChild(userStatusSpan);
+    listItem.appendChild(userInfoContainer);
+    listItem.appendChild(messageIcon);
     listItem.appendChild(statusDot);
     userList.appendChild(listItem);
   });
@@ -97,6 +128,18 @@ function displayUsers(users) {
 function postLogout() {
   localStorage.removeItem(KEY_TOKEN);
   location.href = "index.html";
+}
+
+async function openChat(user) {
+  try {
+    const token = localStorage.getItem(KEY_TOKEN);
+    let title = user;
+    const res = await postChatroom({ title, token });
+    console.log(res);
+    location.href = `chat.html?roomId=${res.id}`;
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function onLogout() {
@@ -146,6 +189,26 @@ modalBody.on("click", ".status-btn", function () {
   updateStatus(status);
   statusModal.hide();
 });
+
+async function getChatRoomList(roomId) {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) {
+    location.href = "register.html";
+  }
+  try {
+    const res = await getChatroom({ token, roomId });
+    const chatroomlist = res.chatrooms;
+    roomStatus = {};
+    console.log(chatroomlist);
+    chatroomlist.map((e) => {
+      if (e.id && e.receiver) {
+        roomStatus[e.receiver] = { hasUnread: e.hasUnread, id: e.id };
+      }
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 async function reloadPage() {
   await onPost();
@@ -200,6 +263,23 @@ function onNewAnnouncement() {
   };
 }
 
+function hasReceiver(receiverToFind) {
+  return Object.values(roomStatus).some((item) => item.id === receiverToFind);
+}
+
+function onChatroomMessage() {
+  return async function (socketIOMessage) {
+    // await getChatRoomList();
+    const { chatroomId, sender, content, timestamp, status } = socketIOMessage;
+    await reloadPage();
+    if (sender in roomStatus && hasReceiver(chatroomId)) {
+      if (chatroomId !== PUBLIC_CHATROOM_ID) {
+        banner.showWarningMessage(`New Message from ${sender}`);
+      }
+    }
+  };
+}
+
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
@@ -207,6 +287,10 @@ $(document).ready(async () => {
     auth: {
       token: localStorage.getItem(KEY_TOKEN)
     }
+  });
+  $("#user-list").on("click", ".fa-message", async function () {
+    const username = $(this).attr("data-username");
+    openChat(username);
   });
 
   socket.on("connect", onSystemConnect);
@@ -218,5 +302,6 @@ $(document).ready(async () => {
 
   socket.on("new_announcement", onNewAnnouncement());
 
+  socket.on("message", onChatroomMessage());
   await onPost();
 });

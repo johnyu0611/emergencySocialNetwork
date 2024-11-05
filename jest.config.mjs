@@ -160,10 +160,7 @@ const config = {
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: [
-    "node_modules/",
-    "public/"
-  ],
+  testPathIgnorePatterns: ["node_modules/", "public/"],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
@@ -202,7 +199,7 @@ const config = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "!config": "<rootDir>/app.config.mjs"
   },
-  moduleFileExtensions: ["js", "jsx", "mjs", "json", "node"],
+  moduleFileExtensions: ["js", "jsx", "mjs", "json", "node"]
 };
 
 export default config;

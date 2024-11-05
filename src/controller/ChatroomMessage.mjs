@@ -106,6 +106,7 @@ export class ChatroomMessageController extends AbstractController {
     await messageModel.create(message);
 
     this.context.channel.chatroom.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
+    this.context.channel.system.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
     if (chatroomId === ANNOUCEMENT_SPACE_ID) {
       this.context.channel.system.emit(
         CHANNEL_SYSTEM_EVENT_NEW_ANNOUNCEMENT,

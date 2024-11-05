@@ -14,11 +14,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: [
-      "**/dist",
-      "**/coverage",
-      "**/public"
-    ]
+    ignores: ["**/dist", "**/coverage", "**/public"]
   },
   ...compat.extends("eslint:recommended", "prettier"),
   {

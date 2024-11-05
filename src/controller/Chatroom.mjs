@@ -11,11 +11,14 @@ import { v4 as uuid } from "uuid";
 import { logger } from "@/log/Logger.mjs";
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { HTTP_NOT_FOUND, HTTP_CREATED, HTTP_OK } from "@/util/Constants.mjs";
+import { ANNOUCEMENT_SPACE_ID } from "../util/Constants.mjs";
+import { PrivateChatroomsDataAccess } from "@/model/PrivateChatrooms.mjs";
 
 export class ChatroomController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
   #userDAO = null;
+  #privateChatroomsDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== ChatroomController.#initializationSymbol) {
@@ -23,6 +26,7 @@ export class ChatroomController extends AbstractController {
     }
     super({ upstreamRouter, path, middlewareMap, context });
     this.#userDAO = UserDataAccess.getInstance();
+    this.#privateChatroomsDAO = PrivateChatroomsDataAccess.getInstance();
   }
 
   static getInstance(
@@ -66,6 +70,13 @@ export class ChatroomController extends AbstractController {
           return {
             id: "00000000-0000-0000-0000-000000000000",
             title: "Public Chatroom"
+          };
+        }
+
+        if (chatroomId === ANNOUCEMENT_SPACE_ID) {
+          return {
+            id: "11111111-1111-1111-1111-111111111111",
+            title: "Announcement"
           };
         }
 
@@ -135,27 +146,53 @@ export class ChatroomController extends AbstractController {
       `Created a new private room for ${username} and ${receiver}`
     );
 
-    const chatroomId = uuid();
-
-    await this.#userDAO.update(
-      { username },
-      { $push: { chatrooms: { id: chatroomId, receiver: receiver } } }
-    );
-
-    await this.#userDAO.update(
-      { username: receiver },
-      { $push: { chatrooms: { id: chatroomId, receiver: username } } }
-    );
-
-    const { chatroom } = this.context.channel;
-    chatroom.emit("newRoom", { chatroomId });
-
-    const responseBody = PostResponseSchema.parse({
-      id: chatroomId,
-      receiver: receiver
+    const existChatroom = await this.#privateChatroomsDAO.findByUser({
+      username,
+      receiver
     });
 
-    res.status(HTTP_CREATED);
-    res.json(responseBody);
+    if (existChatroom) {
+      const response = PostResponseSchema.parse({
+        id: existChatroom.roomId,
+        receiver: receiver
+      });
+
+      res.status(HTTP_CREATED);
+      res.json(response);
+    } else {
+      let chatroomId = uuid();
+
+      while (
+        chatroomId === ANNOUCEMENT_SPACE_ID ||
+        chatroomId === "00000000-0000-0000-0000-000000000000"
+      ) {
+        chatroomId = uuid();
+      }
+
+      await this.#userDAO.update(
+        { username },
+        { $push: { chatrooms: { id: chatroomId, receiver: receiver } } }
+      );
+
+      await this.#userDAO.update(
+        { username: receiver },
+        { $push: { chatrooms: { id: chatroomId, receiver: username } } }
+      );
+
+      const { chatroom } = this.context.channel;
+      chatroom.emit("newRoom", { chatroomId });
+      this.#privateChatroomsDAO.create({
+        roomId: chatroomId,
+        participants: [username, receiver]
+      });
+
+      const responseBody = PostResponseSchema.parse({
+        id: chatroomId,
+        receiver: receiver
+      });
+      this.context.channel.system.emit("status_change");
+      res.status(HTTP_CREATED);
+      res.json(responseBody);
+    }
   }
 }
