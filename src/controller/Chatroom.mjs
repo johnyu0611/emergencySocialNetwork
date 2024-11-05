@@ -43,6 +43,10 @@ export class ChatroomController extends AbstractController {
     return ChatroomController.#instance;
   }
 
+  setUserDAO(userDAO) {
+    this.#userDAO = userDAO;
+  }
+
   async handleGet(req, res) {
     const loggerContext = "ChatroomControllerGETHandler";
     const { username } = req.auth;
