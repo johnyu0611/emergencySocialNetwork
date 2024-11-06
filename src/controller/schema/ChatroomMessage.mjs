@@ -12,7 +12,13 @@ import { z } from "zod";
  *
  * Request payload schema
  */
-export const GetRequestSchema = z.object({});
+export const GetRequestSchema = z.object({
+  searchBy: z
+    .object({
+      content: z.string().optional()
+    })
+    .optional()
+});
 
 /**
  * `GET /api/chatrooms/:chatroomId/messages`

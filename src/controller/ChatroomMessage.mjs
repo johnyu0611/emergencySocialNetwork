@@ -57,7 +57,11 @@ export class ChatroomMessageController extends AbstractController {
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const messages = await messageModel.findAll();
+    const searchByContent = payload.searchBy?.content ?? ".*";
+
+    const messages = await messageModel.find({
+      $and: [{ content: { $regex: searchByContent, $options: "i" } }]
+    });
 
     for (const message of messages) {
       if (message.sender !== username && !message.readBy.includes(username)) {

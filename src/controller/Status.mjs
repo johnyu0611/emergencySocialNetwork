@@ -1,3 +1,4 @@
+import { StatusHistoryDataAccess } from "@/model/StatusHistory.mjs";
 import { AbstractController } from "@/controller/Abstract.mjs";
 import {
   StatusRequestSchema,
@@ -18,6 +19,7 @@ export class StatusController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
   #userDAO = null;
+  #statusHistoryDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== StatusController.#initializationSymbol) {
@@ -25,6 +27,7 @@ export class StatusController extends AbstractController {
     }
     super({ upstreamRouter, path, middlewareMap, context });
     this.#userDAO = UserDataAccess.getInstance();
+    this.#statusHistoryDAO = StatusHistoryDataAccess.getInstance();
   }
 
   static getInstance(
@@ -51,6 +54,12 @@ export class StatusController extends AbstractController {
     const payload = StatusRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
+    const timestamp = new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: "America/Los_Angeles"
+      })
+    );
+
     const { status } = payload;
 
     if (!["OK", "Help", "Emergency"].includes(status)) {
@@ -62,7 +71,13 @@ export class StatusController extends AbstractController {
       throw new HTTPError(HTTP_NOT_FOUND, "User not found");
     }
 
-    await this.#userDAO.update({ username }, { status });
+    await this.#userDAO.update({ username }, { status, timestamp: timestamp });
+
+    await this.#statusHistoryDAO.addStatusEntry({
+      username,
+      status,
+      timestamp
+    });
 
     const { system } = this.context.channel;
     system.emit("status_change");
@@ -75,7 +90,7 @@ export class StatusController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated status to ${status}`
+      `User ${username} has updated status to ${status} at ${timestamp}`
     );
   }
 

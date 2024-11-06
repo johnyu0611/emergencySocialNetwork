@@ -16,11 +16,15 @@ import { updateStatus as apiUpdateStatus } from "./lib/change-status.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
+import { performSearch } from "./common/perform-search.mjs";
 
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
 const $statusButton = $("#share-status");
 const statusModal = new bootstrap.Modal($("#modal-status"));
+const $searchButton = $("#button-search");
+const searchModal = new bootstrap.Modal($("#modal-search"));
+const $performSearchButton = $("#perform-search-button");
 const modalBody = $("#modal-status .modal-body");
 const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 const $viewButton = $("#modal-announcement .modal-body #viewButton");
@@ -156,11 +160,6 @@ async function onLogout() {
   postLogout();
 }
 
-$statusButton.on("click", function (event) {
-  event.preventDefault();
-  statusModal.show();
-});
-
 async function updateStatus(status) {
   console.log("User selected status:", status);
 
@@ -183,12 +182,6 @@ async function updateStatus(status) {
     void banner.showErrorMessage("Failed to update status. Please try again.");
   }
 }
-
-modalBody.on("click", ".status-btn", function () {
-  const status = $(this).data("status");
-  updateStatus(status);
-  statusModal.hide();
-});
 
 async function getChatRoomList(roomId) {
   const token = localStorage.getItem(KEY_TOKEN);
@@ -282,6 +275,67 @@ function onChatroomMessage() {
 
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
+
+  $statusButton.on("click", function (event) {
+    event.preventDefault();
+    statusModal.show();
+  });
+  modalBody.on("click", ".status-btn", function () {
+    const status = $(this).data("status");
+    updateStatus(status);
+    statusModal.hide();
+  });
+
+  $searchButton.on("click", function (event) {
+    event.preventDefault();
+    searchModal.show();
+    //clearing previous searched results on opening
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+    const searchInput = document.getElementById("searchInput");
+    searchInput.value = "";
+  });
+
+  let stopSearchState = { isSearchStopped: false };
+
+  function stopSearch() {
+    stopSearchState.isSearchStopped = true;
+    console.log("user stops search!");
+    loadMoreButton.style.display = "none";
+  }
+
+  const stopSearchButton = document.getElementById("stop-search-button");
+  stopSearchButton.addEventListener("click", stopSearch);
+
+  $performSearchButton.on("click", function (event) {
+    const selectedOption = document.querySelector(
+      'input[name="searchOption"]:checked'
+    ).value;
+    const query = document.getElementById("searchInput").value;
+    const token = localStorage.getItem(KEY_TOKEN);
+    if (!token) {
+      location.href = "register.html";
+    }
+
+    stopSearchState.isSearchStopped = false;
+    let roomId = "00000000-0000-0000-0000-000000000000";
+    performSearch(selectedOption, query, roomId, token, stopSearchState);
+  });
+
+  const resultsContainer = document.getElementById("searchResults");
+  const loadMoreButton = document.getElementById("loadMoreButton");
+  const modal = document.getElementById("modalStatusLabel").closest(".modal");
+
+  $(modal).on("hidden.bs.modal", function () {
+    resultsContainer.innerHTML = "";
+    loadMoreButton.style.display = "none";
+  });
+
+  $("input[name='searchOption']").on("change", function () {
+    resultsContainer.innerHTML = "";
+    loadMoreButton.style.display = "none";
+  });
+
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
     path: ENDPOINT_SOCKET_IO,
     auth: {

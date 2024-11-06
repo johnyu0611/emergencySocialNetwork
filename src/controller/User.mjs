@@ -115,7 +115,15 @@ export class UserController extends AbstractController {
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const users = await this.#userDAO.findAll();
+    const searchByUsername = payload.searchBy?.username ?? ".*";
+    const searchByStatus = payload.searchBy?.status ?? ".*";
+
+    const users = await this.#userDAO.find({
+      $and: [
+        { username: { $regex: searchByUsername, $options: "i" } },
+        { status: { $regex: searchByStatus, $options: "i" } }
+      ]
+    });
 
     const responseBody = GetResponseSchema.parse({
       users

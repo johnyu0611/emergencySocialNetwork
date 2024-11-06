@@ -16,11 +16,15 @@ import { postMessage } from "./lib/post-message.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
+import { performSearch } from "./common/perform-search.mjs";
 
 const banner = new Banner($("#banner"));
 const $inputBox = $("#input-box");
 const $buttonPost = $("#button-post");
 const $buttonLogout = $("#button-logout");
+const $searchButton = $("#button-search");
+const searchModal = new bootstrap.Modal($("#modal-search"));
+const $performSearchButton = $("#perform-search-button");
 const $chatHistoryContainer = $("#chat-history-container");
 const $chatRoomContainer = $("#chat-room-container");
 const $buttonroomid = $("#get-chatrooms");
@@ -340,6 +344,55 @@ $(document).ready(async () => {
 
   $buttonLogout.click(onLogout);
   $buttonPost.click(onPost(roomId));
+
+  $searchButton.on("click", function (event) {
+    event.preventDefault();
+    searchModal.show();
+    //clearing previous searched results on opening
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+    const searchInput = document.getElementById("searchInput");
+    searchInput.value = "";
+  });
+
+  let stopSearchState = { isSearchStopped: false };
+
+  function stopSearch() {
+    stopSearchState.isSearchStopped = true;
+    console.log("user stops search!");
+    loadMoreButton.style.display = "none";
+  }
+
+  const stopSearchButton = document.getElementById("stop-search-button");
+  stopSearchButton.addEventListener("click", stopSearch);
+
+  $performSearchButton.on("click", function (event) {
+    const selectedOption = document.querySelector(
+      'input[name="searchOption"]:checked'
+    ).value;
+    const query = document.getElementById("searchInput").value;
+    const token = localStorage.getItem(KEY_TOKEN);
+    if (!token) {
+      location.href = "register.html";
+    }
+
+    stopSearchState.isSearchStopped = false;
+    performSearch(selectedOption, query, roomId, token, stopSearchState);
+  });
+
+  const resultsContainer = document.getElementById("searchResults");
+  const loadMoreButton = document.getElementById("loadMoreButton");
+  const modal = document.getElementById("modalStatusLabel").closest(".modal");
+
+  $(modal).on("hidden.bs.modal", function () {
+    resultsContainer.innerHTML = "";
+    loadMoreButton.style.display = "none";
+  });
+
+  $("input[name='searchOption']").on("change", function () {
+    resultsContainer.innerHTML = "";
+    loadMoreButton.style.display = "none";
+  });
 
   socketChatroom = io(NAMESPACE_SOCKET_IO_CHATROOM, {
     path: ENDPOINT_SOCKET_IO,

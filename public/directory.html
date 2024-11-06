@@ -43,10 +43,6 @@
                   href="#"
                   id="share-status"
                 >
-                  <i
-                    class="fa-solid fa-circle-exclamation"
-                    style="color: rgb(241, 107, 10)"
-                  ></i>
                   MyStatus
                 </a>
               </li>
@@ -86,13 +82,11 @@
               </li>
             </ul>
             <form class="d-flex" role="search">
-              <input
-                class="form-control me-2"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <button class="btn btn-outline-success me-2" type="submit">
+              <button
+                class="btn btn-outline-success me-2"
+                type="submit"
+                id="button-search"
+              >
                 Search
               </button>
               <button
@@ -197,5 +191,117 @@
         })
         .catch((error) => console.error("Error loading modal:", error));
     </script>
+
+    <div
+      class="modal fade"
+      id="modal-search"
+      tabindex="-1"
+      aria-labelledby="modalSearchLabel"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalStatusLabel">Search</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="btn-group mb-3" role="group">
+              <input
+                type="radio"
+                class="btn-check"
+                name="searchOption"
+                id="userOption"
+                value="user"
+                checked
+              />
+              <label class="btn btn-outline-primary" for="userOption"
+                >User</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="searchOption"
+                id="statusOption"
+                value="status"
+              />
+              <label class="btn btn-outline-primary" for="statusOption"
+                >Status</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="searchOption"
+                id="messageOption"
+                value="message"
+              />
+              <label class="btn btn-outline-primary" for="messageOption"
+                >Message</label
+              >
+            </div>
+
+            <div class="input-group">
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Enter search query..."
+                aria-label="Search bar"
+              />
+              <button
+                class="btn btn-primary"
+                type="button"
+                id="perform-search-button"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="searchResults"
+            class="mt-3"
+            style="max-height: 400px; overflow-y: auto"
+          ></div>
+
+          <div class="modal-footer">
+            <button
+              id="loadMoreButton"
+              type="button"
+              class="btn btn-primary"
+              style="display: none"
+            >
+              Load More
+            </button>
+
+            <button
+              class="btn btn-outline-danger"
+              id="stop-search-button"
+              type="button"
+              class="btn btn-secondary"
+            >
+              StopSearch
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

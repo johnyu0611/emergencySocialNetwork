@@ -19,6 +19,9 @@ export const UserSchema = new Schema({
     enum: ["OK", "Help", "Emergency", "Undefined"],
     default: "Undefined"
   },
+  timestamp: {
+    type: Date
+  },
   chatrooms: {
     type: [
       {

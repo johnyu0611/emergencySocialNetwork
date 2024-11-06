@@ -46,8 +46,8 @@ export class UserDataAccess extends AbstractModel {
     return await this.model.findOne({ "chatrooms.id": chatroomId });
   }
 
-  async find({ query }) {
-    return await this.model.find({ query });
+  async find(query) {
+    return await this.model.find(query);
   }
 
   async update({ username }, updateFields) {

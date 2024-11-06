@@ -32,7 +32,14 @@ export const PostResponseSchema = z.object({
  *
  * Request payload schema
  */
-export const GetRequestSchema = z.object({});
+export const GetRequestSchema = z.object({
+  searchBy: z
+    .object({
+      username: z.string().optional(),
+      status: z.string().optional()
+    })
+    .optional()
+});
 
 /**
  * `GET /api/users`
