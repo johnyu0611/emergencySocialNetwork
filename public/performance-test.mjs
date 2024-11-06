@@ -94,9 +94,7 @@ const buttonStartStop = new StartStopButton(
   onStop
 );
 const $output = $("#output");
-
-const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
-const $viewButton = $("#modal-announcement .modal-body #viewButton");
+const $modalAnnouncementContainer = $("#modal-announcement-container");
 
 function print(string) {
   $output.val($output.val() + string + "\n");
@@ -248,21 +246,28 @@ function onSystemMaintenance() {
   void banner.showWarningMessage("System is in maintenance mode");
 }
 
-$viewButton.on("click", function (event) {
-  event.preventDefault();
-  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
-});
+function onNewAnnouncement(announcementModal, $viewButton) {
+  $viewButton.on("click", function (event) {
+    event.preventDefault();
+    location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+  });
 
-function onNewAnnouncement() {
   return async function () {
     await banner.showWarningMessage(
       "New Annoucement available. Action needed..."
     );
-    annoucementModal.show();
+    announcementModal.show();
   };
 }
 
-$(document).ready(() => {
+$(document).ready(async () => {
+  const response = await fetch("component/modal-announcement.html");
+  $modalAnnouncementContainer.html(await response.text());
+  const modalAnnouncement = new bootstrap.Modal(
+    $modalAnnouncementContainer.find("#modal-announcement")
+  );
+  const $viewButton = $modalAnnouncementContainer.find("#viewButton");
+
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
     path: ENDPOINT_SOCKET_IO,
     auth: {
@@ -274,5 +279,8 @@ $(document).ready(() => {
   socket.on("connect_error", onSystemConnectError(socket));
   socket.on("system_maintenance", onSystemMaintenance);
 
-  socket.on("new_announcement", onNewAnnouncement());
+  socket.on(
+    "new_announcement",
+    onNewAnnouncement(modalAnnouncement, $viewButton)
+  );
 });
