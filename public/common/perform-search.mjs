@@ -143,7 +143,12 @@ export async function performSearch(
     "your"
   ];
 
-  if (stopWords.includes(query)) {
+  function checkStopWords(query) {
+    const words = query.toLowerCase().split(/\s+/);
+    return words.every((word) => stopWords.includes(word));
+  }
+
+  if (checkStopWords(query)) {
     resultsContainer.textContent = "No results found.";
     loadMoreButton.style.display = "none";
     return;
@@ -192,7 +197,22 @@ export async function performSearch(
             const messageContent = document.createElement("span");
             messageContent.textContent = " " + message.content;
 
+            let iconHTML;
+            console.log("message.status:", message);
+            if (message.status === "OK") {
+              iconHTML = `<i class="fa-solid fa-circle-check" style="color: green;"></i>`;
+            } else if (message.status === "Help") {
+              iconHTML = `<i class="fa-solid fa-circle-exclamation" style="color: #DAA520;"></i>`;
+            } else if (message.status === "Emergency") {
+              iconHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: red;"></i>`;
+            }
+            const statusContent = document.createElement("span");
+            statusContent.style.marginLeft = "8px";
+            if (iconHTML) {
+              statusContent.innerHTML = iconHTML;
+            }
             resultItem.appendChild(senderName);
+            resultItem.appendChild(statusContent);
             resultItem.appendChild(timestamp);
             resultItem.appendChild(messageContent);
             resultsContainer.appendChild(resultItem);

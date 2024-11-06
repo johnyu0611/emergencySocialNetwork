@@ -30,7 +30,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
     config.environment.databaseUser = "hanzhi";
     config.environment.databasePassword = "hanzhi";
     config.environment.databaseCluster = "fse.qw9qk.mongodb.net";
-    config.environment.databaseName = "IntegrationTest";
+    config.environment.databaseName = "IntegrationTest2";
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 

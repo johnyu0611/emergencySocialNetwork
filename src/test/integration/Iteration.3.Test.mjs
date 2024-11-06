@@ -26,7 +26,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     config.environment.databaseUser = "hanzhi";
     config.environment.databasePassword = "hanzhi";
     config.environment.databaseCluster = "fse.qw9qk.mongodb.net";
-    config.environment.databaseName = "IntegrationTest";
+    config.environment.databaseName = "IntegrationTest3";
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 
@@ -119,6 +119,90 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
             content: "Hello 1"
           })
         ])
+      })
+    );
+  });
+
+  test("should searchz all announcements", async () => {
+    req = {
+      params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
+      body: { content: "Hello 1" },
+      auth: { username: "user303" }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await chatroomMessageController.handlePost(req, res);
+
+    req = {
+      params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
+      body: { searchBy: { content: "Hello" } },
+      auth: { username: "user404" }
+    };
+    res = {
+      json: jest.fn()
+    };
+    await chatroomMessageController.handleGet(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: expect.arrayContaining([
+          expect.objectContaining({
+            sender: "user303",
+            content: "Hello 1"
+          })
+        ])
+      })
+    );
+  });
+
+  test("should return no content", async () => {
+    req = {
+      params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
+      body: { content: "Hello 1" },
+      auth: { username: "user303" }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await chatroomMessageController.handlePost(req, res);
+
+    req = {
+      params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
+      body: { searchBy: { content: "Test" } },
+      auth: { username: "user404" }
+    };
+    res = {
+      json: jest.fn()
+    };
+    await chatroomMessageController.handleGet(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: expect.arrayContaining([])
+      })
+    );
+  });
+
+  test("should return 2 user", async () => {
+    req = {
+      body: { searchBy: { username: "user" } },
+      auth: { username: "user404" }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await userController.handleGet(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        users: [
+          { isOnline: true, status: "OK", username: "user303" },
+          { isOnline: true, status: "Help", username: "user404" }
+        ]
       })
     );
   });
