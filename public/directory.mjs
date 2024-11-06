@@ -297,10 +297,16 @@ $(document).ready(async () => {
   });
 
   let stopSearchState = { isSearchStopped: false };
+  let searchState = { isSearchInProgress: false };
 
   function stopSearch() {
     stopSearchState.isSearchStopped = true;
     console.log("user stops search!");
+
+    const performSearchButton = document.getElementById(
+      "perform-search-button"
+    );
+    performSearchButton.disabled = false;
     loadMoreButton.style.display = "none";
   }
 
@@ -319,7 +325,14 @@ $(document).ready(async () => {
 
     stopSearchState.isSearchStopped = false;
     let roomId = "00000000-0000-0000-0000-000000000000";
-    performSearch(selectedOption, query, roomId, token, stopSearchState);
+    performSearch(
+      selectedOption,
+      query,
+      roomId,
+      token,
+      stopSearchState,
+      searchState
+    );
   });
 
   const resultsContainer = document.getElementById("searchResults");

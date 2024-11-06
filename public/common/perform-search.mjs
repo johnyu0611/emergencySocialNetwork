@@ -10,20 +10,28 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+let results = [];
+let currentPage = 0;
+
 export async function performSearch(
   selectedOption,
   query,
   roomId,
   token,
-  stopSearchState
+  stopSearchState,
+  searchState
 ) {
-  let results = [];
-  let currentPage = 0;
+  if (searchState.isSearchInProgress) {
+    console.log("Search is already in progress.");
+    return;
+  }
+
   const pageSize = 10;
 
   const resultsContainer = document.getElementById("searchResults");
   const loadMoreButton = document.getElementById("loadMoreButton");
   resultsContainer.innerHTML = "";
+  loadMoreButton.style.display = "none";
 
   if (checkStopWords(query)) {
     resultsContainer.textContent = "No results found.";
@@ -32,6 +40,12 @@ export async function performSearch(
   }
 
   try {
+    searchState.isSearchInProgress = true;
+    const performSearchButton = document.getElementById(
+      "perform-search-button"
+    );
+    performSearchButton.disabled = true;
+
     if (stopSearchState.isSearchStopped) {
       console.log("Search stopped.");
       return;
@@ -41,6 +55,7 @@ export async function performSearch(
       const response = await getHistoryMessages({ token, roomId, query });
       await sleep(2000); // wait for 2 seconds before proceeding
       results = response.messages.reverse();
+      currentPage = 0;
 
       const loadMessages = () => {
         if (stopSearchState.isSearchStopped) {
@@ -104,5 +119,11 @@ export async function performSearch(
   } catch (error) {
     console.error("Error:", error);
     alert("An error occurred during the search.");
+  } finally {
+    searchState.isSearchInProgress = false;
+    const performSearchButton = document.getElementById(
+      "perform-search-button"
+    );
+    performSearchButton.disabled = false;
   }
 }

@@ -356,10 +356,16 @@ $(document).ready(async () => {
   });
 
   let stopSearchState = { isSearchStopped: false };
+  let searchState = { isSearchInProgress: false };
 
   function stopSearch() {
     stopSearchState.isSearchStopped = true;
     console.log("user stops search!");
+
+    const performSearchButton = document.getElementById(
+      "perform-search-button"
+    );
+    performSearchButton.disabled = false;
     loadMoreButton.style.display = "none";
   }
 
@@ -377,7 +383,14 @@ $(document).ready(async () => {
     }
 
     stopSearchState.isSearchStopped = false;
-    performSearch(selectedOption, query, roomId, token, stopSearchState);
+    performSearch(
+      selectedOption,
+      query,
+      roomId,
+      token,
+      stopSearchState,
+      searchState
+    );
   });
 
   const resultsContainer = document.getElementById("searchResults");
