@@ -1,6 +1,5 @@
 name: sigrid-pullrequest
 on: [pull_request]
-
 jobs:
   sigridci:
     runs-on: ubuntu-latest
@@ -11,6 +10,8 @@ jobs:
           fetch-depth: 0
       - name: Download Sigrid CI
         run: "git clone https://github.com/Software-Improvement-Group/sigridci.git sigridci"
+      - name: Renaming .mjs to .js
+        run: "find . -type f -name \"*.mjs\" -exec sh -c 'mv \"$0\" \"${0%.mjs}.js\"' {} \\;"
       - name: "Run Sigrid CI"
         env:
           SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_TOKEN }}"
