@@ -24,9 +24,10 @@ const $statusButton = $("#share-status");
 const statusModal = new bootstrap.Modal($("#modal-status"));
 const $searchButton = $("#button-search");
 const searchModal = new bootstrap.Modal($("#modal-search"));
-const $statusModalBody = $("#modal-status .modal-body");
 const $performSearchButton = $("#perform-search-button");
-const $modalAnnouncementContainer = $("#modal-announcement-container");
+const modalBody = $("#modal-status .modal-body");
+const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
+const $viewButton = $("#modal-announcement .modal-body #viewButton");
 let socketChatroom = undefined;
 let roomStatus = {};
 
@@ -241,17 +242,17 @@ function onSystemMaintenance(...channels) {
   };
 }
 
-function onNewAnnouncement(announcementModal, $viewButton) {
-  $viewButton.on("click", function (event) {
-    event.preventDefault();
-    location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
-  });
+$viewButton.on("click", function (event) {
+  event.preventDefault();
+  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+});
 
+function onNewAnnouncement() {
   return async function () {
     await banner.showWarningMessage(
       "New Annoucement available. Action needed..."
     );
-    announcementModal.show();
+    annoucementModal.show();
   };
 }
 
@@ -273,20 +274,13 @@ function onChatroomMessage() {
 }
 
 $(document).ready(async () => {
-  const response = await fetch("component/modal-announcement.html");
-  $modalAnnouncementContainer.html(await response.text());
-  const modalAnnouncement = new bootstrap.Modal(
-    $modalAnnouncementContainer.find("#modal-announcement")
-  );
-  const $viewButton = $modalAnnouncementContainer.find("#viewButton");
-
   $buttonLogout.click(onLogout);
 
   $statusButton.on("click", function (event) {
     event.preventDefault();
     statusModal.show();
   });
-  $statusModalBody.on("click", ".status-btn", function () {
+  modalBody.on("click", ".status-btn", function () {
     const status = $(this).data("status");
     updateStatus(status);
     statusModal.hide();
@@ -373,10 +367,7 @@ $(document).ready(async () => {
   socket.on("user_leave", reloadPage);
   socket.on("system_maintenance", onSystemMaintenance(socket));
 
-  socket.on(
-    "new_announcement",
-    onNewAnnouncement(modalAnnouncement, $viewButton)
-  );
+  socket.on("new_announcement", onNewAnnouncement());
 
   socket.on("message", onChatroomMessage());
   await onPost();

@@ -40,4 +40,8 @@ export class PrivateChatroomsDataAccess extends AbstractModel {
       participants: { $all: [username, receiver] }
     });
   }
+
+  async findByRoomID({ roomId }) {
+    return await this.model.findOne({ roomId });
+  }
 }

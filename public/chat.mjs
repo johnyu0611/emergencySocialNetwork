@@ -27,12 +27,12 @@ const searchModal = new bootstrap.Modal($("#modal-search"));
 const $performSearchButton = $("#perform-search-button");
 const $chatHistoryContainer = $("#chat-history-container");
 const $chatRoomContainer = $("#chat-room-container");
-const $buttonRoomId = $("#get-chatrooms");
-const $modalAnnouncementContainer = $("#modal-announcement-container");
-
+const $buttonroomid = $("#get-chatrooms");
 let socketChatroom = undefined;
 let roomStatus = {};
 let userStatus = {};
+const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
+const $viewButton = $("#modal-announcement .modal-body #viewButton");
 
 function messageBox(username, timestampMillis, message, status) {
   const time = new Date(timestampMillis).toLocaleString();
@@ -294,14 +294,14 @@ function onSystemMaintenance(...channels) {
   };
 }
 
-function onNewAnnouncement(annoucementModal, $viewButton, roomId) {
-  $viewButton.on("click", function (event) {
-    event.preventDefault();
-    location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
-  });
+$viewButton.on("click", function (event) {
+  event.preventDefault();
+  location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+});
 
+function onNewAnnouncement(roomId) {
   return async function () {
-    if (roomId !== ANNOUCEMENT_SPACE_ID) {
+    if (roomId != ANNOUCEMENT_SPACE_ID) {
       await banner.showWarningMessage(
         "New Annoucement available. Action needed..."
       );
@@ -331,21 +331,14 @@ async function populateHistoryMessages(roomId) {
 }
 
 $(document).ready(async () => {
-  const response = await fetch("component/modal-announcement.html");
-  $modalAnnouncementContainer.html(await response.text());
-  const modalAnnouncement = new bootstrap.Modal(
-    $modalAnnouncementContainer.find("#modal-announcement")
-  );
-  const $viewButton = $modalAnnouncementContainer.find("#viewButton");
-
   const roomId = parseQueryParameters(location.href).roomId;
-  if (roomId !== ANNOUCEMENT_SPACE_ID) {
+  if (roomId != ANNOUCEMENT_SPACE_ID) {
     $("#get-chatrooms").show();
     $("#announcement-text").hide();
   }
   $buttonLogout.click(onLogout);
   $buttonPost.click(onPost);
-  $buttonRoomId.click(() => {
+  $buttonroomid.click(() => {
     getChatRoomList(roomId);
   });
 
@@ -444,8 +437,5 @@ $(document).ready(async () => {
     onSystemMaintenance(socketChatroom, socketSystem)
   );
 
-  socketSystem.on(
-    "new_announcement",
-    onNewAnnouncement(modalAnnouncement, $viewButton, roomId)
-  );
+  socketSystem.on("new_announcement", onNewAnnouncement(roomId));
 });

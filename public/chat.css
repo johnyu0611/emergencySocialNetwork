@@ -6,13 +6,6 @@
   align-items: center;
 }
 
-#banner {
-  position: absolute;
-  top: 70px;
-  user-select: text;
-  display: none;
-}
-
 nav {
   width: 100%;
 }

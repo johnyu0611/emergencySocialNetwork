@@ -5,11 +5,14 @@ export function searchMessage(
   currentPage,
   pageSize
 ) {
+  console.log("Enter searchMessage!!!");
   const start = currentPage * pageSize;
   const end = start + pageSize;
   const messagesToShow = results.slice(start, end);
+  console.log(currentPage);
 
   if (messagesToShow.length > 0) {
+    console.log("THERE IS MESSAGE");
     messagesToShow.forEach((message) => {
       const resultItem = document.createElement("div");
       resultItem.classList.add(
@@ -28,7 +31,14 @@ export function searchMessage(
       timestamp.textContent = new Date(message.timestamp).toLocaleString();
 
       const messageContent = document.createElement("span");
-      messageContent.textContent = " " + message.content;
+      if (message.content != undefined) {
+        console.log("1");
+        messageContent.textContent = " " + message.content;
+      } else {
+        console.log("2");
+        messageContent.textContent = " ";
+      }
+      //   messageContent.textContent = " " + message.content;
 
       let iconHTML;
       console.log("message.status:", message);

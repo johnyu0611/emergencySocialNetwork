@@ -7,6 +7,7 @@ import { TestController } from "@/controller/SystemState.mjs";
 import { TokenController } from "@/controller/Token.mjs";
 import { UserController } from "@/controller/User.mjs";
 import { StatusController } from "@/controller/Status.mjs";
+import { StatusHistoryController } from "@/controller/StatusHistory.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { auth } from "@/middleware/Auth.mjs";
 import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
@@ -68,6 +69,10 @@ export function registerRoutes(context) {
   });
   StatusController.getInstance(router, context, {
     all: [authMiddleware, jsonMiddleware]
+  });
+  StatusHistoryController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
   });
 
   app.use(`${config.server.apiBasePath}`, router);

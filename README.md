@@ -34,8 +34,8 @@ tornadoes, wildfires, etc.
 
 ### Backend
 
-| Technology | Reason to Choose                                                                                                                                                                                                                                   |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js    | Provides a scalable and efficient runtime environment for server-side applications. Its non-blocking, event-driven architecture makes it ideal for handling multiple concurrent connections.                                                       |
-| Express.js | A minimal and flexible Node.js web application framework that provides robust features for building web and mobile applications. It simplifies the development process by offering a wide range of HTTP utility methods and middleware.            |
+| Technology | Reason to Choose                                                                                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js    | Provides a scalable and efficient runtime environment for server-side applications. Its non-blocking, event-driven architecture makes it ideal for handling multiple concurrent connections.                                                      |
+| Express.js | A minimal and flexible Node.js web application framework that provides robust features for building web and mobile applications. It simplifies the development process by offering a wide range of HTTP utility methods and middleware.           |
 | Socket.IO  | Enables real-time, bidirectional communication between the server and clients, making it ideal for applications requiring dynamic updates, such as chat applications. Team members have prior experience using it, ensuring smooth implementation |

@@ -5,6 +5,8 @@ import { checkStopWords } from "../lib/check-stop-words.mjs";
 import { searchMessage } from "./load-messages.mjs";
 import { searchStatus } from "./load-status.mjs";
 import { searchUsers } from "./load-users.mjs";
+import { PUBLIC_CHATROOM_ID, ANNOUCEMENT_SPACE_ID } from "./constants.mjs";
+import { getHistoryStatus } from "../lib/get-history-status.mjs";
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -52,16 +54,30 @@ export async function performSearch(
     }
 
     if (selectedOption === "message") {
-      const response = await getHistoryMessages({ token, roomId, query });
-      await sleep(2000); // wait for 2 seconds before proceeding
-      results = response.messages.reverse();
-      currentPage = 0;
+      if (
+        query === "status" &&
+        roomId != PUBLIC_CHATROOM_ID &&
+        roomId != ANNOUCEMENT_SPACE_ID
+      ) {
+        currentPage = 0;
+        const response = await getHistoryStatus({ token, roomId });
+        console.log(response);
+        await sleep(2000); // wait for 2 seconds before proceeding
+        results = response;
+      } else {
+        currentPage = 0;
+        const response = await getHistoryMessages({ token, roomId, query });
+        console.log(response);
+        await sleep(2000); // wait for 2 seconds before proceeding
+        results = response.messages.reverse();
+      }
 
       const loadMessages = () => {
         if (stopSearchState.isSearchStopped) {
           console.log("Search stopped.");
           return;
         }
+        console.log("display");
         currentPage = searchMessage(
           results,
           resultsContainer,

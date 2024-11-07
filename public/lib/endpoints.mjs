@@ -9,6 +9,7 @@ export const ENDPOINT_CHATROOM_MESSAGE = (roomId) =>
   `${ENDPOINT_CHATROOM_ID(roomId)}/messages`;
 export const ENDPOINT_CHATROOM_MESSAGE_ID = (roomId, messageId) =>
   `${ENDPOINT_CHATROOM_MESSAGE(roomId)}/${messageId}`;
+export const ENDPOINT_CHATROOM_STATUS = `${API_ROOT}/status-history`;
 
 // endpoints added for esn speed test
 export const ENDPOINT_SYSTEM = `${API_ROOT}/system/state`;
