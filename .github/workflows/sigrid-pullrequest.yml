@@ -3,6 +3,7 @@ on: [pull_request]
 jobs:
   sigridci:
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
