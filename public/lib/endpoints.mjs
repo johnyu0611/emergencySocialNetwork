@@ -3,6 +3,8 @@ export const ENDPOINT_USERS = `${API_ROOT}/users`;
 export const ENDPOINT_TOKENS = `${API_ROOT}/tokens`;
 export const ENDPOINT_CHATROOM = `${API_ROOT}/chatrooms`;
 export const ENDPOINT_STATUS = `${API_ROOT}/status`;
+export const ENDPOINT_EMERGENCY_CONTACT = `${API_ROOT}/emergency-contact`;
+export const ENDPOINT_EMERGENCY_HISTORY = `${API_ROOT}/emergency-history`;
 export const ENDPOINT_CHATROOM_ID = (roomId) =>
   `${API_ROOT}/chatrooms/${roomId}`;
 export const ENDPOINT_CHATROOM_MESSAGE = (roomId) =>

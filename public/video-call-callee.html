@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
+    <!-- <link href="common/common.css" rel="stylesheet" /> -->
+    <link href="video-call-callee.css" rel="stylesheet" />
+    <title>Emergency Video Call</title>
+    <script src="common/common.mjs" type="module"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row mb-3 mt-3 justify-content-md-center">
+        <div id="user-name"></div>
+        <div class="col-2 d-flex flex-column align-items-stretch">
+          <button id="call" class="btn btn-primary mb-2 w-100 hidden">
+            Call!
+          </button>
+          <button id="hangup" class="btn btn-primary mb-2 w-100">Hangup</button>
+        </div>
+        <div id="answer" class="col"></div>
+      </div>
+      <div id="videos">
+        <div id="video-wrapper">
+          <video
+            class="video-player"
+            id="local-video"
+            autoplay
+            playsinline
+            controls
+          ></video>
+        </div>
+        <video
+          class="video-player"
+          id="remote-video"
+          autoplay
+          playsinline
+          controls
+        ></video>
+      </div>
+
+      <div class="container" id="history-container">
+        <!-- Chat messages will be appended here -->
+      </div>
+
+      <div class="container" id="input-area">
+        <label class="form-label" for="input-box"></label>
+        <textarea
+          class="form-control"
+          id="input-box"
+          placeholder="Type emergency info..."
+        ></textarea>
+        <button
+          class="btn btn-primary color-white"
+          id="button-post"
+          type="button"
+        >
+          <i class="fa fa-paper-plane" id="button-post-icon"></i>
+        </button>
+      </div>
+    </div>
+  </body>
+
+  <script src="video-call-callee.mjs" type="module"></script>
+</html>

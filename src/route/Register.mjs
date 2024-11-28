@@ -8,6 +8,8 @@ import { TokenController } from "@/controller/Token.mjs";
 import { UserController } from "@/controller/User.mjs";
 import { StatusController } from "@/controller/Status.mjs";
 import { StatusHistoryController } from "@/controller/StatusHistory.mjs";
+import { EmergencyContactController } from "@/controller/EmergencyContact.mjs";
+import { EmergencyHistoryController } from "@/controller/EmergencyHistory.mjs";
 import { QuizController } from "@/controller/Quiz.mjs";
 import { QuizQuestionController } from "@/controller/QuizQuestion.mjs";
 import { QuizChallengeController } from "@/controller/QuizChallenge.mjs";
@@ -74,6 +76,14 @@ export function registerRoutes(context) {
     all: [authMiddleware, jsonMiddleware]
   });
   StatusHistoryController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+  EmergencyContactController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+  EmergencyHistoryController.getInstance(router, context, {
     all: [authMiddleware, jsonMiddleware],
     get: [getWithBodyMiddleware]
   });

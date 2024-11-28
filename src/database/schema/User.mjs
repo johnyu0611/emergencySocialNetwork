@@ -22,6 +22,38 @@ export const UserSchema = new Schema({
   timestamp: {
     type: Date
   },
+  emergencyContact: {
+    type: {
+      username: {
+        type: String
+      },
+      email: {
+        type: String
+      },
+      fullName: {
+        type: String
+      }
+    }
+  },
+  emergencyContactTo: {
+    type: String
+  },
+  emergencyHistory: {
+    type: [
+      {
+        sender: {
+          type: String
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now
+        },
+        content: {
+          type: String
+        }
+      }
+    ]
+  },
   chatrooms: {
     type: [
       {

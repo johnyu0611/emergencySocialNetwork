@@ -47,6 +47,17 @@
                 </a>
               </li>
 
+              <li class="nav-ite fs-6">
+                <a
+                  aria-current="page"
+                  class="nav-link active"
+                  href="#"
+                  id="emergency-contact"
+                >
+                  Emergency Contact
+                </a>
+              </li>
+
               <li class="nav-item fs-6">
                 <a
                   class="nav-link"
@@ -184,6 +195,89 @@
               data-bs-dismiss="modal"
             >
               Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modal-emergency-contact"
+      tabindex="-1"
+      aria-labelledby="modalEmergencyContactLabel"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEmergencyContactLabel">
+              Emergency Contact Information
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Please provide the contact details of someone to reach in case of
+              an emergency:
+            </p>
+            <form id="emergency-contact-form">
+              <div class="mb-3">
+                <label for="contact-name" class="form-label"
+                  >Contact Name</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contact-fullname"
+                  placeholder="Enter full name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="contact-username" class="form-label"
+                  >Contact Username</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contact-username"
+                  placeholder="Enter username"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="contact-email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="contact-email"
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              form="emergency-contact-form"
+            >
+              Save Contact
             </button>
           </div>
         </div>

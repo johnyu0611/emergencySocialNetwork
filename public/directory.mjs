@@ -13,6 +13,8 @@ import {
 import { getESNDirectory } from "./lib/get-esndirectory.mjs";
 import { logout } from "./lib/logout.mjs";
 import { updateStatus as apiUpdateStatus } from "./lib/change-status.mjs";
+import { updateEmergencyContact } from "./lib/create-emergency-contact.mjs";
+import { getEmergencyContact } from "./lib/get-emergency-contact.mjs";
 import { sendChallenge } from "./lib/sendChallenge.mjs";
 import { acceptChallenge } from "./lib/acceptChallenge.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
@@ -31,11 +33,15 @@ const $performSearchButton = $("#perform-search-button");
 const modalBody = $("#modal-status .modal-body");
 const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 const $viewButton = $("#modal-announcement .modal-body #viewButton");
+const $emergencyContactButton = $("#emergency-contact");
+const $emergencyContactModal = new bootstrap.Modal(
+  $("#modal-emergency-contact")
+);
+const emergencyContactForm = $("#emergency-contact-form");
 const challengeModal = new bootstrap.Modal($("#modal-challenge"));
 const $sendChallengeButton = $("#sendChallengeButton");
 const invitationModal = new bootstrap.Modal($("#modal-invitation"));
 const $acceptChallengeButton = $("#acceptChallengeButton");
-// const $declineChallengeButton = $("#declineChallengeButton");
 let socketChatroom = undefined;
 let roomStatus = {};
 let selectedUser = null;
@@ -309,6 +315,97 @@ function onChatroomMessage() {
   };
 }
 
+async function loadEmergencyContact() {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) {
+    location.href = "register.html";
+  }
+  try {
+    const res = await getEmergencyContact({ token });
+    console.log(res);
+    const username = res.username;
+    const fullName = res.fullName;
+    const email = res.email;
+
+    $("#contact-username").val(username);
+    $("#contact-fullname").val(fullName);
+    $("#contact-email").val(email);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function saveEmergencyContact(fullName, username, email) {
+  const token = localStorage.getItem(KEY_TOKEN);
+
+  if (!token) {
+    console.error("No authorization token found.");
+    void banner.showErrorMessage("You must log in first");
+    return;
+  }
+
+  try {
+    const response = await updateEmergencyContact({
+      fullName,
+      username,
+      email,
+      token
+    });
+    void banner.showSuccessMessage(
+      `Emermegency contact set: ${response.emergencyContact}`
+    );
+  } catch (error) {
+    console.error("Error during update emergency contact:", error);
+    if (error.message) {
+      console.error("Response details:", error.message);
+    }
+    if (error.status === 400) {
+      void banner.showErrorMessage(`${error.message}`);
+      return;
+    }
+    void banner.showErrorMessage(
+      "Incorrect emergency contact info. Please try again"
+    );
+  }
+
+  $("#contact-username").val("");
+  $("#contact-fullname").val("");
+  $("#contact-email").val("");
+}
+
+async function callIfEmergencyContactOnline() {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) {
+    location.href = "register.html";
+  }
+  try {
+    const res = await getEmergencyContact({ token });
+    const isOnline = res.isOnline;
+    console.log(res);
+    if (isOnline) {
+      location.href = "video-call-caller.html";
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function onNewVideoCall(emergencyContact) {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) {
+    location.href = "register.html";
+  }
+
+  const res = await getEmergencyContact({ token });
+  const username = res.curr;
+  console.log("HIIIII");
+  console.log(res);
+
+  if (username === emergencyContact) {
+    location.href = "video-call-callee.html";
+  }
+}
+
 function onNewChallenge(data) {
   const { challenger, challenged, questionID: targetQuestionID } = data;
   questionID = targetQuestionID;
@@ -352,6 +449,22 @@ $(document).ready(async () => {
     const status = $(this).data("status");
     updateStatus(status);
     statusModal.hide();
+    callIfEmergencyContactOnline();
+  });
+
+  $emergencyContactButton.on("click", function (event) {
+    event.preventDefault();
+    $emergencyContactModal.show();
+    loadEmergencyContact();
+  });
+  emergencyContactForm.on("submit", function (event) {
+    event.preventDefault();
+    const username = $("#contact-username").val();
+    const fullName = $("#contact-fullname").val();
+    const email = $("#contact-email").val();
+    saveEmergencyContact(fullName, username, email);
+    console.log("Contact Username:", username);
+    $emergencyContactModal.hide();
   });
 
   $searchButton.on("click", function (event) {
@@ -439,26 +552,16 @@ $(document).ready(async () => {
 
   socket.on("message", onChatroomMessage());
 
+  socket.on("newOfferAwaiting", async (data) => {
+    const { emergencyContact } = data;
+    await onNewVideoCall(emergencyContact);
+  });
   socket.on("new_challenge", onNewChallenge);
   socket.on("challenge_accepted", onChallengeAccepted);
-
-  // socket.on("challenge_declined", (data) => {
-  //   const { challenger, challenged } = data;
-
-  //   const token = localStorage.getItem(KEY_TOKEN);
-  //   const { username: currentUsername } = getJWTPayload(token);
-
-  //   if (currentUsername === challenger) {
-  //     alert(`${challenged} declines your invitation!`);
-  //   }
-  // });
 
   $sendChallengeButton.on("click", async function (event) {
     event.preventDefault();
     challengeModal.hide();
-
-    // alert("Challenge sent!");
-    // banner.showSuccessMessage("Challenge sent, waiting for response...", 30000);
 
     const token = localStorage.getItem(KEY_TOKEN);
     const { username: currentUsername } = getJWTPayload(token);
@@ -514,29 +617,6 @@ $(document).ready(async () => {
       await banner.showErrorMessage("Failed to accept the challenge.");
     }
   });
-
-  // $declineChallengeButton.on("click", async function (event) {
-  //   event.preventDefault();
-  //   invitationModal.hide();
-
-  //   const token = localStorage.getItem(KEY_TOKEN);
-  //   const { username: currentUsername } = getJWTPayload(token);
-
-  //   const payload = {
-  //     challenger: selectedUser,
-  //     challenged: currentUsername,
-  //     questionID: questionID,
-  //     isAccepted: false,
-  //   };
-
-  //   try {
-  //     await acceptChallenge({ payload, token });
-  //     location.href = "directory.html";
-  //   } catch (error) {
-  //     console.error(error);
-  //     await banner.showErrorMessage("Failed to decline the challenge.");
-  //   }
-  // });
 
   await onPost();
 });

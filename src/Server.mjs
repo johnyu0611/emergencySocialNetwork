@@ -7,8 +7,9 @@ import { registerChannel } from "@/socket/Register.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
-import { createServer } from "http";
+import { createServer } from "https";
 import { Server } from "socket.io";
+import fs from "fs";
 
 const loggerContext = "Server";
 
@@ -24,7 +25,10 @@ export async function runServer() {
   );
 
   // Set up Socket.IO
-  const server = createServer(app);
+  const key = fs.readFileSync("cert.key");
+  const cert = fs.readFileSync("cert.crt");
+
+  const server = createServer({ key, cert }, app);
   const io = new Server(server, {
     path: `${config.server.apiBasePath}/socket.io/`
   });
