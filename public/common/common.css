@@ -36,4 +36,5 @@ body {
   top: 70px;
   user-select: text;
   display: none;
+  z-index: 9999;
 }

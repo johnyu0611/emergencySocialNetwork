@@ -1,0 +1,279 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
+    <title>Temporal Medical Center</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="medicalmap.css" rel="stylesheet" />
+    <script src="medicalmap.mjs" type="module"></script>
+  </head>
+  <body>
+    <div class="alert" id="banner" role="banner"></div>
+    <div id="container">
+      <div class="alert" id="banner" role="banner"></div>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <img
+            alt="Logo"
+            class="align-text-top"
+            height="30"
+            src="asset/sos.gif"
+            width="30"
+          />
+          <a class="navbar-brand" id="title">Temporal Medical Center</a>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            id="button-directoty"
+            type="button"
+            onclick="location.href='directory.html'"
+          >
+            <i class="fa-solid fa-house"></i>
+          </button>
+
+          <button
+            class="btn btn-outline-success btn-sm"
+            id="button-create"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#addressModal"
+          >
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </nav>
+      <gmp-map center="-33.9,151.2" zoom="10" map-id="DEMO_MAP_ID" id="map">
+      </gmp-map>
+
+      <div id="data-list-container" class="mc-list">
+        <ul id="data-list" class="data-list"></ul>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="addressModal"
+      tabindex="-1"
+      aria-labelledby="addressModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addressModalLabel">
+              Temporal Medical Form
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+              id="close-button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Address Form -->
+            <form id="address-form" action="" method="get" autocomplete="off">
+              <p class="note" id="note"><em>* = required field</em></p>
+              <label class="form-label" id="label-title">
+                Title*
+                <input class="form-control" id="titles" required />
+              </label>
+              <label class="form-label" id="label-ship">
+                Located at*
+                <input
+                  class="form-control"
+                  id="ship-address"
+                  name="ship-address"
+                  required
+                  autocomplete="off"
+                />
+              </label>
+              <label class="form-label" id="label-locality">
+                City*
+                <input
+                  class="form-control"
+                  id="locality"
+                  name="locality"
+                  required
+                />
+              </label>
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label" id="label-state">
+                    State/Province*
+                    <input
+                      class="form-control"
+                      id="state"
+                      name="state"
+                      required
+                    />
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" id="label-postal">
+                    Postal code*
+                    <input class="form-control" id="postcode" name="postcode" />
+                  </label>
+                </div>
+              </div>
+              <label class="form-label" id="label-country">
+                Country/Region*
+                <select id="country">
+                  <option value="AR">Argentina</option>
+                  <option value="AT">Austria</option>
+                  <option value="AU">Australia</option>
+                  <option value="BE">Belgium</option>
+                  <option value="BG">Bulgaria</option>
+                  <option value="BR">Brazil</option>
+                  <option value="CA">Canada</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="CL">Chile</option>
+                  <option value="CO">Colombia</option>
+                  <option value="CZ">Czechia</option>
+                  <option value="DE">Germany</option>
+                  <option value="DK">Denmark</option>
+                  <option value="EE">Estonia</option>
+                  <option value="ES">Spain</option>
+                  <option value="FI">Finland</option>
+                  <option value="FR">France</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="HR">Croatia</option>
+                  <option value="HU">Hungary</option>
+                  <option value="IE">Ireland</option>
+                  <option value="IN">India (Science)</option>
+                  <option value="IT">Italy</option>
+                  <option value="LT">Lithuania</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="LV">Latvia</option>
+                  <option value="MX">Mexico</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="NO">Norway</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="PL">Poland</option>
+                  <option value="PR">Puerto Rico</option>
+                  <option value="PT">Portugal</option>
+                  <option value="SE">Sweden</option>
+                  <option value="SG">Singapore</option>
+                  <option value="SI">Slovenia</option>
+                  <option value="SK">Slovakia</option>
+                  <option value="US">United States</option>
+                </select>
+              </label>
+              <label class="form-label" id="label-intro">
+                Introduction*
+                <textarea
+                  class="form-control"
+                  rows="4"
+                  cols="50"
+                  tabindex="0"
+                  id="introduction"
+                  required
+                ></textarea>
+              </label>
+              <div class="mt-3">
+                <button type="button" class="btn btn-primary" id="save-address">
+                  Save Address
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      aria-hidden="true"
+      aria-labelledby="exampleModalLabel"
+      class="modal fade"
+      data-bs-backdrop="static"
+      id="modal-confirm"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Create a Temporary Medical Center</h1>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Confirm to create a new temporary medical center?</p>
+            <p id="confirm"></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              id="modal-confirm-join-btn-cancel"
+              type="button"
+            >
+              No
+            </button>
+            <button
+              class="btn btn-primary"
+              id="modal-confirm-join-btn-confirm"
+              type="button"
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="editModal"
+      tabindex="-1"
+      aria-labelledby="addressModalLabel"
+      aria-hidden="true"
+      data-mcid=""
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="edit-form" action="" method="get">
+              <p class="note" id="note-edit"><em>* = required field</em></p>
+              <label class="form-label">
+                Introduction*
+                <textarea
+                  class="form-control"
+                  rows="4"
+                  cols="50"
+                  tabindex="0"
+                  id="edit-intro"
+                  required
+                ></textarea>
+              </label>
+              <div class="mt-3">
+                <button type="button" class="btn btn-primary" id="update">
+                  Save Introduction
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8booOEHhBTnLL631xuNMJhKVB3eGi-Eg&loading=async&libraries=marker&v=beta&solution_channel=GMP_CCS_complexmarkers_v3&language=en"
+      defer
+    ></script>
+  </body>
+</html>

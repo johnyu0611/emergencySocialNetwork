@@ -18,6 +18,8 @@ import { auth } from "@/middleware/Auth.mjs";
 import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
 import { getWithBody } from "@/middleware/GetWithBody.mjs";
 import { json, Router } from "express";
+import { MedicalCenterController } from "@/controller/MedicalCenter.mjs";
+import { ReviewController } from "@/controller/Review.mjs";
 
 const loggerContext = "RouteRegistrar";
 
@@ -107,6 +109,16 @@ export function registerRoutes(context) {
       get: [getWithBodyMiddleware]
     }
   );
+
+  MedicalCenterController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+
+  ReviewController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
 
   app.use(`${config.server.apiBasePath}`, router);
   logger.debug(

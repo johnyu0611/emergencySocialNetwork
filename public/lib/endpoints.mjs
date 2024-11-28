@@ -26,3 +26,10 @@ export const ENDPOINT_SOCKET_IO = `${API_ROOT}/socket.io`;
 export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatroom";
 
 export const NAMESPACE_SOCKET_IO_SYSTEM = "/system";
+
+export const ENDPOINT_ADDRESS_VALIDATION =
+  "https://addressvalidation.googleapis.com/v1:validateAddress?key=AIzaSyD8booOEHhBTnLL631xuNMJhKVB3eGi-Eg";
+
+export const ENDPOINT_MEDICAL = `${API_ROOT}/medicalcenters`;
+
+export const ENDPOINT_REVIEW = `${API_ROOT}/reviews`;

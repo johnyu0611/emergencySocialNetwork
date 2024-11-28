@@ -1,0 +1,122 @@
+.flag-icon {
+  position: relative;
+  left: 10px;
+}
+
+#container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+nav {
+  width: 100%;
+}
+
+.form-label {
+  width: 100%;
+  padding: 0.5em;
+}
+
+.full-field {
+  flex: 400px;
+  margin: 15px 0;
+}
+
+.slim-field-left {
+  flex: 1 150px;
+  margin: 15px;
+  margin-inline-start: 0;
+}
+
+.slim-field-right {
+  flex: 1 150px;
+  margin: 15px;
+  margin-inline-end: 0;
+}
+
+.my-button {
+  background-color: #000;
+  border-radius: 6px;
+  color: #fff;
+  margin: 10px;
+  cursor: pointer;
+  padding: 6px 24px;
+  text-decoration: none;
+}
+
+.my-button:hover {
+  background-color: #666;
+}
+
+.my-button:active {
+  position: relative;
+  top: 1px;
+}
+
+.mc-list {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 40vh;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  background-color: #e5d2b7;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2); /* 顶部阴影 */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.data-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card {
+  background-color: #efd2a9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin: 5px 0;
+  width: 90%;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.delete {
+  width: fit-content;
+}
+
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 10px;
+}

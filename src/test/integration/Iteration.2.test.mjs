@@ -33,7 +33,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
     config.environment.databaseName = "IntegrationTest2";
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
-
+    config.environment.port = 3003;
     server = await runServer();
     userController = UserController.getInstance();
     statusController = StatusController.getInstance();

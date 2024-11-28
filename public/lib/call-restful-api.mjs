@@ -19,6 +19,25 @@ export async function callRestfulApi({
   return await handleRestfulResponse(response, handlerMap);
 }
 
+export async function callRestfulApiMap({
+  method,
+  endpoint,
+  payload,
+  handlerMap
+}) {
+  const headers = new Headers({
+    "Content-Type": "application/json"
+  });
+
+  const response = await fetch(endpoint, {
+    method: method,
+    headers: headers,
+    body: JSON.stringify(payload)
+  });
+
+  return await handleRestfulResponse(response, handlerMap);
+}
+
 export async function callRestfulApiGet({
   endpoint,
   payload,
