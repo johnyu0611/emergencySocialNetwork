@@ -13,10 +13,13 @@ import {
 import { getESNDirectory } from "./lib/get-esndirectory.mjs";
 import { logout } from "./lib/logout.mjs";
 import { updateStatus as apiUpdateStatus } from "./lib/change-status.mjs";
+import { sendChallenge } from "./lib/sendChallenge.mjs";
+import { acceptChallenge } from "./lib/acceptChallenge.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
 
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
@@ -28,8 +31,15 @@ const $performSearchButton = $("#perform-search-button");
 const modalBody = $("#modal-status .modal-body");
 const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 const $viewButton = $("#modal-announcement .modal-body #viewButton");
+const challengeModal = new bootstrap.Modal($("#modal-challenge"));
+const $sendChallengeButton = $("#sendChallengeButton");
+const invitationModal = new bootstrap.Modal($("#modal-invitation"));
+const $acceptChallengeButton = $("#acceptChallengeButton");
+// const $declineChallengeButton = $("#declineChallengeButton");
 let socketChatroom = undefined;
 let roomStatus = {};
+let selectedUser = null;
+let questionID = null;
 
 async function onPost() {
   try {
@@ -123,6 +133,33 @@ function displayUsers(users) {
 
     // Append the username and status dot to the list item
     listItem.appendChild(userInfoContainer);
+
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { username: currentUsername } = getJWTPayload(token);
+
+    // *** NEW: Add the "Versus" icon for all online users ***
+    if (user.isOnline && user.username !== currentUsername) {
+      const versusIcon = document.createElement("img");
+      versusIcon.src = "asset/versus.png";
+      versusIcon.alt = "Challenge";
+      versusIcon.style.width = "30px";
+      versusIcon.style.height = "30px";
+      versusIcon.style.cursor = "pointer";
+
+      versusIcon.addEventListener("click", () => {
+        // alert(`About to challenge ${user.username}!`);
+        // location.href = "challenge.html";
+        selectedUser = user.username;
+        const modalBody = document.querySelector(
+          "#modal-challenge .modal-body p"
+        );
+        modalBody.textContent = `Send quiz challenge to ${user.username}?`;
+        challengeModal.show();
+      });
+
+      listItem.appendChild(versusIcon);
+    }
+
     listItem.appendChild(messageIcon);
     listItem.appendChild(statusDot);
     userList.appendChild(listItem);
@@ -192,7 +229,6 @@ async function getChatRoomList(roomId) {
     const res = await getChatroom({ token, roomId });
     const chatroomlist = res.chatrooms;
     roomStatus = {};
-    console.log(chatroomlist);
     chatroomlist.map((e) => {
       if (e.id && e.receiver) {
         roomStatus[e.receiver] = { hasUnread: e.hasUnread, id: e.id };
@@ -271,6 +307,38 @@ function onChatroomMessage() {
       }
     }
   };
+}
+
+function onNewChallenge(data) {
+  const { challenger, challenged, questionID: targetQuestionID } = data;
+  questionID = targetQuestionID;
+
+  // Get the current username from the JWT token
+  const token = localStorage.getItem(KEY_TOKEN);
+  const { username: currentUsername } = getJWTPayload(token);
+
+  // If the current user is the one being challenged, display the modal
+  if (challenged === currentUsername) {
+    selectedUser = challenger;
+    const modalBody = document.querySelector("#modal-invitation .modal-body p");
+    modalBody.textContent = `${challenger} invites you to a quiz challenge. Do you accept?`;
+    invitationModal.show();
+  }
+}
+
+function onChallengeAccepted(data) {
+  const { challenger, challenged, questionID } = data;
+
+  // Get the current username
+  const token = localStorage.getItem(KEY_TOKEN);
+  const { username: currentUsername } = getJWTPayload(token);
+
+  // Redirect only if the current user is part of the challenge
+  if (currentUsername === challenger || currentUsername === challenged) {
+    // window.location.href = "challenge.html";
+    const challengeURL = `challenge.html?questionID=${questionID}`;
+    window.location.href = challengeURL;
+  }
 }
 
 $(document).ready(async () => {
@@ -370,5 +438,105 @@ $(document).ready(async () => {
   socket.on("new_announcement", onNewAnnouncement());
 
   socket.on("message", onChatroomMessage());
+
+  socket.on("new_challenge", onNewChallenge);
+  socket.on("challenge_accepted", onChallengeAccepted);
+
+  // socket.on("challenge_declined", (data) => {
+  //   const { challenger, challenged } = data;
+
+  //   const token = localStorage.getItem(KEY_TOKEN);
+  //   const { username: currentUsername } = getJWTPayload(token);
+
+  //   if (currentUsername === challenger) {
+  //     alert(`${challenged} declines your invitation!`);
+  //   }
+  // });
+
+  $sendChallengeButton.on("click", async function (event) {
+    event.preventDefault();
+    challengeModal.hide();
+
+    // alert("Challenge sent!");
+    // banner.showSuccessMessage("Challenge sent, waiting for response...", 30000);
+
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { username: currentUsername } = getJWTPayload(token);
+    const payload = {
+      challenger: currentUsername,
+      challenged: selectedUser
+    };
+
+    try {
+      const { questionID } = await sendChallenge({ payload, token });
+      localStorage.setItem("currentChallengeChallenger", currentUsername);
+      localStorage.setItem("currentChallengeChallenged", selectedUser);
+      localStorage.setItem("currentChallengeQuestionID", questionID);
+
+      await banner.showSuccessMessage(
+        "Challenge sent, waiting for response..."
+      );
+    } catch (error) {
+      console.error(error);
+      await banner.showWarningMessage(
+        "Failed to send challenge: no question available",
+        5000
+      );
+    }
+  });
+
+  $acceptChallengeButton.on("click", async function (event) {
+    event.preventDefault();
+    invitationModal.hide();
+    // alert("Challenge accepted!");
+
+    if (!selectedUser) {
+      console.error("No challenger selected for accepting the challenge.");
+      return;
+    }
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { username: currentUsername } = getJWTPayload(token);
+
+    const payload = {
+      challenger: currentUsername,
+      challenged: selectedUser,
+      questionID: questionID
+    };
+
+    localStorage.setItem("currentChallengeChallenger", selectedUser);
+    localStorage.setItem("currentChallengeChallenged", currentUsername);
+
+    try {
+      await acceptChallenge({ payload, token });
+      await banner.showSuccessMessage("Challenge accepted! Redirecting...");
+    } catch (error) {
+      console.error(error);
+      await banner.showErrorMessage("Failed to accept the challenge.");
+    }
+  });
+
+  // $declineChallengeButton.on("click", async function (event) {
+  //   event.preventDefault();
+  //   invitationModal.hide();
+
+  //   const token = localStorage.getItem(KEY_TOKEN);
+  //   const { username: currentUsername } = getJWTPayload(token);
+
+  //   const payload = {
+  //     challenger: selectedUser,
+  //     challenged: currentUsername,
+  //     questionID: questionID,
+  //     isAccepted: false,
+  //   };
+
+  //   try {
+  //     await acceptChallenge({ payload, token });
+  //     location.href = "directory.html";
+  //   } catch (error) {
+  //     console.error(error);
+  //     await banner.showErrorMessage("Failed to decline the challenge.");
+  //   }
+  // });
+
   await onPost();
 });

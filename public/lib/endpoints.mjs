@@ -16,6 +16,9 @@ export const ENDPOINT_SYSTEM = `${API_ROOT}/system/state`;
 // export const ENDPOINT_SYSTEM_STATE = (state) =>
 //   `${API_ROOT}/system/${state}`;
 
+export const ENDPOINT_QUIZZES = `${API_ROOT}/quizzes`;
+export const ENDPOINT_QUIZZES_CHALLENGES = `${API_ROOT}/quizzes/challenges`;
+
 export const ENDPOINT_SOCKET_IO = `${API_ROOT}/socket.io`;
 
 export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatroom";

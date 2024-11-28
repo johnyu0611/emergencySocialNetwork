@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <title>Quiz Challenge</title>
+    <link rel="stylesheet" href="challenge.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="challenge.mjs"></script>
+  </head>
+  <body>
+    <div class="alert" id="banner" role="banner"></div>
+    <div id="app">
+      <header>
+        <h1></h1>
+      </header>
+      <main>
+        <div id="question-container">
+          <p></p>
+        </div>
+      </main>
+    </div>
+
+    <div id="modal-container-quiz-result"></div>
+    <script>
+      fetch("component/modal-quiz-result.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("modal-container-quiz-result").innerHTML =
+            data;
+        })
+        .catch((error) =>
+          console.error("Error loading quiz result modal:", error)
+        );
+    </script>
+  </body>
+</html>

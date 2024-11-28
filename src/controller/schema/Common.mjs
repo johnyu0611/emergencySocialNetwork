@@ -54,3 +54,16 @@ export const StateSchema = z.union([
 ]);
 
 export const StatusSchema = z.string({ message: "status should be a string" });
+
+// For quizzes
+export const DescriptionSchema = z
+  .string({
+    message: "Description should be a string"
+  })
+  .trim()
+  .min(1, { message: "Description cannot be empty" })
+  .max(256, { message: "Description exceeded maximum length limit" });
+
+export const AnswerSchema = z.boolean({
+  message: "Answer must be a boolean (true/false)"
+});

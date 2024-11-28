@@ -14,3 +14,7 @@ export function parseQueryParameters(url) {
 
   return parameters;
 }
+
+export function getJWTPayload(token) {
+  return JSON.parse(atob(token.split(".")[1]));
+}

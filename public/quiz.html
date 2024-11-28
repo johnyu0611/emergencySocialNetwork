@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Quiz</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link rel="stylesheet" href="quiz.css" />
+  </head>
+  <body>
+    <div class="alert" id="banner" role="banner"></div>
+
+    <div style="position: absolute; top: 16px; right: 16px">
+      <button class="btn cancel-button" id="button-cancel">Cancel</button>
+    </div>
+
+    <div class="quiz-container">
+      <label for="description">Quiz Description:</label>
+      <textarea
+        id="description"
+        name="description"
+        placeholder="Enter your quiz question here"
+        style="width: 80%; height: 100px; margin-top: 10px"
+      ></textarea>
+
+      <div class="answer-container">
+        <label>Answer:</label>
+        <div>
+          <input type="radio" id="answer-true" name="answer" value="true" />
+          <label for="answer-true">True</label>
+          <input type="radio" id="answer-false" name="answer" value="false" />
+          <label for="answer-false">False</label>
+        </div>
+      </div>
+
+      <button
+        class="btn confirm-button"
+        id="button-confirm"
+        style="margin-top: 20px"
+      >
+        Confirm
+      </button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="quiz.mjs" type="module"></script>
+  </body>
+</html>

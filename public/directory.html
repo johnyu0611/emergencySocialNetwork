@@ -96,6 +96,14 @@
               >
                 <span>Logout</span>
               </button>
+              <button
+                class="btn create-quiz-button"
+                id="button-create-quiz"
+                type="button"
+                onclick="window.location.href='quiz.html'"
+              >
+                Create Quiz
+              </button>
             </form>
           </div>
         </div>
@@ -184,6 +192,7 @@
 
     <div id="modal-container"></div>
     <div id="modal-container-search"></div>
+    <div id="modal-container-challenge"></div>
     <script>
       fetch("component/modal-announcement.html")
         .then((response) => response.text())
@@ -198,6 +207,22 @@
           document.getElementById("modal-container-search").innerHTML = data;
         })
         .catch((error) => console.error("Error loading modal:", error));
+      fetch("component/modal-challenge.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("modal-container-challenge").innerHTML = data;
+        })
+        .catch((error) =>
+          console.error("Error loading challenge modal:", error)
+        );
+      fetch("component/modal-invitation.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("modal-container").innerHTML += data;
+        })
+        .catch((error) =>
+          console.error("Error loading quiz challenge invitation modal:", error)
+        );
     </script>
   </body>
 </html>

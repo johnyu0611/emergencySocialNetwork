@@ -8,6 +8,9 @@ import { TokenController } from "@/controller/Token.mjs";
 import { UserController } from "@/controller/User.mjs";
 import { StatusController } from "@/controller/Status.mjs";
 import { StatusHistoryController } from "@/controller/StatusHistory.mjs";
+import { QuizController } from "@/controller/Quiz.mjs";
+import { QuizQuestionController } from "@/controller/QuizQuestion.mjs";
+import { QuizChallengeController } from "@/controller/QuizChallenge.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { auth } from "@/middleware/Auth.mjs";
 import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
@@ -74,6 +77,26 @@ export function registerRoutes(context) {
     all: [authMiddleware, jsonMiddleware],
     get: [getWithBodyMiddleware]
   });
+  QuizController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    post: []
+  });
+  QuizChallengeController.getInstance(
+    QuizController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      post: []
+    }
+  );
+  QuizQuestionController.getInstance(
+    QuizController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
 
   app.use(`${config.server.apiBasePath}`, router);
   logger.debug(
