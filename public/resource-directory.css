@@ -1,0 +1,13 @@
+.resource-item.provide {
+  background-color: #e0f8e0; /* Light green background */
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.resource-item.request {
+  background-color: #f8e0e0; /* Light red background */
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}

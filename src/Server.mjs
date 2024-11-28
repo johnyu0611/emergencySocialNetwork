@@ -9,6 +9,7 @@ import cors from "cors";
 import express from "express";
 import { createServer } from "https";
 import { Server } from "socket.io";
+import bodyParser from "body-parser";
 import fs from "fs";
 
 const loggerContext = "Server";
@@ -42,6 +43,8 @@ export async function runServer() {
     app.use(cors());
     logger.warn({ context: loggerContext }, "CORS middleware enabled globally");
   }
+  //adjust limit for image upload
+  app.use(bodyParser.json({ limit: "10mb" }));
 
   // Set up MongoDB
   await MongoDBConnection.connect(

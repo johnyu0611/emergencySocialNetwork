@@ -66,6 +66,8 @@ export const StateSchema = z.union([
 
 export const StatusSchema = z.string({ message: "status should be a string" });
 
+export const ResourceIdSchema = z.string().uuid();
+
 export const LocationSchema = z.object({
   latitude: z
     .number({ message: "Latitude must be a number" })

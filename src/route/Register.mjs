@@ -18,6 +18,8 @@ import { auth } from "@/middleware/Auth.mjs";
 import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
 import { getWithBody } from "@/middleware/GetWithBody.mjs";
 import { json, Router } from "express";
+import { ResourceController } from "@/controller/PostResource.mjs";
+import { ApplicationController } from "@/controller/Application.mjs";
 import { MedicalCenterController } from "@/controller/MedicalCenter.mjs";
 import { ReviewController } from "@/controller/Review.mjs";
 
@@ -78,6 +80,14 @@ export function registerRoutes(context) {
     all: [authMiddleware, jsonMiddleware]
   });
   StatusHistoryController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+  ResourceController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+  ApplicationController.getInstance(router, context, {
     all: [authMiddleware, jsonMiddleware],
     get: [getWithBodyMiddleware]
   });
