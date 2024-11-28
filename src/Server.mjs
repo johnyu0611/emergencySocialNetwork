@@ -7,7 +7,8 @@ import { registerChannel } from "@/socket/Register.mjs";
 import { PasswordHasher } from "@/util/PasswordHasher.mjs";
 import cors from "cors";
 import express from "express";
-import { createServer } from "https";
+import { createServer as createHTTPServer } from "http";
+import { createServer as createHTTPSServer } from "https";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
 import fs from "fs";
@@ -25,11 +26,17 @@ export async function runServer() {
     `Static assets served from ${config.server.staticFolder}`
   );
 
-  // Set up Socket.IO
-  const key = fs.readFileSync("cert.key");
-  const cert = fs.readFileSync("cert.crt");
+  // Set up HTTPS for development environment
+  let server = undefined;
+  if (config.environment.development === "true") {
+    const key = fs.readFileSync("cert.key");
+    const cert = fs.readFileSync("cert.crt");
+    server = createHTTPSServer({ key, cert }, app);
+  } else {
+    server = createHTTPServer(app);
+  }
 
-  const server = createServer({ key, cert }, app);
+  // Set up Socket.IO
   const io = new Server(server, {
     path: `${config.server.apiBasePath}/socket.io/`
   });
