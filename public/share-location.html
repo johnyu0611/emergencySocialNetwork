@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
+    <title>Share Location</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="share-location.css" rel="stylesheet" />
+    <script src="share-location.mjs" type="module"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmua_gu2f2PBII6KO9AStWrMoh_VO1vi0&v=beta&language=en&region=US"></script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="alert" id="banner" role="banner"></div>
+
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Share Location</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  aria-current="page"
+                  href="directory.html"
+                  >ESN Directory</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div id="toolbar-container" class="d-flex align-items-center">
+        <button
+          id="button-sharing"
+          type="button"
+          class="btn btn-primary disabled"
+        >
+          <i class="fas fa-location-arrow"></i>
+          <span>Start</span>
+        </button>
+        <button
+          id="button-edit-resource"
+          type="button"
+          class="btn btn-secondary disabled"
+        >
+          <i class="fas fa-pen-to-square"></i>
+          <span>Edit Resource</span>
+        </button>
+      </div>
+
+      <div id="map-container"></div>
+    </div>
+
+    <div
+      id="modal-edit-resource-request"
+      class="modal fade"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Resource Request</h5>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col">
+                <label for="input-add-item" class="form-label"
+                  >Add an item:</label
+                >
+                <div class="d-flex">
+                  <input
+                    type="text"
+                    id="input-item"
+                    class="form-control me-2"
+                    placeholder="Enter item"
+                  />
+                  <button class="btn btn-primary" id="button-add-item">
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for="request-resource-list" class="form-label"
+                  >You have added:</label
+                >
+                <div id="request-resource-list" class="d-flex flex-wrap mh-3">
+                  <!--div class="chip active">Resource</div-->
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col d-flex justify-content-end">
+                <button
+                  class="btn btn-success"
+                  id="button-save-resource-request"
+                >
+                  Save Resource Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      id="modal-edit-resource-response"
+      class="modal fade"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Resource Response</h5>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col">
+                <label for="response-resource-list" class="form-label"
+                  >Choose the resource that you have brought from the list
+                  below:</label
+                >
+                <div id="response-resource-list" class="d-flex flex-wrap">
+                  <!-- div class="chip" onclick="this.classList.toggle('active')">Resource</div -->
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  id="button-save-resource-response"
+                >
+                  Save Resource Response
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="modal-announcement-container"></div>
+  </body>
+</html>

@@ -1,5 +1,7 @@
 import { UserSchema } from "@/database/schema/User.mjs";
 import { AbstractModel } from "@/model/Abstract.mjs";
+import { HTTPError } from "@/error/HTTPError.mjs";
+import { HTTP_NOT_FOUND } from "@/util/Constants.mjs";
 
 export class UserDataAccess extends AbstractModel {
   static #initializationSymbol = "%";
@@ -42,6 +44,10 @@ export class UserDataAccess extends AbstractModel {
     return await this.model.findOne({ username });
   }
 
+  async isValidUsername({ username }) {
+    return Boolean(await this.findByUsername({ username }));
+  }
+
   async findByChatroomId({ chatroomId }) {
     return await this.model.findOne({ "chatrooms.id": chatroomId });
   }
@@ -52,5 +58,14 @@ export class UserDataAccess extends AbstractModel {
 
   async update({ username }, updateFields) {
     return await this.model.findOneAndUpdate({ username }, updateFields);
+  }
+
+  async updateLocationSharingSession({ username, session }) {
+    const user = await this.findByUsername({ username });
+    if (!user) {
+      throw new HTTPError(HTTP_NOT_FOUND, `Cannot find user ${username}`);
+    }
+    user.locationSharingSession = session;
+    await this.update({ username }, user);
   }
 }

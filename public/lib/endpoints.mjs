@@ -15,19 +15,40 @@ export const ENDPOINT_CHATROOM_MESSAGE_ID = (roomId, messageId) =>
   `${ENDPOINT_CHATROOM_MESSAGE(roomId)}/${messageId}`;
 export const ENDPOINT_CHATROOM_STATUS = `${API_ROOT}/status-history`;
 
-// endpoints added for esn speed test
 export const ENDPOINT_SYSTEM = `${API_ROOT}/system/state`;
-// export const ENDPOINT_SYSTEM_STATE = (state) =>
-//   `${API_ROOT}/system/${state}`;
+
+export const ENDPOINT_LOCATION_SHARING_SESSIONS = `${API_ROOT}/location-sharing/sessions`;
+export const ENDPOINT_LOCATION_SHARING_SESSION = (sessionId) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSIONS}/${sessionId}`;
+export const ENDPOINT_LOCATION_SHARING_SESSION_USERS = (sessionId) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSIONS}/${sessionId}/users`;
+export const ENDPOINT_LOCATION_SHARING_SESSION_USER_LOCATION = (
+  sessionId,
+  username
+) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/location`;
+export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_LAST_SEEN = (
+  sessionId,
+  username
+) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/last-seen`;
+export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_REQUEST = (
+  sessionId,
+  username
+) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/resource-request`;
+export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_RESPONSE = (
+  sessionId,
+  username
+) =>
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/resource-response`;
+export const ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE = (
+  sessionId,
+  username
+) => `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/role`;
 
 export const ENDPOINT_QUIZZES = `${API_ROOT}/quizzes`;
 export const ENDPOINT_QUIZZES_CHALLENGES = `${API_ROOT}/quizzes/challenges`;
-
-export const ENDPOINT_SOCKET_IO = `${API_ROOT}/socket.io`;
-
-export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatroom";
-
-export const NAMESPACE_SOCKET_IO_SYSTEM = "/system";
 
 export const ENDPOINT_ADDRESS_VALIDATION =
   "https://addressvalidation.googleapis.com/v1:validateAddress?key=AIzaSyD8booOEHhBTnLL631xuNMJhKVB3eGi-Eg";
@@ -35,3 +56,10 @@ export const ENDPOINT_ADDRESS_VALIDATION =
 export const ENDPOINT_MEDICAL = `${API_ROOT}/medicalcenters`;
 
 export const ENDPOINT_REVIEW = `${API_ROOT}/reviews`;
+
+export const ENDPOINT_SOCKET_IO = `${API_ROOT}/socket.io`;
+
+export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatroom";
+export const NAMESPACE_SOCKET_IO_LOCATION_SHARING = "/location-sharing";
+
+export const NAMESPACE_SOCKET_IO_SYSTEM = "/system";

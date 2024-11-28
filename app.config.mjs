@@ -10,7 +10,7 @@ export const staticConfig = {
     jwt: {
       signOptions: {
         algorithm: "HS512",
-        expiresIn: "1h",
+        expiresIn: "1d",
         issuer: jwtIssuer,
         allowInsecureKeySizes: false,
         allowInvalidAsymmetricKeyTypes: false

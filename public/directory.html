@@ -75,6 +75,10 @@
               </li>
 
               <li class="nav-item fs-6">
+                <a class="nav-link" href="share-location.html">I Need Help!</a>
+              </li>
+
+              <li class="nav-item fs-6">
                 <a class="nav-link" href="resource-directory.html"
                   >Post Resources</a
                 >
@@ -243,7 +247,7 @@
             </p>
             <form id="emergency-contact-form">
               <div class="mb-3">
-                <label for="contact-name" class="form-label"
+                <label for="contact-fullname" class="form-label"
                   >Contact Name</label
                 >
                 <input
@@ -299,7 +303,44 @@
     </div>
 
     <div id="modal-container"></div>
+
     <div id="modal-container-search"></div>
+    <div
+      class="modal fade"
+      id="modal-location-sharing"
+      tabindex="-1"
+      aria-labelledby="modal-location-sharing-label"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-location-sharing-label"></h5>
+          </div>
+          <div class="modal-body">
+            <p>Do you want to reach out?</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="button-modal-location-sharing-no"
+              data-bs-dismiss="modal"
+            >
+              No
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="button-modal-location-sharing-yes"
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="modal-container-challenge"></div>
     <script>
       fetch("component/modal-announcement.html")

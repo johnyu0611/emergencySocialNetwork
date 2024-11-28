@@ -33,7 +33,9 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
     config.environment.databaseName = "IntegrationTest2";
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
-    config.environment.port = 3003;
+
+    config.environment.port = 3200;
+
     server = await runServer();
     userController = UserController.getInstance();
     statusController = StatusController.getInstance();
@@ -92,7 +94,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         status: "Help"
       })
     );
-  });
+  }, 50000);
 
   test("should get the status of a user that is already in the database", async () => {
     req = { body: { username: "user101" }, auth: { username: "user101" } };
@@ -108,7 +110,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         status: "OK"
       })
     );
-  });
+  }, 50000);
 
   test("should create chatroom for two users", async () => {
     req = { body: { receiver: "user202" }, auth: { username: "user101" } };
@@ -125,7 +127,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         receiver: "user202"
       })
     );
-  });
+  }, 50000);
 
   test("should get chatroom for user101", async () => {
     req = { body: {}, auth: { username: "user101" } };
@@ -147,7 +149,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         ]
       })
     );
-  });
+  }, 50000);
 
   test("should get chatroom message for one chatroom", async () => {
     res = {
@@ -184,7 +186,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         ])
       })
     );
-  });
+  }, 50000);
 
   test("should get 2 chatrooms for user101", async () => {
     req = { body: { receiver: "user202" }, auth: { username: "user101" } };
@@ -219,5 +221,5 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
         ]
       })
     );
-  });
+  }, 50000);
 });

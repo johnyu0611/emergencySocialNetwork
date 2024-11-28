@@ -33,6 +33,12 @@ const $performSearchButton = $("#perform-search-button");
 const modalBody = $("#modal-status .modal-body");
 const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 const $viewButton = $("#modal-announcement .modal-body #viewButton");
+const $modalLocationSharing = $("#modal-location-sharing");
+const modalLocationSharing = new bootstrap.Modal($modalLocationSharing);
+const $modalLocationSharingTitle = $("#modal-location-sharing-label");
+const $modalLocationSharingConfirmButton = $(
+  "#button-modal-location-sharing-yes"
+);
 const $emergencyContactButton = $("#emergency-contact");
 const $emergencyContactModal = new bootstrap.Modal(
   $("#modal-emergency-contact")
@@ -315,6 +321,17 @@ function onChatroomMessage() {
   };
 }
 
+function onNewLocationSharingSession() {
+  return async function ({ username, sessionId }) {
+    $modalLocationSharingTitle.text(`User ${username} called for help!`);
+    $modalLocationSharingConfirmButton.click((event) => {
+      event.preventDefault();
+      location.href = `share-location.html?joinSession=${sessionId}`;
+    });
+    modalLocationSharing.show();
+  };
+}
+
 async function loadEmergencyContact() {
   const token = localStorage.getItem(KEY_TOKEN);
   if (!token) {
@@ -549,6 +566,7 @@ $(document).ready(async () => {
   socket.on("system_maintenance", onSystemMaintenance(socket));
 
   socket.on("new_announcement", onNewAnnouncement());
+  socket.on("new_location_sharing_session", onNewLocationSharingSession());
 
   socket.on("message", onChatroomMessage());
 

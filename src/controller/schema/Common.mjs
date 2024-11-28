@@ -66,6 +66,21 @@ export const StateSchema = z.union([
 
 export const StatusSchema = z.string({ message: "status should be a string" });
 
+export const LocationSharingSessionIdSchema = z.union([
+  z.string().uuid(),
+  z.literal("undefined")
+]);
+
+export const LocationSharingRoleSchema = z.union([
+  z.literal("initiator"),
+  z.literal("responder"),
+  z.literal("undefined")
+]);
+
+export const LocationSharingLastSeenSchema = z.number();
+
+export const LocationSharingResourceListSchema = z.array(z.string().min(1));
+
 export const ResourceIdSchema = z.string().uuid();
 
 export const LocationSchema = z.object({

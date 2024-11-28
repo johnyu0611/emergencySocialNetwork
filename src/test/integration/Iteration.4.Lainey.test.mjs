@@ -33,7 +33,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 
-    config.environment.port = 3002;
+    config.environment.port = 3402;
     server = await runServer();
     userController = UserController.getInstance();
     emergencyContactController = EmergencyContactController.getInstance();

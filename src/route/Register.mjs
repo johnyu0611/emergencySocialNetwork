@@ -18,6 +18,15 @@ import { auth } from "@/middleware/Auth.mjs";
 import { checkSystemStatus } from "@/middleware/CheckSystemStatus.mjs";
 import { getWithBody } from "@/middleware/GetWithBody.mjs";
 import { json, Router } from "express";
+import { UserLocationSharingSessionController } from "@/controller/UserLocationSharingSession.mjs";
+import { LocationSharingSessionController } from "@/controller/LocationSharingSession.mjs";
+import { LocationSharingSessionIdController } from "@/controller/LocationSharingSessionId.mjs";
+import { LocationSharingSessionUserController } from "@/controller/LocationSharingSessionUser.mjs";
+import { LocationSharingSessionUserLastSeenController } from "@/controller/LocationSharingSessionUserLastSeen.mjs";
+import { LocationSharingSessionUserLocationController } from "@/controller/LocationSharingSessionUserLocation.mjs";
+import { LocationSharingSessionUserResourceRequestController } from "@/controller/LocationSharingSessionUserResourceRequest.mjs";
+import { LocationSharingSessionUserResourceResponseController } from "@/controller/LocationSharingSessionUserResourceResponse.mjs";
+import { LocationSharingSessionUserRoleController } from "@/controller/LocationSharingSessionUserRole.mjs";
 import { ResourceController } from "@/controller/PostResource.mjs";
 import { ApplicationController } from "@/controller/Application.mjs";
 import { MedicalCenterController } from "@/controller/MedicalCenter.mjs";
@@ -40,6 +49,14 @@ export function registerRoutes(context) {
     all: [jsonMiddleware, testMiddleware],
     get: [authMiddleware, getWithBodyMiddleware]
   });
+  UserLocationSharingSessionController.getInstance(
+    UserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
   TokenController.getInstance(router, context, {
     all: [jsonMiddleware, testMiddleware],
     delete: [authMiddleware]
@@ -83,6 +100,67 @@ export function registerRoutes(context) {
     all: [authMiddleware, jsonMiddleware],
     get: [getWithBodyMiddleware]
   });
+
+  LocationSharingSessionController.getInstance(router, context, {
+    all: [authMiddleware, jsonMiddleware],
+    get: [getWithBodyMiddleware]
+  });
+  LocationSharingSessionIdController.getInstance(
+    LocationSharingSessionController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserController.getInstance(
+    LocationSharingSessionIdController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserLastSeenController.getInstance(
+    LocationSharingSessionUserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserLocationController.getInstance(
+    LocationSharingSessionUserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserResourceRequestController.getInstance(
+    LocationSharingSessionUserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserResourceResponseController.getInstance(
+    LocationSharingSessionUserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
+  LocationSharingSessionUserRoleController.getInstance(
+    LocationSharingSessionUserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
   ResourceController.getInstance(router, context, {
     all: [authMiddleware, jsonMiddleware],
     get: [getWithBodyMiddleware]

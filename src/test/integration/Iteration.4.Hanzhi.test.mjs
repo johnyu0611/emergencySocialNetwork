@@ -28,7 +28,7 @@ describe("Integration test for ResourceController", () => {
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 
-    config.environment.port = 3002;
+    config.environment.port = 3400;
     server = await runServer();
     resourceController = ResourceController.getInstance();
   });

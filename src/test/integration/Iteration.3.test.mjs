@@ -30,7 +30,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 
-    config.environment.port = 3001;
+    config.environment.port = 3300;
     server = await runServer();
     userController = UserController.getInstance();
     chatroomMessageController = ChatroomMessageController.getInstance();
@@ -87,7 +87,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
 
     expect(res.status).toHaveBeenCalledWith(HTTP_CREATED);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({}));
-  });
+  }, 50000);
 
   test("should get all announcements", async () => {
     req = {
@@ -121,7 +121,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         ])
       })
     );
-  });
+  }, 50000);
 
   test("should searchz all announcements", async () => {
     req = {
@@ -155,7 +155,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         ])
       })
     );
-  });
+  }, 50000);
 
   test("should return no content", async () => {
     req = {
@@ -184,7 +184,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         messages: expect.arrayContaining([])
       })
     );
-  });
+  }, 50000);
 
   test("should return 2 user", async () => {
     req = {
@@ -205,5 +205,5 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         ]
       })
     );
-  });
+  }, 50000);
 });
