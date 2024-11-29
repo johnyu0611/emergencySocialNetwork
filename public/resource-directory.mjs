@@ -14,6 +14,23 @@ const $postResourceButton = $("#post-resource-button");
 const $submitResourceButton = $("#submitResourceButton");
 let statusModal, searchModal, postResourceModal, applicationModal;
 
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1]; // Get the Payload part
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload); // Parse the JSON payload
+  } catch (error) {
+    console.error("Failed to parse JWT:", error);
+    return null;
+  }
+}
+
 async function onLogout() {
   banner.reset();
   $buttonLogout.prop("disabled", true);
@@ -162,55 +179,90 @@ function getBase64(file) {
 
 let allResources = []; // Array to store all fetched resources
 
-// Function to render resources based on a filter
 function renderResources(filterType = "all") {
   const resourceList = $("#resource-list");
   resourceList.empty();
 
-  const filteredResources = allResources.filter((resource) => {
-    const resourceData = resource._doc || resource; // Handle nested _doc case
+  const currentUsername = getCurrentUsername();
+  const filteredResources = getFilteredResources(
+    allResources,
+    filterType,
+    currentUsername
+  );
+
+  filteredResources.forEach((resource) => {
+    const resourceContent = createResourceCard(resource, currentUsername);
+    resourceList.append(resourceContent);
+  });
+}
+
+// Helper function to parse the current username from token
+function getCurrentUsername() {
+  const token = localStorage.getItem(KEY_TOKEN);
+  const p = parseJwt(token);
+  return p?.username || p?.sub; // Adjust based on your token's structure
+}
+
+// Helper function to filter resources
+function getFilteredResources(resources, filterType, currentUsername) {
+  return resources.filter((resource) => {
+    const resourceData = resource._doc || resource;
     if (filterType === "provide")
       return resourceData.resourceType === "provide";
     if (filterType === "request")
       return resourceData.resourceType === "request";
-    return true;
+    return true; // Show all resources if no specific filter
   });
+}
 
-  filteredResources.forEach((resource) => {
-    const resourceData = resource._doc || resource; // Use _doc if present, fallback to resource
+// Helper function to create resource card HTML
+function createResourceCard(resource, currentUsername) {
+  const resourceData = resource._doc || resource;
+  const isOwnedByCurrentUser = resourceData.username === currentUsername;
 
-    const resourceContent = `
-    <div class="resource-item ${resourceData.resourceType === "provide" ? "provide" : "request"} d-flex justify-content-between align-items-start">
-      <div class="resource-details">
-        <p><strong>Resource:</strong> ${resourceData.name || "N/A"}</p>
-        <p><strong>Amount:</strong> ${resourceData.amount || "N/A"}</p>
-        <p><strong>Posted by:</strong> ${resourceData.username || "N/A"}</p>
-        <p><strong>Date Posted:</strong> ${resourceData.createdAt ? new Date(resourceData.createdAt).toLocaleDateString() : "N/A"}</p>
-        <p><strong>Type:</strong> ${resourceData.resourceType === "provide" ? "Providing" : "Requesting"}</p>
+  const imageHtml =
+    resourceData.imageBase64 && resourceData.imageType
+      ? `
+      <div class="col-12 col-md-4 text-md-right">
+        <img src="data:${resourceData.imageType};base64,${resourceData.imageBase64}"
+             alt="${resourceData.name}"
+             class="resource-image img-fluid"
+             style="max-width: 100%; height: auto; object-fit: cover;" />
       </div>
-      ${
-        resourceData.imageBase64 && resourceData.imageType
-          ? `
-        <img src="data:${resourceData.imageType};base64,${resourceData.imageBase64}" 
-             alt="${resourceData.name}" 
-             class="resource-image img-fluid" 
-             style="max-width: 100px; height: auto; object-fit: cover; margin-left: 20px;" />
-      `
-          : ""
-      }
-      <div class="action-buttons mt-2">
-        <button class="btn btn-${resourceData.resourceType === "provide" ? "primary" : "success"} btn-sm open-application-btn" 
-                data-resource-id="${resourceData.id}" 
-                data-resource-name="${resourceData.name}" 
-                data-resource-owner="${resourceData.username}" 
+    `
+      : "";
+
+  const buttonHtml = !isOwnedByCurrentUser
+    ? `
+      <div class="card-footer text-right">
+        <button class="btn btn-${resourceData.resourceType === "provide" ? "primary" : "success"} btn-sm open-application-btn"
+                data-resource-id="${resourceData.id}"
+                data-resource-name="${resourceData.name}"
+                data-resource-owner="${resourceData.username}"
                 data-action-type="${resourceData.resourceType === "provide" ? "request" : "provide"}">
           ${resourceData.resourceType === "provide" ? "Request This Resource" : "Provide This Resource"}
         </button>
       </div>
+    `
+    : "";
+
+  return `
+    <div class="card mb-3 resource-item ${resourceData.resourceType === "provide" ? "provide" : "request"}">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12 col-md-8 resource-details">
+            <p><strong>Resource:</strong> ${resourceData.name || "N/A"}</p>
+            <p><strong>Amount:</strong> ${resourceData.amount || "N/A"}</p>
+            <p><strong>Posted by:</strong> ${resourceData.username || "N/A"}</p>
+            <p><strong>Date Posted:</strong> ${resourceData.createdAt ? new Date(resourceData.createdAt).toLocaleDateString() : "N/A"}</p>
+            <p><strong>Type:</strong> ${resourceData.resourceType === "provide" ? "Providing" : "Requesting"}</p>
+          </div>
+          ${imageHtml}
+        </div>
+      </div>
+      ${buttonHtml}
     </div>
   `;
-    resourceList.append(resourceContent);
-  });
 }
 
 async function fetchAndDisplayResources() {

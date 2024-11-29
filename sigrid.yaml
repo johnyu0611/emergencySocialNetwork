@@ -1,25 +1,12 @@
 languages:
   - name: javascript
     production:
-      include: [".*[.]mjs"]
-      exclude: [".*[.]test[.]mjs"]
+      include: ["src/.*[.]mjs"]
+      exclude: ["src/.*[.]test[.]mjs"]
     test:
-      include: [".*[.]test[.]mjs"]
+      include: ["src/.*[.]test[.]mjs"]
   - name: html
   - name: css
-components:
-  - name: Frontend
-    include:
-      - "public/.*/.*[.]html"
-      - "public/.*/.*[.]css"
-      - "public/.*/.*[.]mjs"
-    exclude:
-      - ".*[.]test[.]mjs"
-  - name: Backend
-    include:
-      - "src/.*/.*[.]mjs"
-    exclude:
-      - ".*[.]test[.]mjs"
 dependencychecker:
   blocklist: ["NONE"]
 thirdpartyfindings:
