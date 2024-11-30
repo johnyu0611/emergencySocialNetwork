@@ -8,6 +8,16 @@
     <link href="common/common.css" rel="stylesheet" />
     <script src="common/common.mjs" type="module"></script>
     <link href="chat.css" rel="stylesheet" />
+    <script>
+      async function fetchComponents() {
+        document.getElementById("modal-container").innerHTML = await (
+          await fetch("component/modal-announcement.html")
+        ).text();
+        document.getElementById("modal-container-search").innerHTML = await (
+          await fetch("component/search-box.html")
+        ).text();
+      }
+    </script>
     <script src="chat.mjs" type="module"></script>
   </head>
   <body>
@@ -106,20 +116,5 @@
 
     <div id="modal-container"></div>
     <div id="modal-container-search"></div>
-    <script>
-      fetch("component/modal-announcement.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container").innerHTML = data;
-        })
-        .catch((error) => console.error("Error loading modal:", error));
-
-      fetch("component/search-box.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container-search").innerHTML = data;
-        })
-        .catch((error) => console.error("Error loading modal:", error));
-    </script>
   </body>
 </html>

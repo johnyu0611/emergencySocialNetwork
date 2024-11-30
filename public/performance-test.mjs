@@ -261,8 +261,9 @@ function onNewAnnouncement(announcementModal, $viewButton) {
 }
 
 $(document).ready(async () => {
-  const response = await fetch("component/modal-announcement.html");
-  $modalAnnouncementContainer.html(await response.text());
+  $modalAnnouncementContainer.html(
+    await (await fetch("component/modal-announcement.html")).text()
+  );
   const modalAnnouncement = new bootstrap.Modal(
     $modalAnnouncementContainer.find("#modal-announcement")
   );

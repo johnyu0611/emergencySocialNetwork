@@ -24,6 +24,8 @@ import { performSearch } from "./common/perform-search.mjs";
 import { getJWTPayload } from "./common/utils.mjs";
 import { getUsernameById } from "./lib/get-username.mjs";
 
+await fetchComponents();
+
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
 const $statusButton = $("#share-status");

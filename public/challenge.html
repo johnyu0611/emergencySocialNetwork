@@ -8,6 +8,13 @@
     <title>Quiz Challenge</title>
     <link rel="stylesheet" href="challenge.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      async function fetchComponents() {
+        const response = await fetch("component/modal-quiz-result.html");
+        document.getElementById("modal-container-quiz-result").innerHTML =
+          await response.text();
+      }
+    </script>
     <script type="module" src="challenge.mjs"></script>
   </head>
   <body>
@@ -24,16 +31,5 @@
     </div>
 
     <div id="modal-container-quiz-result"></div>
-    <script>
-      fetch("component/modal-quiz-result.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container-quiz-result").innerHTML =
-            data;
-        })
-        .catch((error) =>
-          console.error("Error loading quiz result modal:", error)
-        );
-    </script>
   </body>
 </html>

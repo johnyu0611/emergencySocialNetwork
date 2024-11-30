@@ -18,6 +18,8 @@ import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
 
+await fetchComponents();
+
 const banner = new Banner($("#banner"));
 const $inputBox = $("#input-box");
 const $buttonPost = $("#button-post");

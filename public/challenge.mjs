@@ -12,20 +12,12 @@ import { getJWTPayload } from "./common/utils.mjs";
 import { getUsernameById } from "./lib/get-username.mjs";
 import { decideWinner } from "./lib/decide-winner.mjs";
 
+await fetchComponents();
+
 const banner = new Banner($("#banner"));
 let resultModal;
 
 $(document).ready(async () => {
-  fetch("component/modal-quiz-result.html")
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("modal-container-quiz-result").innerHTML = data;
-      resultModal = new bootstrap.Modal(
-        document.getElementById("modal-quiz-result")
-      );
-    })
-    .catch((error) => console.error("Error loading quiz result modal:", error));
-
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
     path: ENDPOINT_SOCKET_IO,
     auth: {

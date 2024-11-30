@@ -8,6 +8,21 @@
     <link href="common/common.css" rel="stylesheet" />
     <script src="common/common.mjs" type="module"></script>
     <link href="directory.css" rel="stylesheet" />
+    <script>
+      async function fetchComponents() {
+        document.getElementById("modal-container").innerHTML = await (
+          await fetch("component/modal-announcement.html")
+        ).text();
+        document.getElementById("modal-container-search").innerHTML = await (
+          await fetch("component/search-box.html")
+        ).text();
+        document.getElementById("modal-container-challenge").innerHTML = await (
+          await fetch("component/modal-challenge.html")
+        ).text();
+        document.getElementById("modal-container-invitation").innerHTML =
+          await (await fetch("component/modal-invitation.html")).text();
+      }
+    </script>
     <script src="directory.mjs" type="module"></script>
   </head>
   <body>
@@ -342,36 +357,6 @@
     </div>
 
     <div id="modal-container-challenge"></div>
-    <script>
-      fetch("component/modal-announcement.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container").innerHTML = data;
-        })
-        .catch((error) => console.error("Error loading modal:", error));
-
-      fetch("component/search-box.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container-search").innerHTML = data;
-        })
-        .catch((error) => console.error("Error loading modal:", error));
-      fetch("component/modal-challenge.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container-challenge").innerHTML = data;
-        })
-        .catch((error) =>
-          console.error("Error loading challenge modal:", error)
-        );
-      fetch("component/modal-invitation.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("modal-container").innerHTML += data;
-        })
-        .catch((error) =>
-          console.error("Error loading quiz challenge invitation modal:", error)
-        );
-    </script>
+    <div id="modal-container-invitation"></div>
   </body>
 </html>
