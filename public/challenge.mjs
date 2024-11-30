@@ -15,7 +15,9 @@ import { decideWinner } from "./lib/decide-winner.mjs";
 await fetchComponents();
 
 const banner = new Banner($("#banner"));
-let resultModal;
+const resultModal = new bootstrap.Modal(
+  document.getElementById("modal-quiz-result")
+);
 
 $(document).ready(async () => {
   const socket = io(NAMESPACE_SOCKET_IO_SYSTEM, {
