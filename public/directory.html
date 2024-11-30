@@ -28,194 +28,188 @@
   <body>
     <div class="background"></div>
     <div class="alert" id="banner" role="banner"></div>
-    <div id="container">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">ESN Directory</a>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Personal Status
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a
-                      aria-current="page"
-                      class="dropdown-item"
-                      href="#"
-                      id="share-status"
-                    >
-                      My Status
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      aria-current="page"
-                      class="dropdown-item"
-                      href="#"
-                      id="emergency-contact"
-                    >
-                      Emergency Contact
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Communication
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="chat.html?roomId=00000000-0000-0000-0000-000000000000"
-                      >Public Chatroom</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="chat.html?roomId=11111111-1111-1111-1111-111111111111"
-                      >Announcements</a
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Location Services
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="share-location.html"
-                      >I Need Help!</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="medicamap.html"
-                      >Medical Center Map</a
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Resources & Tools
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="resource-directory.html"
-                      >Post Resources</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="application.html"
-                      >Applications</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="quiz.html">Create Quiz</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Site Administration
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="performance-test.html"
-                      >Performance Test</a
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
-            <form class="d-flex" role="search">
-              <button
-                class="btn btn-outline-success me-2"
-                type="submit"
-                id="button-search"
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-light position-absolute top-0"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">ESN Directory</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                Search
-              </button>
-              <button
-                class="btn btn-outline-danger"
-                id="button-logout"
-                type="button"
+                Personal Status
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    aria-current="page"
+                    class="dropdown-item"
+                    href="#"
+                    id="share-status"
+                  >
+                    My Status
+                  </a>
+                </li>
+                <li>
+                  <a
+                    aria-current="page"
+                    class="dropdown-item"
+                    href="#"
+                    id="emergency-contact"
+                  >
+                    Emergency Contact
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                <span>Logout</span>
-              </button>
-            </form>
-          </div>
+                Communication
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="chat.html?roomId=00000000-0000-0000-0000-000000000000"
+                    >Public Chatroom</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="chat.html?roomId=11111111-1111-1111-1111-111111111111"
+                    >Announcements</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Location Services
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="share-location.html"
+                    >I Need Help!</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="medicamap.html"
+                    >Medical Center Map</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Resources & Tools
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="resource-directory.html"
+                    >Post Resources</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="application.html"
+                    >Applications</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="quiz.html">Create Quiz</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Site Administration
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="performance-test.html"
+                    >Performance Test</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <form class="d-flex" role="search">
+            <button
+              class="btn btn-outline-success me-2"
+              type="submit"
+              id="button-search"
+            >
+              Search
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              id="button-logout"
+              type="button"
+            >
+              <span>Logout</span>
+            </button>
+          </form>
         </div>
-      </nav>
+      </div>
+    </nav>
 
-      <div class="container" id="main-container">
-        <div class="container" id="user-directory-container">
-          <div class="row">
-            <div class="col-12 col-md-6 offset-md-3">
-              <div class="card mb-4">
-                <div class="card-header text-center">
-                  <h2>ESN Directory</h2>
-                </div>
-                <div class="card-body scrollable-list">
-                  <ul class="list-group" id="user-list">
-                    <!-- Users will be inserted here dynamically -->
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="container" id="container">
+      <div class="card mb-4" id="container-directory">
+        <div class="card-header text-center">
+          <h2>ESN Directory</h2>
+        </div>
+        <div class="card-body scrollable-list">
+          <ul class="list-group" id="user-list">
+            <!-- Users will be inserted here dynamically -->
+          </ul>
         </div>
       </div>
     </div>

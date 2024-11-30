@@ -110,6 +110,7 @@ function displayUsers(users) {
     statusDot.style.width = "10px";
     statusDot.style.borderRadius = "50%";
     statusDot.style.display = "inline-block";
+    statusDot.style.marginLeft = "15px";
     statusDot.style.backgroundColor = user.isOnline === true ? "green" : "grey";
 
     const userStatusIcon = document.createElement("i");
@@ -142,8 +143,7 @@ function displayUsers(users) {
       messageIcon.style.color = "grey";
     }
     //messageIcon.style.color = "blue"; // Set the color of the message icon
-    messageIcon.style.marginLeft = "auto";
-    messageIcon.style.marginRight = "15px";
+    messageIcon.style.marginLeft = "15px";
     messageIcon.setAttribute("data-username", user.username);
 
     // Add spacing between the icon and the text
@@ -158,27 +158,29 @@ function displayUsers(users) {
     //const { username: currentUsername } = await getUsernameById({userId, token});
 
     // *** NEW: Add the "Versus" icon for all online users ***
-    if (user.isOnline && user.userId !== userId) {
-      const versusIcon = document.createElement("img");
-      versusIcon.src = "asset/versus.png";
-      versusIcon.alt = "Challenge";
-      versusIcon.style.width = "30px";
-      versusIcon.style.height = "30px";
-      versusIcon.style.cursor = "pointer";
-
-      versusIcon.addEventListener("click", () => {
-        // alert(`About to challenge ${user.username}!`);
-        // location.href = "challenge.html";
-        selectedUser = user.username;
-        const modalBody = document.querySelector(
-          "#modal-challenge .modal-body p"
-        );
-        modalBody.textContent = `Send quiz challenge to ${user.username}?`;
-        challengeModal.show();
-      });
-
-      listItem.appendChild(versusIcon);
+    const versusIcon = document.createElement("img");
+    versusIcon.src = "asset/versus.png";
+    versusIcon.alt = "Challenge";
+    versusIcon.style.width = "30px";
+    versusIcon.style.height = "30px";
+    versusIcon.style.cursor = "pointer";
+    versusIcon.style.marginLeft = "auto";
+    if (!user.isOnline || user.userId === userId) {
+      versusIcon.style.visibility = "hidden";
     }
+
+    versusIcon.addEventListener("click", () => {
+      // alert(`About to challenge ${user.username}!`);
+      // location.href = "challenge.html";
+      selectedUser = user.username;
+      const modalBody = document.querySelector(
+        "#modal-challenge .modal-body p"
+      );
+      modalBody.textContent = `Send quiz challenge to ${user.username}?`;
+      challengeModal.show();
+    });
+
+    listItem.appendChild(versusIcon);
 
     listItem.appendChild(messageIcon);
     listItem.appendChild(statusDot);
