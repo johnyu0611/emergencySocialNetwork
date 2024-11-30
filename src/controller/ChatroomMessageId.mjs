@@ -52,15 +52,15 @@ export class ChatroomMessageIdController extends AbstractController {
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const messageid = await model.findOne({ id: messageid });
-    const user = await this.#userDAO.findById({ userId: messageid.sender });
-    const message = {
-      // eslint-disable-next-line no-underscore-dangle
-      ...messageId._doc,
+    const message = await model.findOne({ id: messageId });
+    const user = await this.#userDAO.findById({ userId: message.sender });
+    const response = {
+      id: message.id,
+      content: message.content,
+      timestamp: message.timestamp,
       sender: user ? user.username : "undefined"
     };
-
-    const responseBody = GetResponseSchema.parse(message);
+    const responseBody = GetResponseSchema.parse(response);
     res.json(responseBody);
   }
 }

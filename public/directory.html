@@ -45,68 +45,123 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#"
-                  >ESN Directory</a
-                >
-              </li>
-
-              <li class="nav-ite fs-6">
+              <li class="nav-item dropdown">
                 <a
-                  aria-current="page"
-                  class="nav-link active"
-                  href="#"
-                  id="share-status"
+                  class="nav-link dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  MyStatus
+                  Personal Status
                 </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                      aria-current="page"
+                      class="dropdown-item"
+                      href="#"
+                      id="share-status"
+                    >
+                      My Status
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      aria-current="page"
+                      class="dropdown-item"
+                      href="#"
+                      id="emergency-contact"
+                    >
+                      Emergency Contact
+                    </a>
+                  </li>
+                </ul>
               </li>
+            </ul>
 
-              <li class="nav-ite fs-6">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
                 <a
-                  aria-current="page"
-                  class="nav-link active"
-                  href="#"
-                  id="emergency-contact"
+                  class="nav-link dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  Emergency Contact
+                  Communication
                 </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="chat.html?roomId=00000000-0000-0000-0000-000000000000"
+                      >Public Chatroom</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="chat.html?roomId=11111111-1111-1111-1111-111111111111"
+                      >Announcements</a
+                    >
+                  </li>
+                </ul>
               </li>
+            </ul>
 
-              <li class="nav-item fs-6">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
                 <a
-                  class="nav-link"
-                  href="chat.html?roomId=00000000-0000-0000-0000-000000000000"
-                  >Public Chatroom</a
+                  class="nav-link dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
+                  Location Services
+                </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="share-location.html"
+                      >I Need Help!</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="medicamap.html"
+                      >Medical Center Map</a
+                    >
+                  </li>
+                </ul>
               </li>
+            </ul>
 
-              <li class="nav-item fs-6">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
                 <a
-                  class="nav-link"
-                  href="chat.html?roomId=11111111-1111-1111-1111-111111111111"
-                  >Announcements</a
+                  class="nav-link dropdown-toggle"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
+                  Resources & Tools
+                </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="resource-directory.html"
+                      >Post Resources</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="application.html"
+                      >Applications</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="quiz.html">Create Quiz</a>
+                  </li>
+                </ul>
               </li>
+            </ul>
 
-              <li class="nav-item fs-6">
-                <a class="nav-link" href="share-location.html">I Need Help!</a>
-              </li>
-
-              <li class="nav-item fs-6">
-                <a class="nav-link" href="resource-directory.html"
-                  >Post Resources</a
-                >
-              </li>
-
-              <li class="nav-item fs-6">
-                <a class="nav-link" href="application.html">Applications</a>
-              </li>
-
-              <li class="nav-item fs-6">
-                <a class="nav-link" href="medicamap.html">Medical Center Map</a>
-              </li>
-
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item dropdown">
                 <a
                   class="nav-link dropdown-toggle"
@@ -139,14 +194,6 @@
                 type="button"
               >
                 <span>Logout</span>
-              </button>
-              <button
-                class="btn create-quiz-button"
-                id="button-create-quiz"
-                type="button"
-                onclick="window.location.href='quiz.html'"
-              >
-                Create Quiz
               </button>
             </form>
           </div>

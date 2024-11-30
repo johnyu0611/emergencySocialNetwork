@@ -48,18 +48,3 @@ ul {
   max-height: 400px;
   overflow-y: auto;
 }
-
-.create-quiz-button {
-  background-color: transparent;
-  color: rgb(144, 0, 255);
-  border: 1px solid rgb(144, 0, 255);
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 8px;
-}
-
-.create-quiz-button:hover {
-  background-color: rgb(144, 0, 255);
-  color: white;
-}
