@@ -32,6 +32,23 @@ function parseJwt(token) {
   }
 }
 
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1]; // Get the Payload part
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload); // Parse the JSON payload
+  } catch (error) {
+    console.error("Failed to parse JWT:", error);
+    return null;
+  }
+}
+
 async function onLogout() {
   banner.reset();
   $buttonLogout.prop("disabled", true);

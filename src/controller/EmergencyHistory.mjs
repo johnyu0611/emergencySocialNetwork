@@ -144,38 +144,43 @@ export class EmergencyHistoryController extends AbstractController {
   async handleDelete(req, res) {
     const loggerContext = "EmergencyHistoryControllerGETHandler";
     const { userId } = req.auth;
-    // console.log(req.body);
-    const payload = DeleteRequestSchema.parse(req.body);
-    logger.debug({ context: loggerContext }, "Request received: %o", payload);
-    const { sender, timestamp, content } = payload;
+    try {
+      const payload = DeleteRequestSchema.parse(req.body);
+      logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const timestampDate = new Date(timestamp).toISOString();
-    const senderId = await this.#userDAO.findByUsername({ username: sender });
-    console.log(timestampDate);
-    const result = await this.#userDAO.updateById(
-      { userId },
-      {
-        $pull: {
-          emergencyHistory: {
-            sender: senderId.userId,
-            timestamp: timestampDate,
-            content: content
+      const timestampDate = new Date(payload.timestamp).toISOString();
+      const senderId = await this.#userDAO.findByUsername({
+        username: payload.sender
+      });
+
+      const result = await this.#userDAO.updateById(
+        { userId },
+        {
+          $pull: {
+            emergencyHistory: {
+              sender: senderId.userId,
+              timestamp: timestampDate,
+              content: payload.content
+            }
           }
         }
+      );
+
+      if (!result) {
+        throw new Error("Delete operation failed");
       }
-    );
+      this.context.channel.system.emit("new_emergency_history");
 
-    this.context.channel.system.emit("new_emergency_history");
-
-    console.log(result);
-    const responseBody = { message: "Emergency history deleted successfully" };
-    console.log(responseBody);
-    res.status(HTTP_OK);
-    res.json(responseBody);
-
-    logger.info(
-      { context: loggerContext },
-      `User ${userId} has retrieved emergency info`
-    );
+      logger.info({ context: loggerContext }, "Delete operation succeeded");
+      res
+        .status(200)
+        .json({ message: "Emergency history deleted successfully" });
+    } catch (error) {
+      logger.error(
+        { context: loggerContext, error },
+        "Error handling delete request"
+      );
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 }
