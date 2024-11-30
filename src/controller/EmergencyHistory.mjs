@@ -9,7 +9,11 @@ import {
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { UserDataAccess } from "@/model/User.mjs";
-import { HTTP_OK, HTTP_NOT_FOUND } from "@/util/Constants.mjs";
+import {
+  HTTP_OK,
+  HTTP_NOT_FOUND,
+  HTTP_BAD_REQUEST
+} from "@/util/Constants.mjs";
 
 export class EmergencyHistoryController extends AbstractController {
   static #initializationSymbol = Symbol("$$");
@@ -60,6 +64,21 @@ export class EmergencyHistoryController extends AbstractController {
 
     if (!user) {
       throw new HTTPError(HTTP_NOT_FOUND, "User not found");
+    }
+
+    const recipient = await this.#userDAO.findById({
+      userId: user.emergencyContactTo
+    });
+    if (!recipient) {
+      throw new HTTPError(HTTP_NOT_FOUND, "Recipient user not found");
+    }
+
+    const isDuplicate = recipient.emergencyHistory.some(
+      (msg) => msg.sender === user.userId && msg.content === content
+    );
+
+    if (isDuplicate) {
+      throw new HTTPError(HTTP_BAD_REQUEST, "Duplicate message detected");
     }
 
     await this.#userDAO.updateById(
@@ -148,7 +167,7 @@ export class EmergencyHistoryController extends AbstractController {
       const payload = DeleteRequestSchema.parse(req.body);
       logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-      const timestampDate = new Date(payload.timestamp).toISOString();
+      // const timestampDate = new Date(payload.timestamp).toISOString();
       const senderId = await this.#userDAO.findByUsername({
         username: payload.sender
       });
@@ -159,7 +178,6 @@ export class EmergencyHistoryController extends AbstractController {
           $pull: {
             emergencyHistory: {
               sender: senderId.userId,
-              timestamp: timestampDate,
               content: payload.content
             }
           }
