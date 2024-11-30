@@ -1,12 +1,19 @@
 languages:
   - name: javascript
     production:
-      include: ["src/.*[.]mjs"]
-      exclude: ["src/.*[.]test[.]mjs"]
+      include: [".*[.]mjs"]
+      exclude: [".*[.]test[.]mjs"]
     test:
-      include: ["src/.*[.]test[.]mjs"]
+      include: [".*[.]test[.]mjs"]
   - name: html
   - name: css
+components:
+  - name: Frontend
+    include:
+      - ".*/public/.*"
+  - name: Backend
+    include:
+      - ".*/src/.*"
 dependencychecker:
   blocklist: ["NONE"]
 thirdpartyfindings:
