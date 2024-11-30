@@ -51,82 +51,103 @@ export class EmergencyContactController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "EmergencyContactControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { emergencyContact } = payload;
+    let { emergencyContact } = payload;
 
-    console.log(emergencyContact.username);
+    console.log(emergencyContact);
+    const { fullName } = emergencyContact;
+    const { email } = emergencyContact;
 
-    if (username === emergencyContact.username) {
+    const user = await this.#userDAO.findByUsername({
+      username: emergencyContact.username
+    });
+
+    const { username } = emergencyContact;
+
+    if (!user) {
+      throw new HTTPError(HTTP_NOT_FOUND, "Emergency contact not found");
+    }
+
+    if (userId === user.userId) {
       throw new HTTPError(
         HTTP_BAD_REQUEST,
         "Cannot set self as emergency contact"
       );
     }
 
-    const user = await this.#userDAO.findByUsername({
-      username: emergencyContact.username
-    });
-    const curr = await this.#userDAO.findByUsername({ username });
-    if (!user) {
-      throw new HTTPError(HTTP_NOT_FOUND, "Emergency contact not found");
-    }
-    if (user.emergencyContactTo && user.emergencyContactTo !== username) {
+    const curr = await this.#userDAO.findById({ userId });
+    if (
+      user.emergencyContactTo &&
+      user.emergencyContactTo !== userId &&
+      user.emergencyContactTo !== -1
+    ) {
       throw new HTTPError(HTTP_BAD_REQUEST, "Emergency contact not available");
     }
 
-    await this.#userDAO.update({ username }, { emergencyContact });
+    emergencyContact = {
+      username: user.userId,
+      fullName: fullName,
+      email: email
+    };
+    console.log(emergencyContact);
 
     if (curr.emergencyContact) {
-      await this.#userDAO.update(
-        { username: curr.emergencyContact.username },
-        { emergencyContactTo: "" }
+      await this.#userDAO.updateById(
+        { userId: curr.emergencyContact.username },
+        { emergencyContactTo: -1 }
       );
     }
 
-    await this.#userDAO.update(
-      { username: emergencyContact.username },
-      { emergencyContactTo: username }
+    await this.#userDAO.updateById({ userId }, { emergencyContact });
+
+    await this.#userDAO.updateById(
+      { userId: emergencyContact.username },
+      { emergencyContactTo: userId }
     );
 
     const responseBody = PostResponseSchema.parse({
-      emergencyContact: emergencyContact.username
+      emergencyContact: username
     });
     res.status(HTTP_OK);
     res.json(responseBody);
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated emergency contact to ${emergencyContact}`
+      `User ${userId} has updated emergency contact to ${username}`
     );
   }
 
   async handleGet(req, res) {
     const loggerContext = "EmergencyContactControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const user = await this.#userDAO.findByUsername({ username });
+    const user = await this.#userDAO.findById({ userId });
     let { emergencyContact } = user;
+    console.log(emergencyContact);
     let isOnline = false;
     if (!emergencyContact) {
       emergencyContact = "";
     } else {
-      const emergencyContactUser = await this.#userDAO.findByUsername({
-        username: emergencyContact.username
+      const emergencyContactUser = await this.#userDAO.findById({
+        userId: emergencyContact.username
       });
       ({ isOnline } = emergencyContactUser);
       if (!user) {
         throw new HTTPError(HTTP_NOT_FOUND, "Emergency contact not found");
       }
     }
-
+    const curr = await this.#userDAO.findById({ userId });
+    const emergencyContactUser = await this.#userDAO.findById({
+      userId: emergencyContact.username
+    });
     const responseBody = GetResponseSchema.parse({
-      curr: username,
-      username: emergencyContact ? emergencyContact.username : "",
+      curr: curr.username,
+      username: emergencyContactUser ? emergencyContactUser.username : "",
       fullName: emergencyContact ? emergencyContact.fullName : "",
       email: emergencyContact ? emergencyContact.email : "",
       isOnline: isOnline
@@ -137,7 +158,7 @@ export class EmergencyContactController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has retrieved emergency contact`
+      `User ${userId} has retrieved emergency contact`
     );
   }
 }

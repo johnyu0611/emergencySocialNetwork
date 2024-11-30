@@ -47,7 +47,7 @@ export class LocationSharingSessionUserController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "LocationSharingSessionUserControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
     const { sessionId } = req.params;
@@ -57,7 +57,7 @@ export class LocationSharingSessionUserController extends AbstractController {
     }
 
     const user = {
-      username,
+      userId,
       role: "responder",
       location: payload.location,
       lastSeen: Date.now()
@@ -69,11 +69,11 @@ export class LocationSharingSessionUserController extends AbstractController {
     });
     logger.info(
       { context: loggerContext },
-      `User ${username} has become a responder of the sharing session ${sessionId}`
+      `User ${userId} has become a responder of the sharing session ${sessionId}`
     );
 
     await this.#userDao.updateLocationSharingSession({
-      username,
+      userId,
       session: { id: sessionId }
     });
 

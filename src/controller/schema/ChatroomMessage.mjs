@@ -29,7 +29,7 @@ export const GetResponseSchema = z.object({
   messages: z.array(
     z.object({
       id: MessageIdSchema,
-      sender: UsernameSchema,
+      sender: UsernameSchema.optional(),
       receiver: UsernameSchema.optional(), // not need for public
       status: StatusSchema.optional(),
       timestamp: TimestampSchema,

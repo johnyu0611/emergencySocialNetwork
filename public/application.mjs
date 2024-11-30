@@ -5,6 +5,7 @@ import { deleteApplications } from "./lib/delete-applications.mjs";
 import { getResources } from "./lib/get-resources.mjs";
 import { patchResources } from "./lib/patch-resource.mjs";
 import { deleteResources } from "./lib/delete-resources.mjs";
+import { getUsernameById } from "./lib/get-username.mjs";
 
 const banner = new Banner($("#banner"));
 let applicationList = [];
@@ -37,9 +38,9 @@ async function fetchAndDisplayApplications() {
 
   // Extract username from the token
   const payload = parseJwt(token);
-  const username = payload?.username || payload?.sub; // Adjust based on your token's structure
+  const userId = payload?.userId || payload?.sub; // Adjust based on your token's structure
 
-  if (!username) {
+  if (!userId) {
     banner.showErrorMessage("Invalid token. Unable to retrieve username.");
     return;
   }
@@ -50,7 +51,7 @@ async function fetchAndDisplayApplications() {
 
     // Filter applications for resources owned by the logged-in user
     applicationList = applications.filter(
-      (app) => app.resourceOwner === username
+      (app) => app.resourceOwnerId === userId
     );
 
     renderApplications(applicationList);
@@ -60,7 +61,8 @@ async function fetchAndDisplayApplications() {
   }
 }
 
-function renderApplications(applications) {
+async function renderApplications(applications) {
+  const token = localStorage.getItem(KEY_TOKEN);
   const applicationListElement = $("#application-list");
   applicationListElement.empty();
 
@@ -71,30 +73,42 @@ function renderApplications(applications) {
     return;
   }
 
-  applications.forEach((app) => {
-    const applicationContent = `
-        <li class="list-group-item application-item">
-            <p><strong>Resource:</strong> ${app.resourceName}</p>
-            <p><strong>Amount:</strong> ${app.amount}</p>
-            <p><strong>from:</strong> ${app.applicantUsername}</p>
-            <p><strong>Action:</strong> ${app.actionType === "provide" ? "Provide" : "Request"}</p>
-            <p><strong>Date:</strong> ${new Date(app.createdAt).toLocaleDateString()}</p>
-            <div class="action-buttons mt-2">
-            <button 
-                class="btn btn-success btn-sm accept-button" 
-                data-id="${app.id}" 
-                data-resource-id="${app.resourceId}" 
-                data-amount="${app.amount}">
-                Accept
-            </button>
-            <button class="btn btn-danger btn-sm decline-button" data-id="${app.id}">Decline</button>
-            </div>
-        </li>
-        `;
-    applicationListElement.append(applicationContent);
-  });
+  for (const app of applications) {
+    try {
+      const response = await getUsernameById({
+        token,
+        userId: app.applicantUserId
+      });
+      const applicantUsername = response.username;
+      const applicationContent = `
+          <li class="list-group-item application-item">
+              <p><strong>Resource:</strong> ${app.resourceName}</p>
+              <p><strong>Amount:</strong> ${app.amount}</p>
+              <p><strong>from:</strong> ${applicantUsername}</p>
+              <p><strong>Action:</strong> ${app.actionType === "provide" ? "Provide" : "Request"}</p>
+              <p><strong>Date:</strong> ${new Date(app.createdAt).toLocaleDateString()}</p>
+              <div class="action-buttons mt-2">
+              <button 
+                  class="btn btn-success btn-sm accept-button" 
+                  data-id="${app.id}" 
+                  data-resource-id="${app.resourceId}" 
+                  data-amount="${app.amount}">
+                  Accept
+              </button>
+              <button class="btn btn-danger btn-sm decline-button" data-id="${app.id}">Decline</button>
+              </div>
+          </li>
+          `;
+      applicationListElement.append(applicationContent);
+    } catch (error) {
+      console.error(
+        `Failed to fetch username for application ID ${app.id}:`,
+        error
+      );
+    }
+  }
 
-  // Add event listeners for accept and decline buttons
+  // Add event listeners after rendering all applications
   $(".accept-button").on("click", handleAccept);
   $(".decline-button").on("click", handleDecline);
 }

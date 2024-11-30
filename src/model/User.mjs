@@ -37,15 +37,23 @@ export class UserDataAccess extends AbstractModel {
     return await this.model
       .find({})
       .sort({ isOnline: -1, username: 1 })
-      .select("username isOnline status");
+      .select("username userId isOnline status");
   }
 
   async findByUsername({ username }) {
     return await this.model.findOne({ username });
   }
 
+  async findById({ userId }) {
+    return await this.model.findOne({ userId });
+  }
+
   async isValidUsername({ username }) {
     return Boolean(await this.findByUsername({ username }));
+  }
+
+  async isValidUserId({ userId }) {
+    return Boolean(await this.findById({ userId }));
   }
 
   async findByChatroomId({ chatroomId }) {
@@ -60,12 +68,16 @@ export class UserDataAccess extends AbstractModel {
     return await this.model.findOneAndUpdate({ username }, updateFields);
   }
 
-  async updateLocationSharingSession({ username, session }) {
-    const user = await this.findByUsername({ username });
+  async updateById({ userId }, updateFields) {
+    return await this.model.findOneAndUpdate({ userId }, updateFields);
+  }
+
+  async updateLocationSharingSession({ userId, session }) {
+    const user = await this.findById({ userId });
     if (!user) {
-      throw new HTTPError(HTTP_NOT_FOUND, `Cannot find user ${username}`);
+      throw new HTTPError(HTTP_NOT_FOUND, `Cannot find user ${userId}`);
     }
     user.locationSharingSession = session;
-    await this.update({ username }, user);
+    await this.updateById({ userId }, user);
   }
 }

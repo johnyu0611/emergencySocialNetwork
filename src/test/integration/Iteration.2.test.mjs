@@ -81,7 +81,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
   });
 
   test("should create user with predefined status and check in the database", async () => {
-    req = { body: { status: "Help" }, auth: { username: "user101" } };
+    req = { body: { status: "Help" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -97,7 +97,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
   }, 50000);
 
   test("should get the status of a user that is already in the database", async () => {
-    req = { body: { username: "user101" }, auth: { username: "user101" } };
+    req = { body: { username: "user101" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -113,7 +113,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
   }, 50000);
 
   test("should create chatroom for two users", async () => {
-    req = { body: { receiver: "user202" }, auth: { username: "user101" } };
+    req = { body: { receiver: "user202" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -130,7 +130,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
   }, 50000);
 
   test("should get chatroom for user101", async () => {
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -156,15 +156,15 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    req = { body: { receiver: "user202" }, auth: { username: "user101" } };
+    req = { body: { receiver: "user202" }, auth: { userId: 1 } };
     await chatroomController.handlePost(req, res);
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     await chatroomController.handleGet(req, res);
     const [[responseData]] = res.json.mock.calls;
     req = {
       params: { chatroomId: responseData.id },
       body: { content: "Hi" },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     await chatroomMessageController.handlePost(req, res);
     res = {
@@ -174,7 +174,7 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
     req = {
       params: { chatroomId: responseData.id },
       body: {},
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     await chatroomMessageController.handleGet(req, res);
     expect(res.json).toHaveBeenCalledWith(
@@ -189,14 +189,14 @@ describe("Integration test for ShareStatus & ChatPrivately", () => {
   }, 50000);
 
   test("should get 2 chatrooms for user101", async () => {
-    req = { body: { receiver: "user202" }, auth: { username: "user101" } };
+    req = { body: { receiver: "user202" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
     await chatroomController.handlePost(req, res);
 
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()

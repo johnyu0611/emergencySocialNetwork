@@ -16,7 +16,7 @@ export const PostResourceRequestSchema = z.object({
   description: z.string().optional(),
   imageBase64: z.string().optional(),
   imageType: z.string().optional(),
-  username: z.string().min(1, "Username is required"),
+  userId: z.number(),
   resourceType: z.enum(["request", "provide"]), // New field validation
   createdAt: z.date()
 });

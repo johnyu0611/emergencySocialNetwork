@@ -16,10 +16,10 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
 
   async function handleConnect(socket) {
     const loggerContext = "SystemChannelOnConnectHandler";
-    const { username } = socket.handshake.auth;
+    const { userId } = socket.handshake.auth;
 
     try {
-      await userDAO.update({ username }, { isOnline: true });
+      await userDAO.updateById({ userId }, { isOnline: true });
     } catch (error) {
       logger.warn(
         { context: loggerContext },
@@ -27,17 +27,17 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
       );
       logger.warn({ context: loggerContext }, String(error));
     }
-
-    subChannel.emit(CHANNEL_SYSTEM_EVENT_USER_JOIN, username);
-    logger.info({ context: loggerContext }, `User ${username} connected`);
+    const user = await userDAO.findById({ userId });
+    subChannel.emit(CHANNEL_SYSTEM_EVENT_USER_JOIN, user.username);
+    logger.info({ context: loggerContext }, `User ${user.username} connected`);
   }
 
   async function handleDisconnect(socket) {
     const loggerContext = "SystemChannelOnDisconnectHandler";
-    const { username } = socket.handshake.auth;
+    const { userId } = socket.handshake.auth;
 
     try {
-      await userDAO.update({ username }, { isOnline: false });
+      await userDAO.updateById({ userId }, { isOnline: false });
     } catch (error) {
       logger.warn(
         { context: loggerContext },
@@ -46,13 +46,19 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
       logger.warn({ context: loggerContext }, String(error));
     }
 
-    subChannel.emit(CHANNEL_SYSTEM_EVENT_USER_LEAVE, username);
-    logger.info({ context: loggerContext }, `User ${username} disconnected`);
+    const user = await userDAO.findById({ userId });
+    subChannel.emit(CHANNEL_SYSTEM_EVENT_USER_LEAVE, user.username);
+    logger.info(
+      { context: loggerContext },
+      `User ${user.username} disconnected`
+    );
   }
 
-  subChannel.on("connection", (socket) => {
+  subChannel.on("connection", async (socket) => {
     void handleConnect(socket);
-    const { username } = socket.handshake.auth;
+    const { userId } = socket.handshake.auth;
+    const temp = await userDAO.findById({ userId });
+    const { username } = temp;
     const userName = username;
 
     connectedSockets.push({
@@ -159,7 +165,7 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
       // console.log(offers)
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       handleDisconnect(socket);
       // Remove the disconnected socket from connectedSockets
       connectedSockets = connectedSockets.filter(
@@ -167,7 +173,9 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
       );
 
       // Remove any offers associated with the disconnected user
-      const { username } = socket.handshake.auth;
+      const { userId } = socket.handshake.auth;
+      const user = await userDAO.findById({ userId });
+      const { username } = user;
       offers = offers.filter(
         (o) => o.offererUserName !== username && o.answererUserName !== username
       );

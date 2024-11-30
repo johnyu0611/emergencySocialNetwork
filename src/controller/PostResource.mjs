@@ -51,7 +51,7 @@ export class ResourceController extends AbstractController {
   async handlePost(req, res) {
     const loggerContext = "ResourceControllerPOSTHandler";
 
-    if (!req.auth || !req.auth.username) {
+    if (!req.auth || !req.auth.userId) {
       logger.error({ context: loggerContext }, "Unauthorized access attempt");
       throw new HTTPError(
         HTTP_FORBIDDEN,
@@ -59,8 +59,8 @@ export class ResourceController extends AbstractController {
       );
     }
 
-    const { username } = req.auth;
-
+    const { userId } = req.auth;
+    console.log(`getting username ${userId}`);
     // Retrieve the image data and type
     const imageBase64 = req.body.imageBase64 || undefined;
     const imageType = req.body.imageType || undefined;
@@ -88,7 +88,7 @@ export class ResourceController extends AbstractController {
       description: req.body.description,
       imageBase64: compressedImageBase64,
       imageType: imageType,
-      username: username,
+      userId: userId,
       resourceType: req.body.resourceType,
       createdAt: new Date(new Date().setHours(0, 0, 0, 0))
     };
@@ -105,7 +105,7 @@ export class ResourceController extends AbstractController {
 
       logger.info(
         { context: loggerContext },
-        `Resource ${validatedPayload.name} created by ${username}`
+        `Resource ${validatedPayload.name} created by ${userId}`
       );
     } catch (error) {
       if (error instanceof ZodError) {
@@ -221,7 +221,7 @@ export class ResourceController extends AbstractController {
   async handleDelete(req, res) {
     const loggerContext = "ResourceControllerDELETEHandler";
 
-    if (!req.auth || !req.auth.username) {
+    if (!req.auth || !req.auth.userId) {
       logger.error({ context: loggerContext }, "Unauthorized access attempt");
       throw new HTTPError(
         HTTP_FORBIDDEN,

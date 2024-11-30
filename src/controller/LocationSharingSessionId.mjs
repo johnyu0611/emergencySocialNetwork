@@ -45,7 +45,7 @@ export class LocationSharingSessionIdController extends AbstractController {
 
   async handleDelete(req, res) {
     const loggerContext = "LocationSharingSessionIdControllerDELETEHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = DeleteRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
@@ -55,7 +55,7 @@ export class LocationSharingSessionIdController extends AbstractController {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
     if (role !== "initiator") {
       throw new HTTPError(
         HTTP_FORBIDDEN,
@@ -67,13 +67,13 @@ export class LocationSharingSessionIdController extends AbstractController {
     locationSharing.to(sessionId).emit("session_deleted", {});
 
     const users = await this.#dao.getUsers({ sessionId });
-    for (const { username } of users) {
+    for (const { userId } of users) {
       logger.debug(
         { context: loggerContext },
-        `Resetting session for ${username}`
+        `Resetting session for ${userId}`
       );
       await this.#userDao.updateLocationSharingSession({
-        username,
+        userId,
         session: { id: "undefined" }
       });
     }
@@ -81,7 +81,7 @@ export class LocationSharingSessionIdController extends AbstractController {
     await this.#dao.delete({ sessionId });
     logger.info(
       { context: loggerContext },
-      `User ${username} has deleted session ${sessionId}`
+      `User ${userId} has deleted session ${sessionId}`
     );
 
     const responseBody = DeleteResponseSchema.parse({});

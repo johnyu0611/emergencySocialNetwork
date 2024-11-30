@@ -37,7 +37,7 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/resource-request"
+    path = "/:userId/resource-request"
   ) {
     if (!LocationSharingSessionUserResourceRequestController.#instance) {
       LocationSharingSessionUserResourceRequestController.#instance =
@@ -57,11 +57,11 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
   async handlePut(req, res) {
     const loggerContext =
       "LocationSharingSessionUserResourceRequestControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== parseInt(req.params.userId)) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's property");
     }
 
@@ -71,7 +71,7 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
     if (role !== "initiator") {
       throw new HTTPError(
         HTTP_BAD_REQUEST,
@@ -82,13 +82,13 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
     const { resourceRequest } = payload;
     await this.#dao.setResourceRequest({
       sessionId,
-      username,
+      userId,
       resourceRequest
     });
 
     const { locationSharing } = this.context.channel;
     locationSharing.to(sessionId).emit("update", {
-      username,
+      userId,
       resourceRequest
     });
 
@@ -98,7 +98,7 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated their resource request to ${resourceRequest}`
+      `User ${userId} has updated their resource request to ${resourceRequest}`
     );
   }
 
@@ -108,17 +108,17 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sessionId, username } = req.params;
+    const { sessionId, userId } = req.params;
 
     if (!(await this.#dao.isValidSession({ sessionId }))) {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    if (!(await this.#userDao.isValidUsername({ username }))) {
-      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid username ${username}`);
+    if (!(await this.#userDao.isValidUserId({ userId }))) {
+      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid userId ${userId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
     if (role !== "initiator") {
       throw new HTTPError(
         HTTP_BAD_REQUEST,
@@ -128,7 +128,7 @@ export class LocationSharingSessionUserResourceRequestController extends Abstrac
 
     const resourceRequest = await this.#dao.getResourceRequest({
       sessionId,
-      username
+      userId
     });
 
     const responseBody = GetResponseSchema.parse({

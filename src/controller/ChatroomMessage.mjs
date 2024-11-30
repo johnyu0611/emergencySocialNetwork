@@ -50,7 +50,7 @@ export class ChatroomMessageController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "ChatroomMessageControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const { chatroomId } = req.params;
     const messageModel = MessageFactory.getModel(chatroomId);
 
@@ -59,19 +59,31 @@ export class ChatroomMessageController extends AbstractController {
 
     const searchByContent = payload.searchBy?.content ?? ".*";
 
-    const messages = await messageModel.find({
+    const messagesId = await messageModel.find({
       $and: [{ content: { $regex: searchByContent, $options: "i" } }]
     });
 
-    for (const message of messages) {
-      if (message.sender !== username && !message.readBy.includes(username)) {
+    for (const message of messagesId) {
+      if (message.sender !== userId && !message.readBy.includes(userId)) {
         await messageModel.update(
           // eslint-disable-next-line no-underscore-dangle
           { _id: message._id },
-          { $push: { readBy: username } }
+          { $push: { readBy: userId } }
         );
       }
     }
+
+    const messages = await Promise.all(
+      messagesId.map(async (message) => {
+        const userId = message.sender;
+        const user = await this.#userDAO.findById({ userId });
+        return {
+          // eslint-disable-next-line no-underscore-dangle
+          ...message._doc,
+          sender: user ? user.username : "Unknown User"
+        };
+      })
+    );
 
     const responseBody = GetResponseSchema.parse({
       messages
@@ -81,7 +93,7 @@ export class ChatroomMessageController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "ChatroomMessageControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const { chatroomId } = req.params;
     const messageModel = MessageFactory.getModel(chatroomId);
 
@@ -90,7 +102,10 @@ export class ChatroomMessageController extends AbstractController {
 
     const { content } = payload;
     const { receiver } = payload;
-    const user = await this.#userDAO.findByUsername({ username });
+    const user = await this.#userDAO.findById({ userId });
+    const receiverId = await this.#userDAO.findByUsername({
+      username: receiver
+    }).userId;
     let status = user?.status;
     if (!status) {
       status = "Undefined";
@@ -101,13 +116,16 @@ export class ChatroomMessageController extends AbstractController {
     const message = {
       id: messageId,
       chatroomId,
-      sender: username,
-      receiver: receiver,
+      sender: userId,
+      receiver: receiverId,
       status: status,
       timestamp: Date.now(),
       content: content
     };
     await messageModel.create(message);
+    const userid = message.sender;
+    const userOne = await this.#userDAO.findById({ userId: userid });
+    message.sender = userOne?.username;
 
     this.context.channel.chatroom.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
     this.context.channel.system.emit(CHANNEL_CHATROOM_EVENT_MESSAGE, message);
@@ -125,7 +143,7 @@ export class ChatroomMessageController extends AbstractController {
     res.json(responseBody);
     logger.info(
       { context: loggerContext },
-      `User ${username} has posted a message in chatroom ${chatroomId}`
+      `User ${userId} has posted a message in chatroom ${chatroomId}`
     );
   }
 }

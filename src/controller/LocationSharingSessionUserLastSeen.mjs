@@ -37,7 +37,7 @@ export class LocationSharingSessionUserLastSeenController extends AbstractContro
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/last-seen"
+    path = "/:userId/last-seen"
   ) {
     if (!LocationSharingSessionUserLastSeenController.#instance) {
       LocationSharingSessionUserLastSeenController.#instance =
@@ -56,11 +56,11 @@ export class LocationSharingSessionUserLastSeenController extends AbstractContro
   async handlePut(req, res) {
     const loggerContext =
       "LocationSharingSessionUserLastSeenControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== parseInt(req.params.userId)) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's property");
     }
 
@@ -71,11 +71,11 @@ export class LocationSharingSessionUserLastSeenController extends AbstractContro
     }
 
     const { lastSeen } = payload;
-    await this.#dao.setLastSeen({ sessionId, username, lastSeen });
+    await this.#dao.setLastSeen({ sessionId, userId, lastSeen });
 
     const { locationSharing } = this.context.channel;
     locationSharing.to(sessionId).emit("update", {
-      username,
+      userId,
       lastSeen
     });
 
@@ -85,7 +85,7 @@ export class LocationSharingSessionUserLastSeenController extends AbstractContro
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated their last seen timestamp to ${lastSeen}`
+      `User ${userId} has updated their last seen timestamp to ${lastSeen}`
     );
   }
 
@@ -95,17 +95,17 @@ export class LocationSharingSessionUserLastSeenController extends AbstractContro
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sessionId, username } = req.params;
+    const { sessionId, userId } = req.params;
 
     if (!(await this.#dao.isValidSession({ sessionId }))) {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    if (!(await this.#userDao.isValidUsername({ username }))) {
-      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid username ${username}`);
+    if (!(await this.#userDao.isValidUserId({ userId }))) {
+      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid userId ${userId}`);
     }
 
-    const lastSeen = await this.#dao.getLastSeen({ sessionId, username });
+    const lastSeen = await this.#dao.getLastSeen({ sessionId, userId });
 
     const responseBody = GetResponseSchema.parse({
       lastSeen

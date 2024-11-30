@@ -37,7 +37,7 @@ export class LocationSharingSessionUserLocationController extends AbstractContro
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/location"
+    path = "/:userId/location"
   ) {
     if (!LocationSharingSessionUserLocationController.#instance) {
       LocationSharingSessionUserLocationController.#instance =
@@ -56,11 +56,11 @@ export class LocationSharingSessionUserLocationController extends AbstractContro
   async handlePut(req, res) {
     const loggerContext =
       "LocationSharingSessionUserLocationControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== parseInt(req.params.userId)) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's property");
     }
 
@@ -71,11 +71,11 @@ export class LocationSharingSessionUserLocationController extends AbstractContro
     }
 
     const { location } = payload;
-    await this.#dao.setLocation({ sessionId, username, location });
+    await this.#dao.setLocation({ sessionId, userId, location });
 
     const { locationSharing } = this.context.channel;
     locationSharing.to(sessionId).emit("update", {
-      username,
+      userId,
       location
     });
 
@@ -85,7 +85,7 @@ export class LocationSharingSessionUserLocationController extends AbstractContro
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated their location to %o`,
+      `User ${userId} has updated their location to %o`,
       location
     );
   }
@@ -96,17 +96,17 @@ export class LocationSharingSessionUserLocationController extends AbstractContro
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sessionId, username } = req.params;
+    const { sessionId, userId } = req.params;
 
     if (!(await this.#dao.isValidSession({ sessionId }))) {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    if (!(await this.#userDao.isValidUsername({ username }))) {
-      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid username ${username}`);
+    if (!(await this.#userDao.isValidUserId({ userId }))) {
+      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid userId ${userId}`);
     }
 
-    const location = await this.#dao.getLocation({ sessionId, username });
+    const location = await this.#dao.getLocation({ sessionId, userId });
 
     const responseBody = GetResponseSchema.parse({
       location

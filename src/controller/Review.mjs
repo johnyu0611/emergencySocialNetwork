@@ -12,12 +12,14 @@ import { ReviewDataAccess } from "@/model/Review.mjs";
 import { MedicalCenterDataAccess } from "@/model/MedicalCenter.mjs";
 import { validateRate } from "@/util/ValidateRate.mjs";
 import { z } from "zod";
+import { UserDataAccess } from "@/model/User.mjs";
 
 export class ReviewController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
   #reviewDAO = null;
   #medicalDAO = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== ReviewController.#initializationSymbol) {
@@ -26,6 +28,7 @@ export class ReviewController extends AbstractController {
     super({ upstreamRouter, path, middlewareMap, context });
     this.#reviewDAO = ReviewDataAccess.getInstance();
     this.#medicalDAO = MedicalCenterDataAccess.getInstance();
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -46,14 +49,15 @@ export class ReviewController extends AbstractController {
     return ReviewController.#instance;
   }
 
-  setUserDAO(reviewDAO, medicalDAO) {
+  setUserDAO(reviewDAO, medicalDAO, userDAO) {
     this.#reviewDAO = reviewDAO;
     this.#medicalDAO = medicalDAO;
+    this.#userDAO = userDAO;
   }
 
   async handlePost(req, res) {
     const loggerContext = "ReviewControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
 
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
@@ -72,12 +76,15 @@ export class ReviewController extends AbstractController {
       }
     }
 
+    const user = await this.#userDAO.findById({ userId });
+    const { username } = user;
+
     await this.#reviewDAO.create({
       mcId,
       content,
       rate,
       timestamp: Date.now(),
-      author: username
+      author: userId
     });
 
     const responseBody = PostResponseSchema.parse({
@@ -95,7 +102,20 @@ export class ReviewController extends AbstractController {
     const { mcId } = payload;
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const reviews = await this.#reviewDAO.findByMCID({ mcId });
+    const reviewAll = await this.#reviewDAO.findByMCID({ mcId });
+
+    const reviews = await Promise.all(
+      reviewAll.map(async (review) => {
+        const userId = review.author;
+        const user = await this.#userDAO.findById({ userId });
+        return {
+          // eslint-disable-next-line no-underscore-dangle
+          ...review._doc,
+          author: user ? user.username : "Unknown User"
+        };
+      })
+    );
+
     const totalRating = reviews.reduce((sum, review) => sum + review.rate, 0);
     const averageRating =
       isNaN(totalRating) || reviews.length === 0

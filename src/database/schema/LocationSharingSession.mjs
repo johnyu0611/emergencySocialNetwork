@@ -9,8 +9,8 @@ export const LocationSharingSessionSchema = new Schema({
   users: {
     type: [
       {
-        username: {
-          type: String,
+        userId: {
+          type: Number,
           required: true
         },
         role: {

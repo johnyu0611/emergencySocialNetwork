@@ -79,7 +79,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
   test("User303 set User404 as emergency contact successfully", async () => {
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user404",
@@ -101,7 +101,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
   test("User303 retrieve User404 as emergency contact successfully", async () => {
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user404",
@@ -122,7 +122,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Verify that user303's emergencyContact is updated
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {}
     };
     res = {
@@ -141,7 +141,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
     });
 
     req = {
-      auth: { username: "user404" },
+      auth: { userId: 2 },
       body: {}
     };
     res = {
@@ -153,7 +153,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
   test("User303 posts emergency history, entry is added to emergencyContactTo's emergencyHistory", async () => {
     // Set emergency contact first
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user404",
@@ -170,7 +170,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Post emergency history
     req = {
-      auth: { username: "user404" },
+      auth: { userId: 2 },
       body: {
         sender: "user404",
         content: "Emergency at location X"
@@ -190,7 +190,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Now, have user404 retrieve their emergency history to verify the entry was added
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         who: "self"
       }
@@ -213,7 +213,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
   test("User303 posts emergency history and user404 retrieve it", async () => {
     // Set emergency contact first
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user404",
@@ -230,7 +230,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Post emergency history
     req = {
-      auth: { username: "user404" },
+      auth: { userId: 2 },
       body: {
         sender: "user404",
         content: "Emergency at location X"
@@ -250,7 +250,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Now, have user404 retrieve their emergency history to verify the entry was added
     req = {
-      auth: { username: "user404" },
+      auth: { userId: 2 },
       body: {
         who: "other"
       }
@@ -278,7 +278,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
     // We need to simulate posting an emergency history that will be stored in user404's emergencyHistory
     // So set emergency contact for user303 and post emergency history
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user404",
@@ -295,7 +295,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Post emergency history from user303 with known timestamp
     req = {
-      auth: { username: "user404" },
+      auth: { userId: 2 },
       body: {
         sender: "user404",
         timestamp,
@@ -311,7 +311,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // Retrieve the emergency history to get the timestamp
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         who: "self"
       }
@@ -328,7 +328,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
     // User404 deletes the entry
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         sender: "user404",
         timestamp: timestampStr,
@@ -349,7 +349,7 @@ describe("Integration test for EmergencyHistoryController and EmergencyContactCo
 
   test("User303 cannot set themselves as emergency contact", async () => {
     req = {
-      auth: { username: "user303" },
+      auth: { userId: 1 },
       body: {
         emergencyContact: {
           username: "user303",

@@ -11,8 +11,8 @@ export const PostApplicationRequestSchema = z.object({
   resourceName: z.string().min(1, "Resource name is required"), // Resource name involved in the application
   amount: z.number().min(1, "Amount must be at least 1"), // Amount to request/provide
   actionType: z.enum(["provide", "request"]), // Action type: "provide" or "request"
-  applicantUsername: z.string().min(1, "Applicant username is required"), // Username of the applicant
-  resourceOwner: z.string().min(1, "Resource owner is required"), // Username of the resource owner
+  applicantUserId: z.number(), // Username of the applicant
+  resourceOwnerId: z.number(),
   createdAt: z.date() // Timestamp of application creation
 });
 

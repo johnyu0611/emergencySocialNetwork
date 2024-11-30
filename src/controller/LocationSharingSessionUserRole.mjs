@@ -36,7 +36,7 @@ export class LocationSharingSessionUserRoleController extends AbstractController
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/role"
+    path = "/:userId/role"
   ) {
     if (!LocationSharingSessionUserRoleController.#instance) {
       LocationSharingSessionUserRoleController.#instance =
@@ -53,11 +53,11 @@ export class LocationSharingSessionUserRoleController extends AbstractController
 
   async handlePut(req, res) {
     const loggerContext = "LocationSharingSessionUserRoleControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== parseInt(req.params.userId)) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's property");
     }
 
@@ -68,7 +68,7 @@ export class LocationSharingSessionUserRoleController extends AbstractController
     }
 
     const { role } = payload;
-    await this.#dao.setRole({ sessionId, username, role });
+    await this.#dao.setRole({ sessionId, userId, role });
 
     const responseBody = PutResponseSchema.parse({});
     res.status(HTTP_OK);
@@ -76,7 +76,7 @@ export class LocationSharingSessionUserRoleController extends AbstractController
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated their role to ${role}`
+      `User ${userId} has updated their role to ${role}`
     );
   }
 
@@ -85,17 +85,17 @@ export class LocationSharingSessionUserRoleController extends AbstractController
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sessionId, username } = req.params;
+    const { sessionId, userId } = req.params;
 
     if (!(await this.#dao.isValidSession({ sessionId }))) {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    if (!(await this.#userDao.isValidUsername({ username }))) {
-      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid username ${username}`);
+    if (!(await this.#userDao.isValidUserId({ userId }))) {
+      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid userId ${userId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
 
     const responseBody = GetResponseSchema.parse({
       role

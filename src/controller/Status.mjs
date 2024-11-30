@@ -50,7 +50,7 @@ export class StatusController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "StatusControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = StatusRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
@@ -61,6 +61,9 @@ export class StatusController extends AbstractController {
     );
 
     const { status } = payload;
+
+    const userOne = await this.#userDAO.findById({ userId });
+    const { username } = userOne;
 
     if (!["OK", "Help", "Emergency"].includes(status)) {
       throw new HTTPError(HTTP_BAD_REQUEST, "Invalid status value");
@@ -74,7 +77,7 @@ export class StatusController extends AbstractController {
     await this.#userDAO.update({ username }, { status, timestamp: timestamp });
 
     await this.#statusHistoryDAO.addStatusEntry({
-      username,
+      userId,
       status,
       timestamp
     });

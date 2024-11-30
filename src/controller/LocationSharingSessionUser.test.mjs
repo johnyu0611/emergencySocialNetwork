@@ -15,7 +15,7 @@ describe("Unit tests for LocationSharingSessionUser", () => {
     const validResponse = {
       users: [
         {
-          username: "user123",
+          userId: 1,
           role: "initiator",
           location: { longitude: 123.456, latitude: 78.9 },
           lastSeen: 1623456789,

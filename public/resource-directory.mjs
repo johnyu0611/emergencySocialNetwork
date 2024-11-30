@@ -6,6 +6,7 @@ import { performSearch } from "./common/perform-search.mjs";
 import { submitResource } from "./lib/post-resources.mjs";
 import { getResources } from "./lib/get-resources.mjs";
 import { submitApplication } from "./lib/post-application.mjs";
+import { getUsernameById } from "./lib/get-username.mjs";
 
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
@@ -13,6 +14,23 @@ const $statusButton = $("#share-status");
 const $postResourceButton = $("#post-resource-button");
 const $submitResourceButton = $("#submitResourceButton");
 let statusModal, searchModal, postResourceModal, applicationModal;
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split(".")[1]; // Get the Payload part
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload); // Parse the JSON payload
+  } catch (error) {
+    console.error("Failed to parse JWT:", error);
+    return null;
+  }
+}
 
 function parseJwt(token) {
   try {
@@ -104,6 +122,10 @@ async function submitResourceForm() {
   const imageFile = $("#resourceImage")[0].files[0];
   const resourceType = $("input[name='resourceType']:checked").val(); // Get selected resource type
   const token = localStorage.getItem(KEY_TOKEN);
+  const p = parseJwt(token);
+
+  const currentUserID = p?.userId || p?.sub; // Adjust based on your token's structure
+  const username = getUsernameById({ token, userId: currentUserID });
 
   if (!token) {
     console.error("No authorization token found.");
@@ -179,90 +201,77 @@ function getBase64(file) {
 
 let allResources = []; // Array to store all fetched resources
 
-function renderResources(filterType = "all") {
+async function renderResources(filterType = "all") {
   const resourceList = $("#resource-list");
   resourceList.empty();
-
-  const currentUsername = getCurrentUsername();
-  const filteredResources = getFilteredResources(
-    allResources,
-    filterType,
-    currentUsername
-  );
-
-  filteredResources.forEach((resource) => {
-    const resourceContent = createResourceCard(resource, currentUsername);
-    resourceList.append(resourceContent);
-  });
-}
-
-// Helper function to parse the current username from token
-function getCurrentUsername() {
   const token = localStorage.getItem(KEY_TOKEN);
   const p = parseJwt(token);
-  return p?.username || p?.sub; // Adjust based on your token's structure
-}
+  const currentUserID = p?.userId || p?.sub; // Adjust based on your token's structure
 
-// Helper function to filter resources
-function getFilteredResources(resources, filterType, currentUsername) {
-  return resources.filter((resource) => {
-    const resourceData = resource._doc || resource;
+  // Filter resources based on the selected filter type
+  const filteredResources = allResources.filter((resource) => {
+    const resourceData = resource._doc || resource; // Handle nested _doc case
     if (filterType === "provide")
       return resourceData.resourceType === "provide";
     if (filterType === "request")
       return resourceData.resourceType === "request";
-    return true; // Show all resources if no specific filter
+    return true;
   });
-}
 
-// Helper function to create resource card HTML
-function createResourceCard(resource, currentUsername) {
-  const resourceData = resource._doc || resource;
-  const isOwnedByCurrentUser = resourceData.username === currentUsername;
+  // Iterate through the filtered resources and render them
+  filteredResources.forEach(async (resource) => {
+    const resourceData = resource._doc || resource; // Use _doc if present, fallback to resource
+    const resourceOwnerId = resourceData.userId;
+    // Check if the resource belongs to the current user
+    const isOwnedByCurrentUser = resourceData.userId === currentUserID;
+    const response = await getUsernameById({ token, userId: resourceOwnerId });
+    const resourceOwnerUsername = response.username;
 
-  const imageHtml =
-    resourceData.imageBase64 && resourceData.imageType
-      ? `
-      <div class="col-12 col-md-4 text-md-right">
-        <img src="data:${resourceData.imageType};base64,${resourceData.imageBase64}"
-             alt="${resourceData.name}"
-             class="resource-image img-fluid"
-             style="max-width: 100%; height: auto; object-fit: cover;" />
-      </div>
-    `
-      : "";
-
-  const buttonHtml = !isOwnedByCurrentUser
-    ? `
-      <div class="card-footer text-right">
-        <button class="btn btn-${resourceData.resourceType === "provide" ? "primary" : "success"} btn-sm open-application-btn"
-                data-resource-id="${resourceData.id}"
-                data-resource-name="${resourceData.name}"
-                data-resource-owner="${resourceData.username}"
-                data-action-type="${resourceData.resourceType === "provide" ? "request" : "provide"}">
-          ${resourceData.resourceType === "provide" ? "Request This Resource" : "Provide This Resource"}
-        </button>
-      </div>
-    `
-    : "";
-
-  return `
-    <div class="card mb-3 resource-item ${resourceData.resourceType === "provide" ? "provide" : "request"}">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-12 col-md-8 resource-details">
-            <p><strong>Resource:</strong> ${resourceData.name || "N/A"}</p>
-            <p><strong>Amount:</strong> ${resourceData.amount || "N/A"}</p>
-            <p><strong>Posted by:</strong> ${resourceData.username || "N/A"}</p>
-            <p><strong>Date Posted:</strong> ${resourceData.createdAt ? new Date(resourceData.createdAt).toLocaleDateString() : "N/A"}</p>
-            <p><strong>Type:</strong> ${resourceData.resourceType === "provide" ? "Providing" : "Requesting"}</p>
+    const resourceContent = `
+      <div class="card mb-3 resource-item ${resourceData.resourceType === "provide" ? "provide" : "request"}">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-8 resource-details">
+              <p><strong>Resource:</strong> ${resourceData.name || "N/A"}</p>
+              <p><strong>Amount:</strong> ${resourceData.amount || "N/A"}</p>
+              <p><strong>Posted by:</strong> ${resourceOwnerUsername}</p>
+              <p><strong>Date Posted:</strong> ${resourceData.createdAt ? new Date(resourceData.createdAt).toLocaleDateString() : "N/A"}</p>
+              <p><strong>Type:</strong> ${resourceData.resourceType === "provide" ? "Providing" : "Requesting"}</p>
+            </div>
+            ${
+              resourceData.imageBase64 && resourceData.imageType
+                ? `
+            <div class="col-12 col-md-4 text-md-right">
+              <img src="data:${resourceData.imageType};base64,${resourceData.imageBase64}"
+                   alt="${resourceData.name}"
+                   class="resource-image img-fluid"
+                   style="max-width: 100%; height: auto; object-fit: cover;" />
+            </div>
+            `
+                : ""
+            }
           </div>
-          ${imageHtml}
         </div>
+        ${
+          !isOwnedByCurrentUser // Only display the button if the resource does not belong to the current user
+            ? `
+          <div class="card-footer text-right">
+            <button class="btn btn-${resourceData.resourceType === "provide" ? "primary" : "success"} btn-sm open-application-btn"
+                    data-resource-id="${resourceData.id}"
+                    data-resource-name="${resourceData.name}"
+                    data-resource-owner="${resourceOwnerUsername}"
+                    data-resource-owner-id="${resourceOwnerId}"
+                    data-action-type="${resourceData.resourceType === "provide" ? "request" : "provide"}">
+              ${resourceData.resourceType === "provide" ? "Request This Resource" : "Provide This Resource"}
+            </button>
+          </div>
+          `
+            : ""
+        }
       </div>
-      ${buttonHtml}
-    </div>
-  `;
+    `;
+    resourceList.append(resourceContent);
+  });
 }
 
 async function fetchAndDisplayResources() {
@@ -275,6 +284,7 @@ async function fetchAndDisplayResources() {
     const response = await getResources({ token });
     const data = response;
     allResources = data.resources; // Save fetched resources
+
     renderResources(); // Render all resources by default
   } catch (error) {
     console.error("Error fetching resources:", error);
@@ -286,7 +296,7 @@ async function handleSubmitApplication() {
   // Get values from the modal
   const resourceId = $("#applicationModal").data("resource-id"); // Fetch resource ID
   const resourceName = $("#applicationResourceName").text();
-  const resourceOwner = $("#applicationResourceOwner").text();
+  const resourceOwnerId = $("#applicationModal").data("resource-owner-id");
   const amount = parseInt($("#applicationAmount").val(), 10);
   const actionType = $("#applicationActionType").text().toLowerCase();
   const token = localStorage.getItem(KEY_TOKEN);
@@ -297,8 +307,8 @@ async function handleSubmitApplication() {
     return;
   }
 
-  if (!resourceOwner) {
-    alert("Resource owner information is missing.");
+  if (!resourceOwnerId) {
+    alert("Resource owner id information is missing.");
     return;
   }
 
@@ -306,12 +316,11 @@ async function handleSubmitApplication() {
     alert("You must be logged in to submit an application.");
     return;
   }
-
   // Prepare payload for API call
   const payload = {
     resourceId, // Include resource ID
     resourceName,
-    resourceOwner,
+    resourceOwnerId: resourceOwnerId,
     amount,
     actionType
   };
@@ -379,6 +388,7 @@ $(document).ready(async () => {
 
   $("#resource-list").on("click", ".open-application-btn", function () {
     const resourceId = $(this).data("resource-id"); // Get resource ID
+    const resourceOwnerId = $(this).data("resource-owner-id");
     const resourceName = $(this).data("resource-name");
     const resourceOwner = $(this).data("resource-owner"); // Get resource owner
     const actionType = $(this).data("action-type");
@@ -390,6 +400,7 @@ $(document).ready(async () => {
 
     // Attach resourceId to the modal for later use
     $("#applicationModal").data("resource-id", resourceId);
+    $("#applicationModal").data("resource-owner-id", resourceOwnerId);
 
     // Show the application modal
     applicationModal?.show();

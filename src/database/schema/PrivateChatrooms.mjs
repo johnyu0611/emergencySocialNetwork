@@ -7,7 +7,7 @@ export const PrivateChatroomsSchema = new Schema({
     required: true
   },
   participants: {
-    type: [String],
+    type: [Number],
     default: []
   }
 });

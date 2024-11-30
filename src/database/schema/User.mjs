@@ -1,6 +1,10 @@
 import { Schema } from "mongoose";
+import Counter from "./Counter.mjs";
 
 export const UserSchema = new Schema({
+  userId: {
+    type: Number
+  },
   username: {
     unique: true,
     type: String,
@@ -25,7 +29,7 @@ export const UserSchema = new Schema({
   emergencyContact: {
     type: {
       username: {
-        type: String
+        type: Number
       },
       email: {
         type: String
@@ -36,13 +40,13 @@ export const UserSchema = new Schema({
     }
   },
   emergencyContactTo: {
-    type: String
+    type: Number
   },
   emergencyHistory: {
     type: [
       {
         sender: {
-          type: String
+          type: Number
         },
         timestamp: {
           type: Date,
@@ -61,7 +65,7 @@ export const UserSchema = new Schema({
           type: String
         },
         receiver: {
-          type: String
+          type: Number
         }
       }
     ],
@@ -80,5 +84,25 @@ export const UserSchema = new Schema({
     default: {
       id: "undefined"
     }
+  }
+});
+
+UserSchema.pre("save", async function (next) {
+  // eslint-disable-next-line no-invalid-this
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { name: "userId" },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+      // eslint-disable-next-line no-invalid-this
+      this.userId = counter.seq;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    next();
   }
 });

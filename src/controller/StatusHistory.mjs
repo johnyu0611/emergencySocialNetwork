@@ -8,12 +8,14 @@ import {
 import { HTTPError } from "@/error/HTTPError.mjs";
 import { logger } from "@/log/Logger.mjs";
 import { HTTP_OK, HTTP_NOT_FOUND } from "@/util/Constants.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 
 export class StatusHistoryController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
   #statusHistoryDAO = null;
   #privateChatroomsDAO = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== StatusHistoryController.#initializationSymbol) {
@@ -22,6 +24,7 @@ export class StatusHistoryController extends AbstractController {
     super({ upstreamRouter, path, middlewareMap, context });
     this.#statusHistoryDAO = StatusHistoryDataAccess.getInstance();
     this.#privateChatroomsDAO = PrivateChatroomsDataAccess.getInstance();
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -44,8 +47,8 @@ export class StatusHistoryController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "StatusHistoryControllerGETHandler";
-    const { username } = req.auth;
-    const currUsername = username;
+    const { userId } = req.auth;
+    const currUsername = userId;
     const payload = StatusHistoryGetRequestSchema.parse(req.body);
     const { roomId } = payload;
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
@@ -62,11 +65,12 @@ export class StatusHistoryController extends AbstractController {
       (username) => username !== currUsername
     );
 
-    const historyPromises = updatedParticipants.map(async (username) => {
+    const historyPromises = updatedParticipants.map(async (userId) => {
       const userHistory =
-        await this.#statusHistoryDAO.getStatusHistoryByUsername(username);
+        await this.#statusHistoryDAO.getStatusHistoryByUserId(userId);
+      const user = await this.#userDAO.findById({ userId });
       return userHistory.map((entry) => ({
-        sender: username,
+        sender: user.username,
         status: entry.status,
         timestamp: entry.timestamp
       }));

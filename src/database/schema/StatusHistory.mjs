@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
 
 export const StatusHistorySchema = new Schema({
-  username: {
-    type: String,
+  userId: {
+    type: Number,
     required: true
   },
   status: {

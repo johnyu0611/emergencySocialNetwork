@@ -58,12 +58,14 @@ export class UserController extends AbstractController {
     const { jwt, passwordHasher } = this.context;
 
     const payload = PostRequestSchema.parse(req.body);
+    // console.log("0000000000");
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
     let { username } = payload;
     let { password } = payload;
     const { status } = payload;
 
+    // console.log("11111111111");
     try {
       username = validateUsername(username);
     } catch (error) {
@@ -74,7 +76,7 @@ export class UserController extends AbstractController {
         throw error;
       }
     }
-
+    // console.log("22222222222");
     try {
       password = validatePassword(password);
     } catch (error) {
@@ -92,13 +94,13 @@ export class UserController extends AbstractController {
       throw new HTTPError(HTTP_CONFLICT, "User already exists");
     }
 
-    await this.#userDAO.create({
+    const newUser = await this.#userDAO.create({
       username,
       password: await passwordHasher.hash(password),
       status: status ? status : "Undefined"
     });
 
-    const token = jwt.encode({ username });
+    const token = jwt.encode({ userId: newUser.userId });
     const responseBody = PostResponseSchema.parse({
       token
     });

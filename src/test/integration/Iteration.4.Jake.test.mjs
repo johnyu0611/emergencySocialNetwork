@@ -25,6 +25,10 @@ import { ZodError } from "zod";
 const regexUUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
+function getJWTPayload(token) {
+  return JSON.parse(atob(token.split(".")[1]));
+}
+
 describe("Integration test for PostAnnouncement & SearchInformation", () => {
   let userController = undefined;
   let locationSharingSessionController = undefined;
@@ -38,7 +42,8 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
   let res = undefined;
   let server = undefined;
   let sessionId = undefined;
-
+  let user401Id = undefined;
+  let user402Id = undefined;
   beforeAll(async () => {
     config.environment.databaseUser = "hanzhi";
     config.environment.databasePassword = "hanzhi";
@@ -78,7 +83,10 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(({ token }) => {
+        const { userId } = getJWTPayload(token);
+        user401Id = userId;
+      })
     };
     await userController.handlePost(req, res);
 
@@ -90,6 +98,13 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         status: "Help",
         chatrooms: []
       }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(({ token }) => {
+        const { userId } = getJWTPayload(token);
+        user402Id = userId;
+      })
     };
     await userController.handlePost(req, res);
   });
@@ -106,7 +121,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
   test("Test bad request: should not create a session", async () => {
     req = {
       body: {},
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -126,7 +141,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -153,7 +168,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -169,7 +184,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         sessionId
       },
       body: {},
-      auth: { username: "user402" }
+      auth: { userId: user402Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -189,7 +204,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -210,7 +225,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -230,7 +245,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -251,7 +266,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user402" }
+      auth: { userId: user402Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -265,7 +280,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         sessionId
       },
       body: {},
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -278,7 +293,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
       expect.objectContaining({
         users: expect.arrayContaining([
           expect.objectContaining({
-            username: "user401",
+            userId: user401Id,
             role: "initiator",
             location: {
               longitude: 18.652,
@@ -289,7 +304,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
             resourceResponse: expect.arrayContaining([])
           }),
           expect.objectContaining({
-            username: "user402",
+            userId: user402Id,
             role: "responder",
             location: {
               longitude: 18.652,
@@ -312,7 +327,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -333,7 +348,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
           latitude: 18.652
         }
       },
-      auth: { username: "user402" }
+      auth: { userId: user402Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -347,7 +362,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
         sessionId
       },
       body: {},
-      auth: { username: "user401" }
+      auth: { userId: user401Id }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -359,8 +374,8 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     const testData = {
       location: {
         controller: locationSharingSessionUserLocationController,
-        authWrite: "user401",
-        authRead: "user402",
+        authWrite: user401Id,
+        authRead: user402Id,
         payload: {
           location: {
             longitude: 18.613,
@@ -370,24 +385,24 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
       },
       lastSeen: {
         controller: locationSharingSessionUserLastSeenController,
-        authWrite: "user401",
-        authRead: "user402",
+        authWrite: user401Id,
+        authRead: user402Id,
         payload: {
           lastSeen: 18613
         }
       },
       resourceRequest: {
         controller: locationSharingSessionUserResourceRequestController,
-        authWrite: "user401",
-        authRead: "user402",
+        authWrite: user401Id,
+        authRead: user402Id,
         payload: {
           resourceRequest: ["FSE", "FCS", "FP"]
         }
       },
       resourceResponse: {
         controller: locationSharingSessionUserResourceResponseController,
-        authWrite: "user402",
-        authRead: "user401",
+        authWrite: user402Id,
+        authRead: user401Id,
         payload: {
           resourceResponse: ["FSE", "FCS"]
         }
@@ -398,10 +413,10 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
       req = {
         params: {
           sessionId,
-          username: value.authWrite
+          userId: value.authWrite
         },
         body: value.payload,
-        auth: { username: value.authWrite }
+        auth: { userId: value.authWrite }
       };
       res = {
         status: jest.fn().mockReturnThis(),
@@ -414,10 +429,10 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
       req = {
         params: {
           sessionId,
-          username: value.authWrite
+          userId: value.authWrite
         },
         body: {},
-        auth: { username: value.authRead }
+        auth: { userId: value.authRead }
       };
       res = {
         status: jest.fn().mockReturnThis(),

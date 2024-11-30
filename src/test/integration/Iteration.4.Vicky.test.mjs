@@ -86,7 +86,7 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -108,7 +108,7 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -126,7 +126,7 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good....",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -150,14 +150,14 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
     await medicalcenterController.handlePost(req, res);
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -191,14 +191,14 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
     await medicalcenterController.handlePost(req, res);
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -206,7 +206,7 @@ describe("Integration test for Iteration 4", () => {
     await medicalcenterController.handleGet(req, res);
     const [[createdMedicalCenter]] = res.json.mock.calls;
     const mcID = createdMedicalCenter.medicalcenters[0].mcId;
-    req = { body: { mcId: mcID }, auth: { username: "user101" } };
+    req = { body: { mcId: mcID }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -226,14 +226,14 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
     await medicalcenterController.handlePost(req, res);
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -243,7 +243,7 @@ describe("Integration test for Iteration 4", () => {
     const mcID = createdMedicalCenter.medicalcenters[0].mcId;
     req = {
       body: { mcId: mcID, content: "good", rate: 4 },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -264,14 +264,14 @@ describe("Integration test for Iteration 4", () => {
         introduction: "Good",
         address: "503 Tyrella Avenue, Mountain View, CA 94043-2128, USA"
       },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
     await medicalcenterController.handlePost(req, res);
-    req = { body: {}, auth: { username: "user101" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -281,7 +281,7 @@ describe("Integration test for Iteration 4", () => {
     const mcID = createdMedicalCenter.medicalcenters[0].mcId;
     req = {
       body: { mcId: mcID, content: "good", rate: 4 },
-      auth: { username: "user101" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -289,7 +289,7 @@ describe("Integration test for Iteration 4", () => {
     };
     await reviewController.handlePost(req, res);
 
-    req = { body: { mcId: mcID }, auth: { username: "user101" } };
+    req = { body: { mcId: mcID }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()

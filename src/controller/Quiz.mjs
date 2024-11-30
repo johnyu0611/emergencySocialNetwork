@@ -4,12 +4,14 @@ import {
   PostResponseSchema
 } from "@/controller/schema/Quiz.mjs";
 import { logger } from "@/log/Logger.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 import { QuizDataAccess } from "@/model/Quiz.mjs";
 import { HTTP_CREATED, HTTP_BAD_REQUEST } from "@/util/Constants.mjs";
 
 export class QuizController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
+  #userDAO = null;
   #quizDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
@@ -17,6 +19,7 @@ export class QuizController extends AbstractController {
       throw TypeError("Cannot initialize a singleton class via constructor");
     }
     super({ upstreamRouter, path, middlewareMap, context });
+    this.#userDAO = UserDataAccess.getInstance();
     this.#quizDAO = QuizDataAccess.getInstance();
   }
 
@@ -62,11 +65,13 @@ export class QuizController extends AbstractController {
     const loggerContext = "QuizControllerPOSTHandler";
 
     try {
-      const { username } = req.auth;
+      const { userId } = req.auth;
+
+      const user = await this.#userDAO.findById({ userId });
 
       const payload = PostRequestSchema.parse({
         ...req.body,
-        creator: username
+        creator: user.username
       });
       logger.debug({ context: loggerContext }, "Request received: %o", payload);
 

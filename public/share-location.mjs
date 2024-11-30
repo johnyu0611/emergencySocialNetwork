@@ -40,33 +40,41 @@ import {
   getLocation,
   handleGeolocationPositionError
 } from "./common/geolocation.mjs";
+import { getUsernameById } from "./lib/get-username.mjs";
 
 class Participant {
   #map;
   #referenceParticipant;
-  #username;
+  #userId;
+  #token;
 
   #marker;
   #isInitiator = false;
   #isParticipantCurrentViewer;
   #sessionId;
-  #watchId;
-  #watchUpdateInfoWindow;
+  watchId;
+  watchUpdateInfoWindow;
   #lastSeen;
   #resourceList;
 
-  constructor(map, referenceParticipant, username, location) {
+  constructor(map, referenceParticipant, userId, location, token) {
     this.#map = map;
     this.#referenceParticipant = referenceParticipant;
-    this.#username = username;
+    this.#userId = userId;
+    this.#token = token;
 
     const { latitude, longitude } = location;
-    this.#marker = new Marker(map, username, { lat: latitude, lng: longitude });
+    this.#marker = new Marker(map, userId, { lat: latitude, lng: longitude });
     this.#isParticipantCurrentViewer = this.#referenceParticipant === null;
 
-    this.#marker.infoHeader = infoHeader(this.#username)[0];
-    this.#updateInfoContent();
-    this.#marker.content = pinElement(this.#username)[0];
+    (async () => {
+      this.#marker.infoHeader = infoHeader(await this.getUsername())[0];
+      this.updateInfoContent();
+      this.#marker.content = pinElement(
+        await this.getUsername(),
+        this.#isInitiator
+      )[0];
+    })();
 
     if (this.#isParticipantCurrentViewer) {
       this.#marker.show();
@@ -81,19 +89,19 @@ class Participant {
     this.#marker.hide();
   }
 
-  onSessionStart(sessionId, isInitiator) {
+  async onSessionStart(sessionId, isInitiator) {
     this.#isInitiator = isInitiator;
-    this.#marker.content = pinElement(this.#username, isInitiator)[0];
+    this.#marker.content = pinElement(await this.getUsername(), isInitiator)[0];
 
-    this.#watch();
+    this.watch();
     this.#sessionId = sessionId;
   }
 
-  onSessionStop() {
+  async onSessionStop() {
     this.#isInitiator = undefined;
-    this.#marker.content = pinElement(this.#username)[0];
+    this.#marker.content = pinElement(await this.getUsername())[0];
 
-    this.#unwatch();
+    this.unwatch();
     this.#sessionId = undefined;
   }
 
@@ -109,7 +117,7 @@ class Participant {
       lng: longitude,
       lat: latitude
     };
-    this.#updateInfoContent();
+    this.updateInfoContent();
   }
 
   get lastSeen() {
@@ -118,7 +126,7 @@ class Participant {
 
   set lastSeen(lastSeen) {
     this.#lastSeen = lastSeen;
-    this.#updateInfoContent();
+    this.updateInfoContent();
   }
 
   get distance() {
@@ -137,18 +145,26 @@ class Participant {
 
   set resourceList(resourceList) {
     this.#resourceList = resourceList;
-    this.#updateInfoContent();
+    this.updateInfoContent();
   }
 
-  get username() {
-    return this.#username;
+  get userId() {
+    return this.#userId;
+  }
+
+  async getUsername() {
+    const { username } = await getUsernameById({
+      userId: this.#userId,
+      token: this.#token
+    });
+    return username;
   }
 
   get isCurrentViewer() {
     return this.#isParticipantCurrentViewer;
   }
 
-  #updateInfoContent() {
+  updateInfoContent() {
     this.#marker.infoContent = infoContent(
       this.#isInitiator,
       this.#lastSeen,
@@ -157,13 +173,13 @@ class Participant {
     )[0];
   }
 
-  #watch() {
-    this.#watchUpdateInfoWindow = setInterval(() => {
-      this.#updateInfoContent();
+  watch() {
+    this.watchUpdateInfoWindow = setInterval(() => {
+      this.updateInfoContent();
     }, 1000);
 
     if (this.#isParticipantCurrentViewer) {
-      this.#watchId = navigator.geolocation.watchPosition(
+      this.watchId = navigator.geolocation.watchPosition(
         async (location) => {
           await this.#reportLocation(location.coords);
           await this.#reportLastSeen(Date.now());
@@ -176,11 +192,11 @@ class Participant {
     }
   }
 
-  #unwatch() {
-    clearInterval(this.#watchUpdateInfoWindow);
+  unwatch() {
+    clearInterval(this.watchUpdateInfoWindow);
 
     if (this.#isParticipantCurrentViewer) {
-      return navigator.geolocation.clearWatch(this.#watchId);
+      return navigator.geolocation.clearWatch(this.watchId);
     }
   }
 
@@ -193,7 +209,7 @@ class Participant {
     await setUserLocation({
       token,
       sessionId: this.#sessionId,
-      username: this.#username,
+      userId: this.#userId,
       location
     });
   }
@@ -207,7 +223,7 @@ class Participant {
     await setUserLastSeenTimestamp({
       token,
       sessionId: this.#sessionId,
-      username: this.#username,
+      userId: this.#userId,
       lastSeen
     });
   }
@@ -361,25 +377,26 @@ function onNewAnnouncement(announcementModal, $viewButton) {
 }
 
 function onNewParticipant(context) {
-  return function ({ username, role, location }) {
-    const { sessionId, referenceParticipant } = context;
+  return async function ({ userId, role, location }) {
+    const { sessionId, referenceParticipant, token } = context;
 
     const participant = new Participant(
       map,
       referenceParticipant,
-      username,
-      location
+      userId,
+      location,
+      token
     );
-    participantMap.set(username, participant);
-    participant.onSessionStart(sessionId, role === "initiator");
+    participantMap.set(userId, participant);
+    await participant.onSessionStart(sessionId, role === "initiator");
     participant.show();
   };
 }
 
 function onUpdate() {
   return function (message) {
-    const { username } = message;
-    const participant = participantMap.get(username);
+    const { userId } = message;
+    const participant = participantMap.get(userId);
 
     if (message.location) {
       participant.location = message.location;
@@ -411,7 +428,7 @@ function onSharingStarted(context) {
       token,
       referenceParticipantRole,
       referenceParticipant,
-      referenceParticipantUsername,
+      referenceParticipantUserId,
       sessionId
     } = context;
     if (sessionId === "undefined") {
@@ -422,7 +439,7 @@ function onSharingStarted(context) {
       sessionId = id;
     }
 
-    referenceParticipant.onSessionStart(
+    await referenceParticipant.onSessionStart(
       sessionId,
       referenceParticipantRole === "initiator"
     );
@@ -430,7 +447,7 @@ function onSharingStarted(context) {
       await getUserLastSeenTimestamp({
         token,
         sessionId,
-        username: referenceParticipantUsername
+        userId: referenceParticipantUserId
       })
     ).lastSeen;
     if (referenceParticipantRole === "initiator") {
@@ -438,7 +455,7 @@ function onSharingStarted(context) {
         await getUserResourceRequest({
           token,
           sessionId,
-          username: referenceParticipantUsername
+          userId: referenceParticipantUserId
         })
       ).resourceRequest;
     } else {
@@ -446,37 +463,38 @@ function onSharingStarted(context) {
         await getUserResourceResponse({
           token,
           sessionId,
-          username: referenceParticipantUsername
+          userId: referenceParticipantUserId
         })
       ).resourceResponse;
     }
 
     const { users } = await getAllUsersInSession({ token, sessionId });
-    for (const { username, role, location } of users) {
-      if (username === referenceParticipantUsername) {
+    for (const { userId, role, location } of users) {
+      if (userId === referenceParticipantUserId) {
         continue;
       }
       const participant = new Participant(
         map,
         referenceParticipant,
-        username,
-        location
+        userId,
+        location,
+        token
       );
-      participantMap.set(username, participant);
-      participant.onSessionStart(sessionId, role === "initiator");
+      participantMap.set(userId, participant);
+      await participant.onSessionStart(sessionId, role === "initiator");
       participant.location = (
-        await getUserLocation({ token, sessionId, username })
+        await getUserLocation({ token, sessionId, userId })
       ).location;
       participant.lastSeen = (
-        await getUserLastSeenTimestamp({ token, sessionId, username })
+        await getUserLastSeenTimestamp({ token, sessionId, userId })
       ).lastSeen;
       if (role === "initiator") {
         participant.resourceList = (
-          await getUserResourceRequest({ token, sessionId, username })
+          await getUserResourceRequest({ token, sessionId, userId })
         ).resourceRequest;
       } else {
         participant.resourceList = (
-          await getUserResourceResponse({ token, sessionId, username })
+          await getUserResourceResponse({ token, sessionId, userId })
         ).resourceResponse;
       }
       participant.show();
@@ -507,22 +525,22 @@ function onSharingStopped(context) {
     const {
       token,
       sessionId,
-      referenceParticipantUsername,
+      referenceParticipantUserId,
       referenceParticipant,
       referenceParticipantRole
     } = context;
-    referenceParticipant.onSessionStop();
+    await referenceParticipant.onSessionStop();
 
     const { users } = await getAllUsersInSession({ token, sessionId });
-    users.forEach(({ username }) => {
-      if (username === referenceParticipantUsername) {
-        return;
+    for (const { userId } of users) {
+      if (userId === referenceParticipantUserId) {
+        continue;
       }
-      const participant = participantMap.get(username);
-      participant.onSessionStop(sessionId);
+      const participant = participantMap.get(userId);
+      await participant.onSessionStop(sessionId);
       participant.hide();
-      participantMap.delete(username);
-    });
+      participantMap.delete(userId);
+    }
 
     if (referenceParticipantRole === "initiator") {
       await deleteLocationSharingSession({ token, sessionId });
@@ -536,15 +554,11 @@ function onSharingStopped(context) {
 
 function onEditResourceRequestModalOpen(context) {
   return async function () {
-    const {
-      token,
-      sessionId,
-      referenceParticipantUsername: username
-    } = context;
+    const { token, sessionId, referenceParticipantUserId: userId } = context;
     const { resourceRequest } = await getUserResourceRequest({
       token,
       sessionId,
-      username
+      userId
     });
     for (const item of resourceRequest) {
       $divRequestResourceList.append(
@@ -559,33 +573,29 @@ function onEditResourceRequestModalOpen(context) {
 
 function onEditResourceResponseModalOpen(context) {
   return async function () {
-    const {
-      token,
-      sessionId,
-      referenceParticipantUsername: username
-    } = context;
+    const { token, sessionId, referenceParticipantUserId: userId } = context;
     const { users } = await getAllUsersInSession({ token, sessionId });
-    let initiatorUsername;
+    let initiatoruserId;
     for (const user of users) {
       if (user.role === "initiator") {
-        initiatorUsername = user.username;
+        initiatoruserId = user.userId;
         break;
       }
     }
 
-    if (!initiatorUsername) {
+    if (!initiatoruserId) {
       return;
     }
 
     const { resourceRequest } = await getUserResourceRequest({
       token,
       sessionId,
-      username: initiatorUsername
+      userId: initiatoruserId
     });
     const { resourceResponse } = await getUserResourceResponse({
       token,
       sessionId,
-      username
+      userId
     });
 
     for (const item of resourceRequest) {
@@ -606,11 +616,7 @@ function onEditResourceResponseModalOpen(context) {
 
 function onSaveResourceRequest(context) {
   return async function () {
-    const {
-      token,
-      sessionId,
-      referenceParticipantUsername: username
-    } = context;
+    const { token, sessionId, referenceParticipantUserId: userId } = context;
     const items = $divRequestResourceList
       .children()
       .toArray()
@@ -618,7 +624,7 @@ function onSaveResourceRequest(context) {
     await setUserResourceRequest({
       token,
       sessionId,
-      username,
+      userId,
       resourceRequest: items
     });
     modalEditResourceRequest.hide();
@@ -628,11 +634,7 @@ function onSaveResourceRequest(context) {
 
 function onSaveResourceResponse(context) {
   return async function () {
-    const {
-      token,
-      sessionId,
-      referenceParticipantUsername: username
-    } = context;
+    const { token, sessionId, referenceParticipantUserId: userId } = context;
     const items = $divResponseResourceList
       .children(".active")
       .toArray()
@@ -640,7 +642,7 @@ function onSaveResourceResponse(context) {
     await setUserResourceResponse({
       token,
       sessionId,
-      username,
+      userId,
       resourceResponse: items
     });
     modalEditResourceResponse.hide();
@@ -696,9 +698,9 @@ async function initMap(token) {
   map.setCenter({ lng: longitude, lat: latitude });
   map.setZoom(20);
 
-  const { username } = getJWTPayload(token);
-  const participant = new Participant(map, null, username, location);
-  participantMap.set(username, participant);
+  const { userId } = getJWTPayload(token);
+  const participant = new Participant(map, null, userId, location, token);
+  participantMap.set(userId, participant);
 }
 
 $(document).ready(async () => {
@@ -743,8 +745,8 @@ $(document).ready(async () => {
     const token = localStorage.getItem(KEY_TOKEN);
     await initMap(token);
 
-    const { username } = getJWTPayload(token);
-    const referenceParticipant = participantMap.get(username);
+    const { userId } = getJWTPayload(token);
+    const referenceParticipant = participantMap.get(userId);
 
     let sessionId;
     let role = "initiator";
@@ -763,12 +765,12 @@ $(document).ready(async () => {
       sessionId = (
         await getUserLocationSharingSession({
           token,
-          username
+          userId
         })
       ).id;
 
       if (sessionId !== "undefined") {
-        const { role: r } = await getUserRole({ token, sessionId, username });
+        const { role: r } = await getUserRole({ token, sessionId, userId });
         role = r;
       }
     }
@@ -776,7 +778,7 @@ $(document).ready(async () => {
     const context = {
       token,
       sessionId,
-      referenceParticipantUsername: username,
+      referenceParticipantUserId: userId,
       referenceParticipant,
       referenceParticipantRole: role,
       socket: null

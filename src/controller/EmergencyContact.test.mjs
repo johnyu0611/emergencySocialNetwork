@@ -11,7 +11,7 @@ import {
   test
 } from "@jest/globals";
 
-// mock dependencies
+// Mock dependencies
 const mockRouter = {
   use: jest.fn(),
   get: jest.fn(),
@@ -27,7 +27,9 @@ const mockContext = {
 
 const mockUserDAO = {
   findByUsername: jest.fn(),
+  findById: jest.fn(),
   create: jest.fn(),
+  updateById: jest.fn(),
   update: jest.fn(),
   findAll: jest.fn()
 };
@@ -37,6 +39,7 @@ describe("Test retrieve and set emergency contact", () => {
   let emergencyContactController = undefined;
   let req = undefined;
   let res = undefined;
+
   beforeEach(() => {
     userController = UserController.getInstance(
       mockRouter,
@@ -61,16 +64,21 @@ describe("Test retrieve and set emergency contact", () => {
   });
 
   test("Should return an empty object with only curr field", async () => {
-    req = { body: {}, auth: { username: "testuser" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
     const user = {
+      userId: 1,
       username: "testuser"
     };
-    mockUserDAO.findByUsername.mockResolvedValue(user);
+
+    // Mock `findById` to return user twice (for user and curr)
+    mockUserDAO.findById
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(user);
 
     await emergencyContactController.handleGet(req, res);
 
@@ -84,29 +92,33 @@ describe("Test retrieve and set emergency contact", () => {
   });
 
   test("Should return an emergency contact object", async () => {
-    req = { body: {}, auth: { username: "testuser" } };
+    req = { body: {}, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
     const user = {
+      userId: 1,
       username: "testuser",
       emergencyContact: {
-        username: "qwer",
+        username: 2,
         fullName: "QWER",
         email: "123@gmail.com"
       }
     };
 
-    const emergencyContact = {
+    const emergencyContactUser = {
+      userId: 2,
       username: "qwer",
       isOnline: false
     };
 
-    mockUserDAO.findByUsername
+    mockUserDAO.findById
       .mockResolvedValueOnce(user)
-      .mockResolvedValueOnce(emergencyContact);
+      .mockResolvedValueOnce(emergencyContactUser)
+      .mockResolvedValueOnce(user)
+      .mockResolvedValueOnce(emergencyContactUser);
 
     await emergencyContactController.handleGet(req, res);
 
@@ -129,14 +141,13 @@ describe("Test retrieve and set emergency contact", () => {
           email: "123@gmail.com"
         }
       },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    // Simulate `findByUsername` returning null (user not found)
     mockUserDAO.findByUsername.mockResolvedValueOnce(null);
 
     let error = undefined;
@@ -151,7 +162,6 @@ describe("Test retrieve and set emergency contact", () => {
     expect(error.status).toBe(HTTP_NOT_FOUND);
     expect(error.message).toBe("Emergency contact not found");
 
-    // Ensure no response has been sent
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
   });
@@ -165,15 +175,19 @@ describe("Test retrieve and set emergency contact", () => {
           email: "123@gmail.com"
         }
       },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    // Simulate `findByUsername` returning null (user not found)
-    // mockUserDAO.findByUsername.mockResolvedValueOnce(null);
+    const user = {
+      userId: 1,
+      username: "testuser"
+    };
+
+    mockUserDAO.findByUsername.mockResolvedValueOnce(user);
 
     let error = undefined;
     try {
@@ -187,7 +201,6 @@ describe("Test retrieve and set emergency contact", () => {
     expect(error.status).toBe(HTTP_BAD_REQUEST);
     expect(error.message).toBe("Cannot set self as emergency contact");
 
-    // Ensure no response has been sent
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
   });
@@ -201,19 +214,20 @@ describe("Test retrieve and set emergency contact", () => {
           email: "123@gmail.com"
         }
       },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    const emergencyContact = {
+    const user = {
+      userId: 2,
       username: "qwer",
-      emergencyContactTo: "wasd"
+      emergencyContactTo: 3
     };
 
-    mockUserDAO.findByUsername.mockResolvedValueOnce(emergencyContact);
+    mockUserDAO.findByUsername.mockResolvedValueOnce(user);
 
     let error = undefined;
     try {
@@ -227,7 +241,6 @@ describe("Test retrieve and set emergency contact", () => {
     expect(error.status).toBe(HTTP_BAD_REQUEST);
     expect(error.message).toBe("Emergency contact not available");
 
-    // Ensure no response has been sent
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
   });
@@ -241,29 +254,33 @@ describe("Test retrieve and set emergency contact", () => {
           email: "123@gmail.com"
         }
       },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    const emergencyContact = {
+    const emergencyContactUser = {
+      userId: 2,
       username: "qwer",
-      emergencyContactTo: "testuser"
+      emergencyContactTo: 1
     };
 
-    const testuser = {
+    const currUser = {
+      userId: 1,
       username: "testuser",
       emergencyContact: {
-        username: "qwer",
+        username: 2,
         fullName: "QWER"
       }
     };
 
-    mockUserDAO.findByUsername
-      .mockResolvedValueOnce(emergencyContact)
-      .mockResolvedValueOnce(testuser);
+    mockUserDAO.findByUsername.mockResolvedValueOnce(emergencyContactUser);
+
+    mockUserDAO.findById.mockResolvedValueOnce(currUser);
+
+    mockUserDAO.updateById.mockResolvedValue();
 
     await emergencyContactController.handlePost(req, res);
 
@@ -280,24 +297,29 @@ describe("Test retrieve and set emergency contact", () => {
           email: "123@gmail.com"
         }
       },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    const emergencyContact = {
-      username: "qwer"
+    const emergencyContactUser = {
+      userId: 2,
+      username: "qwer",
+      emergencyContactTo: -1
     };
 
-    const testuser = {
+    const currUser = {
+      userId: 1,
       username: "testuser"
     };
 
-    mockUserDAO.findByUsername
-      .mockResolvedValueOnce(emergencyContact)
-      .mockResolvedValueOnce(testuser);
+    mockUserDAO.findByUsername.mockResolvedValueOnce(emergencyContactUser);
+
+    mockUserDAO.findById.mockResolvedValueOnce(currUser);
+
+    mockUserDAO.updateById.mockResolvedValue();
 
     await emergencyContactController.handlePost(req, res);
 

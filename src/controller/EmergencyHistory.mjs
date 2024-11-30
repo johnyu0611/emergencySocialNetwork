@@ -48,25 +48,26 @@ export class EmergencyHistoryController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "EmergencyHistoryControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sender, content } = payload;
+    const { content } = payload;
+    const user = await this.#userDAO.findById({ userId });
+    console.log(user);
 
-    console.log(`${sender} send ${content}`);
+    console.log(`${user.username} send ${content}`);
 
-    const user = await this.#userDAO.findByUsername({ username });
     if (!user) {
       throw new HTTPError(HTTP_NOT_FOUND, "User not found");
     }
 
-    await this.#userDAO.update(
-      { username: user.emergencyContactTo },
+    await this.#userDAO.updateById(
+      { userId: user.emergencyContactTo },
       {
         $push: {
           emergencyHistory: {
-            sender: username,
+            sender: user.userId,
             content,
             timestamp: new Date().setMilliseconds(0)
           }
@@ -77,7 +78,7 @@ export class EmergencyHistoryController extends AbstractController {
     this.context.channel.system.emit("new_emergency_history");
 
     const responseBody = PostResponseSchema.parse({
-      sender: username,
+      sender: user.username,
       // timestamp: new Date().setMilliseconds(0),
       content: content
     });
@@ -86,47 +87,47 @@ export class EmergencyHistoryController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has logged emergency info for ${user.emergencyContactTo}`
+      `User ${userId} has logged emergency info for ${user.emergencyContactTo}`
     );
   }
 
   async handleGet(req, res) {
     const loggerContext = "EmergencyHistoryControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
     const { who } = payload;
 
-    let user = await this.#userDAO.findByUsername({ username });
-    let history = undefined;
+    let user = await this.#userDAO.findById({ userId });
+    let history = [];
+
     if (who === "other") {
-      user = await this.#userDAO.findByUsername({
-        username: user.emergencyContactTo
+      user = await this.#userDAO.findById({
+        userId: user.emergencyContactTo
       });
+    }
 
-      if (user && user.emergencyHistory) {
-        user.emergencyHistory.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
-      }
+    if (user && user.emergencyHistory) {
+      user.emergencyHistory.sort(
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
 
-      history = user.emergencyHistory.map(({ sender, timestamp, content }) => ({
-        sender: sender || undefined,
-        timestamp: timestamp ? timestamp : undefined,
-        content: content || undefined
-      }));
-    } else if (who === "self") {
-      if (user && user.emergencyHistory) {
-        user.emergencyHistory.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
-      }
+      history = await Promise.all(
+        user.emergencyHistory.map(async ({ sender, timestamp, content }) => {
+          let senderUsername = undefined;
 
-      history = user.emergencyHistory.map(({ sender, timestamp, content }) => ({
-        sender: sender || undefined,
-        timestamp: timestamp ? timestamp : undefined,
-        content: content || undefined
-      }));
+          if (sender) {
+            const senderUser = await this.#userDAO.findById({ userId: sender });
+            senderUsername = senderUser ? senderUser.username : undefined;
+          }
+
+          return {
+            sender: senderUsername,
+            timestamp: timestamp || undefined,
+            content: content || undefined
+          };
+        })
+      );
     }
 
     const responseBody = GetResponseSchema.parse({ history });
@@ -136,26 +137,27 @@ export class EmergencyHistoryController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has retrieved emergency info`
+      `User ${userId} has retrieved emergency info`
     );
   }
 
   async handleDelete(req, res) {
     const loggerContext = "EmergencyHistoryControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     // console.log(req.body);
     const payload = DeleteRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
     const { sender, timestamp, content } = payload;
 
     const timestampDate = new Date(timestamp).toISOString();
+    const senderId = await this.#userDAO.findByUsername({ username: sender });
     console.log(timestampDate);
-    const result = await this.#userDAO.update(
-      { username },
+    const result = await this.#userDAO.updateById(
+      { userId },
       {
         $pull: {
           emergencyHistory: {
-            sender: sender,
+            sender: senderId.userId,
             timestamp: timestampDate,
             content: content
           }
@@ -173,7 +175,7 @@ export class EmergencyHistoryController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has retrieved emergency info`
+      `User ${userId} has retrieved emergency info`
     );
   }
 }

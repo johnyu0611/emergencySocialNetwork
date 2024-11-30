@@ -49,77 +49,77 @@ export class LocationSharingSessionDataAccess extends AbstractModel {
     );
   }
 
-  async getUser({ sessionId, username }) {
+  async getUser({ sessionId, userId }) {
     const session = await this.model.findOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { "users.$": 1 }
     );
     return session?.users[0] || null;
   }
 
-  async deleteUser({ sessionId, username }) {
+  async deleteUser({ sessionId, userId }) {
     return this.model.updateOne(
       { id: sessionId },
-      { $pull: { users: { username } } }
+      { $pull: { users: { userId } } }
     );
   }
 
-  async getRole({ sessionId, username }) {
-    const user = await this.getUser({ sessionId, username });
+  async getRole({ sessionId, userId }) {
+    const user = await this.getUser({ sessionId, userId });
     return user?.role;
   }
 
-  async setRole({ sessionId, username, role }) {
+  async setRole({ sessionId, userId, role }) {
     return this.model.updateOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { $set: { "users.$.role": role } }
     );
   }
 
-  async getLocation({ sessionId, username }) {
-    const user = await this.getUser({ sessionId, username });
+  async getLocation({ sessionId, userId }) {
+    const user = await this.getUser({ sessionId, userId });
     return user?.location;
   }
 
-  async setLocation({ sessionId, username, location }) {
+  async setLocation({ sessionId, userId, location }) {
     return this.model.updateOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { $set: { "users.$.location": location } }
     );
   }
 
-  async getLastSeen({ sessionId, username }) {
-    const user = await this.getUser({ sessionId, username });
+  async getLastSeen({ sessionId, userId }) {
+    const user = await this.getUser({ sessionId, userId });
     return user?.lastSeen;
   }
 
-  async setLastSeen({ sessionId, username, lastSeen }) {
+  async setLastSeen({ sessionId, userId, lastSeen }) {
     return this.model.updateOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { $set: { "users.$.lastSeen": lastSeen } }
     );
   }
 
-  async getResourceRequest({ sessionId, username }) {
-    const user = await this.getUser({ sessionId, username });
+  async getResourceRequest({ sessionId, userId }) {
+    const user = await this.getUser({ sessionId, userId });
     return user?.resourceRequest || [];
   }
 
-  async setResourceRequest({ sessionId, username, resourceRequest }) {
+  async setResourceRequest({ sessionId, userId, resourceRequest }) {
     return this.model.updateOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { $set: { "users.$.resourceRequest": resourceRequest } }
     );
   }
 
-  async getResourceResponse({ sessionId, username }) {
-    const user = await this.getUser({ sessionId, username });
+  async getResourceResponse({ sessionId, userId }) {
+    const user = await this.getUser({ sessionId, userId });
     return user?.resourceResponse || [];
   }
 
-  async setResourceResponse({ sessionId, username, resourceResponse }) {
+  async setResourceResponse({ sessionId, userId, resourceResponse }) {
     return this.model.updateOne(
-      { "id": sessionId, "users.username": username },
+      { "id": sessionId, "users.userId": userId },
       { $set: { "users.$.resourceResponse": resourceResponse } }
     );
   }

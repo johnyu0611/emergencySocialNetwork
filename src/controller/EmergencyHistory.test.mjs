@@ -26,6 +26,7 @@ const mockContext = {
 
 const mockUserDAO = {
   findByUsername: jest.fn(),
+  findById: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
   findAll: jest.fn()
@@ -34,6 +35,7 @@ const mockUserDAO = {
 describe("Test retrieve and set emergency contact", () => {
   let userController = undefined;
   let emergencyHistoryController = undefined;
+
   beforeEach(() => {
     userController = UserController.getInstance(
       mockRouter,
@@ -49,7 +51,6 @@ describe("Test retrieve and set emergency contact", () => {
       {},
       "/emergency-contact"
     );
-
     emergencyHistoryController.setUserDAO(mockUserDAO);
   });
 
@@ -60,7 +61,7 @@ describe("Test retrieve and set emergency contact", () => {
   test("should return no history when user has no emergencyHistory", async () => {
     const req = {
       body: { who: "self" },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -72,13 +73,11 @@ describe("Test retrieve and set emergency contact", () => {
       emergencyHistory: []
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(userWithoutHistory);
+    mockUserDAO.findById.mockResolvedValue(userWithoutHistory);
 
     await emergencyHistoryController.handleGet(req, res);
 
-    expect(mockUserDAO.findByUsername).toHaveBeenCalledWith({
-      username: "testuser"
-    });
+    expect(mockUserDAO.findById).toHaveBeenCalledWith({ userId: 1 });
     expect(res.status).toHaveBeenCalledWith(HTTP_OK);
     expect(res.json).toHaveBeenCalledWith({ history: [] });
   });
@@ -86,7 +85,7 @@ describe("Test retrieve and set emergency contact", () => {
   test("should return no history when emergency contact has no emergencyHistory", async () => {
     const req = {
       body: { who: "other" },
-      auth: { username: "testuser" }
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -95,54 +94,66 @@ describe("Test retrieve and set emergency contact", () => {
 
     const userWithoutHistory = {
       username: "testUser",
+      emergencyContactTo: 2,
       emergencyHistory: []
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(userWithoutHistory);
+    const emergencyContact = {
+      username: "contactUser",
+      emergencyHistory: []
+    };
+
+    mockUserDAO.findById
+      .mockResolvedValueOnce(userWithoutHistory)
+      .mockResolvedValueOnce(emergencyContact);
 
     await emergencyHistoryController.handleGet(req, res);
 
-    expect(mockUserDAO.findByUsername).toHaveBeenCalledWith({
-      username: "testuser"
-    });
+    expect(mockUserDAO.findById).toHaveBeenCalledWith({ userId: 1 });
+    expect(mockUserDAO.findById).toHaveBeenCalledWith({ userId: 2 });
     expect(res.status).toHaveBeenCalledWith(HTTP_OK);
     expect(res.json).toHaveBeenCalledWith({ history: [] });
   });
 
   test("should return history normally", async () => {
     const req = {
-      body: { who: "self" }, // Correctly pass 'who' in req.body
-      auth: { username: "testuser" }
-      // Remove 'payload' as it's not used in handleGet
+      body: { who: "self" },
+      auth: { userId: 1 }
     };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+
     const timestamp = new Date();
-    const user = {
-      username: "testuser",
+    const userWithHistory = {
+      username: "testUser",
       emergencyHistory: [
         {
-          sender: "qwer", // Use 'sender' instead of 'emergencyContact'
-          timestamp: timestamp, // Use 'timestamp' instead of 'time'
+          sender: 2,
+          timestamp: timestamp,
           content: "test"
         }
       ]
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(user);
+    const senderUser = {
+      username: "senderUser"
+    };
+
+    mockUserDAO.findById.mockResolvedValueOnce(userWithHistory);
+    mockUserDAO.findById.mockResolvedValueOnce(senderUser);
 
     await emergencyHistoryController.handleGet(req, res);
 
-    expect(mockUserDAO.findByUsername).toHaveBeenCalledWith({
-      username: "testuser"
-    });
+    expect(mockUserDAO.findById).toHaveBeenCalledWith({ userId: 1 });
+    expect(mockUserDAO.findById).toHaveBeenCalledWith({ userId: 2 });
+
     expect(res.status).toHaveBeenCalledWith(HTTP_OK);
     expect(res.json).toHaveBeenCalledWith({
       history: [
         {
-          sender: "qwer",
+          sender: "senderuser",
           timestamp: timestamp,
           content: "test"
         }

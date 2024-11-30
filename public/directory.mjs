@@ -22,6 +22,7 @@ import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
 import { getJWTPayload } from "./common/utils.mjs";
+import { getUsernameById } from "./lib/get-username.mjs";
 
 const banner = new Banner($("#banner"));
 const $buttonLogout = $("#button-logout");
@@ -59,6 +60,10 @@ async function onPost() {
     const token = localStorage.getItem(KEY_TOKEN);
     const response = await getESNDirectory({ token });
     const users = response.users;
+    console.log(users);
+    const uniqueUsers = Array.from(
+      new Map(users.map((user) => [user.username, user])).values()
+    );
     await getChatRoomList({ token });
     displayUsers(users);
   } catch (e) {
@@ -80,7 +85,7 @@ function displayUsers(users) {
     return a.username.localeCompare(b.username);
   });
 
-  sortedUsers.forEach((user) => {
+  sortedUsers.forEach(async (user) => {
     const listItem = document.createElement("li");
     listItem.classList.add("list-group-item");
     listItem.style.display = "flex";
@@ -147,10 +152,11 @@ function displayUsers(users) {
     listItem.appendChild(userInfoContainer);
 
     const token = localStorage.getItem(KEY_TOKEN);
-    const { username: currentUsername } = getJWTPayload(token);
+    const { userId } = getJWTPayload(token);
+    //const { username: currentUsername } = await getUsernameById({userId, token});
 
     // *** NEW: Add the "Versus" icon for all online users ***
-    if (user.isOnline && user.username !== currentUsername) {
+    if (user.isOnline && user.userId !== userId) {
       const versusIcon = document.createElement("img");
       versusIcon.src = "asset/versus.png";
       versusIcon.alt = "Challenge";
@@ -251,8 +257,13 @@ async function getChatRoomList(roomId) {
   }
 }
 
+let reloadTimeout;
+
 async function reloadPage() {
-  await onPost();
+  clearTimeout(reloadTimeout);
+  reloadTimeout = setTimeout(async () => {
+    await onPost();
+  }, 300); // Debounce reloads with a 300ms delay
 }
 
 async function onSystemConnect() {
@@ -321,8 +332,9 @@ function onChatroomMessage() {
   };
 }
 
-function onNewLocationSharingSession() {
-  return async function ({ username, sessionId }) {
+function onNewLocationSharingSession(token) {
+  return async function ({ userId, sessionId }) {
+    const { username } = await getUsernameById({ userId, token });
     $modalLocationSharingTitle.text(`User ${username} called for help!`);
     $modalLocationSharingConfirmButton.click((event) => {
       event.preventDefault();
@@ -423,13 +435,17 @@ async function onNewVideoCall(emergencyContact) {
   }
 }
 
-function onNewChallenge(data) {
+async function onNewChallenge(data) {
   const { challenger, challenged, questionID: targetQuestionID } = data;
   questionID = targetQuestionID;
 
   // Get the current username from the JWT token
   const token = localStorage.getItem(KEY_TOKEN);
-  const { username: currentUsername } = getJWTPayload(token);
+  const { userId } = getJWTPayload(token);
+  const { username: currentUsername } = await getUsernameById({
+    userId,
+    token
+  });
 
   // If the current user is the one being challenged, display the modal
   if (challenged === currentUsername) {
@@ -440,12 +456,16 @@ function onNewChallenge(data) {
   }
 }
 
-function onChallengeAccepted(data) {
+async function onChallengeAccepted(data) {
   const { challenger, challenged, questionID } = data;
 
   // Get the current username
   const token = localStorage.getItem(KEY_TOKEN);
-  const { username: currentUsername } = getJWTPayload(token);
+  const { userId } = getJWTPayload(token);
+  const { username: currentUsername } = await getUsernameById({
+    userId,
+    token
+  });
 
   // Redirect only if the current user is part of the challenge
   if (currentUsername === challenger || currentUsername === challenged) {
@@ -566,7 +586,10 @@ $(document).ready(async () => {
   socket.on("system_maintenance", onSystemMaintenance(socket));
 
   socket.on("new_announcement", onNewAnnouncement());
-  socket.on("new_location_sharing_session", onNewLocationSharingSession());
+  socket.on(
+    "new_location_sharing_session",
+    onNewLocationSharingSession(localStorage.getItem(KEY_TOKEN))
+  );
 
   socket.on("message", onChatroomMessage());
 
@@ -582,7 +605,11 @@ $(document).ready(async () => {
     challengeModal.hide();
 
     const token = localStorage.getItem(KEY_TOKEN);
-    const { username: currentUsername } = getJWTPayload(token);
+    const { userId } = getJWTPayload(token);
+    const { username: currentUsername } = await getUsernameById({
+      userId,
+      token
+    });
     const payload = {
       challenger: currentUsername,
       challenged: selectedUser
@@ -616,7 +643,11 @@ $(document).ready(async () => {
       return;
     }
     const token = localStorage.getItem(KEY_TOKEN);
-    const { username: currentUsername } = getJWTPayload(token);
+    const { userId } = getJWTPayload(token);
+    const { username: currentUsername } = await getUsernameById({
+      userId,
+      token
+    });
 
     const payload = {
       challenger: currentUsername,

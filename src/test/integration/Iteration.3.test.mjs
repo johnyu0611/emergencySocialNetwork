@@ -77,7 +77,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { content: "Hi!" },
-      auth: { username: "user303" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -93,7 +93,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { content: "Hello 1" },
-      auth: { username: "user303" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -104,7 +104,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: {},
-      auth: { username: "user404" }
+      auth: { userId: 2 }
     };
     res = {
       json: jest.fn()
@@ -127,7 +127,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { content: "Hello 1" },
-      auth: { username: "user303" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -138,7 +138,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { searchBy: { content: "Hello" } },
-      auth: { username: "user404" }
+      auth: { userId: 2 }
     };
     res = {
       json: jest.fn()
@@ -161,7 +161,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { content: "Hello 1" },
-      auth: { username: "user303" }
+      auth: { userId: 1 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -172,7 +172,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     req = {
       params: { chatroomId: "11111111-1111-1111-1111-111111111111" },
       body: { searchBy: { content: "Test" } },
-      auth: { username: "user404" }
+      auth: { userId: 2 }
     };
     res = {
       json: jest.fn()
@@ -189,7 +189,7 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
   test("should return 2 user", async () => {
     req = {
       body: { searchBy: { username: "user" } },
-      auth: { username: "user404" }
+      auth: { userId: 2 }
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -200,8 +200,8 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
         users: [
-          { isOnline: true, status: "OK", username: "user303" },
-          { isOnline: true, status: "Help", username: "user404" }
+          { isOnline: true, status: "OK", userId: 1, username: "user303" },
+          { isOnline: true, status: "Help", userId: 2, username: "user404" }
         ]
       })
     );

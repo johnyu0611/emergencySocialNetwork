@@ -69,7 +69,7 @@ export class TokenController extends AbstractController {
 
     await this.#userDAO.update({ username }, { isOnline: true });
 
-    const token = jwt.encode({ username });
+    const token = jwt.encode({ userId: existingUser.userId });
     const responseBody = PostResponseSchema.parse({
       token
     });
@@ -80,15 +80,17 @@ export class TokenController extends AbstractController {
 
   async handleDelete(req, res) {
     const loggerContext = "TokenControllerDELETEHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
 
     const payload = DeleteRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    await this.#userDAO.update({ username }, { isOnline: false });
+    // const user = this.#userDAO.findById({ userId });
+
+    await this.#userDAO.updateById({ userId }, { isOnline: false });
 
     const responseBody = DeleteResponseSchema.parse({});
     res.json(responseBody);
-    logger.info({ context: loggerContext }, `User ${username} has logged out`);
+    logger.info({ context: loggerContext }, `User ${userId} has logged out`);
   }
 }

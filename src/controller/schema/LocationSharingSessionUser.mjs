@@ -4,7 +4,7 @@ import {
   LocationSharingLastSeenSchema,
   LocationSharingResourceListSchema,
   LocationSharingRoleSchema,
-  UsernameSchema
+  UserIdSchema
 } from "@/controller/schema/Common.mjs";
 
 export const GetRequestSchema = z.object({});
@@ -12,7 +12,7 @@ export const GetRequestSchema = z.object({});
 export const GetResponseSchema = z.object({
   users: z.array(
     z.object({
-      username: UsernameSchema,
+      userId: UserIdSchema,
       role: LocationSharingRoleSchema,
       location: LocationSchema,
       lastSeen: LocationSharingLastSeenSchema,

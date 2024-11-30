@@ -10,7 +10,7 @@ export const ApplicationSchema = new Schema({
     enum: ["provide", "request"],
     required: true
   }, // Action type
-  applicantUsername: { type: String, required: true }, // Username of the applicant
-  resourceOwner: { type: String, required: true }, // Username of the resource owner
+  applicantUserId: { type: Number, required: true }, // UserID of the applicant
+  resourceOwnerId: { type: Number, required: true }, // Username of the resource owner
   createdAt: { type: Date, required: true, default: Date.now } // Timestamp of application creation
 });

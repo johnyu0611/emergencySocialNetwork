@@ -3,7 +3,8 @@ import {
   IsOnlineSchema,
   TokenSchema,
   UsernameSchema,
-  StatusSchema
+  StatusSchema,
+  UserIdSchema
 } from "@/controller/schema/Common.mjs";
 import { z } from "zod";
 
@@ -51,7 +52,8 @@ export const GetResponseSchema = z.object({
     z.object({
       username: UsernameSchema,
       isOnline: IsOnlineSchema,
-      status: StatusSchema
+      status: StatusSchema,
+      userId: UserIdSchema
     })
   )
 });

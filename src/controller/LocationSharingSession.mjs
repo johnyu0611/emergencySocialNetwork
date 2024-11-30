@@ -45,7 +45,7 @@ export class LocationSharingSessionController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "LocationSharingSessionControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
@@ -53,13 +53,13 @@ export class LocationSharingSessionController extends AbstractController {
     await this.#dao.create({ sessionId });
     logger.info(
       { context: loggerContext },
-      `User ${username} has created location sharing session ${sessionId}`
+      `User ${userId} has created location sharing session ${sessionId}`
     );
 
     await this.#dao.addUser({
       sessionId,
       user: {
-        username,
+        userId,
         role: "initiator",
         location: payload.location,
         lastSeen: Date.now()
@@ -67,17 +67,17 @@ export class LocationSharingSessionController extends AbstractController {
     });
     logger.info(
       { context: loggerContext },
-      `User ${username} has become the initiator of the sharing session ${sessionId}`
+      `User ${userId} has become the initiator of the sharing session ${sessionId}`
     );
 
     await this.#userDao.updateLocationSharingSession({
-      username,
+      userId,
       session: { id: sessionId }
     });
 
     const { system } = this.context.channel;
     system.emit("new_location_sharing_session", {
-      username,
+      userId,
       sessionId
     });
 

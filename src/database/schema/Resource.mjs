@@ -7,7 +7,7 @@ export const ResourceSchema = new Schema({
   description: { type: String, optional: true },
   imageBase64: { type: String, optional: true },
   imageType: { type: String, optional: true },
-  username: { type: String, required: true },
+  userId: { type: Number, required: true },
   resourceType: { type: String, required: true, enum: ["request", "provide"] }, // New field
   createdAt: { type: Date, required: true, default: Date.now }
 });

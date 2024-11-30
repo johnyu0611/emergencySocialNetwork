@@ -28,7 +28,8 @@ const mockUserDAO = {
   findByUsername: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
-  findAll: jest.fn()
+  findAll: jest.fn(),
+  findById: jest.fn()
 };
 
 describe("Test Get Chatroom and contact lists", () => {
@@ -71,7 +72,7 @@ describe("Test Get Chatroom and contact lists", () => {
   });
 
   test("Should return empty list", async () => {
-    req = { body: { username: "testuser" }, auth: { username: "testuser" } };
+    req = { body: { username: "testuser" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -79,9 +80,10 @@ describe("Test Get Chatroom and contact lists", () => {
 
     const user = {
       username: "testuser",
+      userId: 1,
       chatrooms: []
     };
-    mockUserDAO.findByUsername.mockResolvedValue(user);
+    mockUserDAO.findById.mockResolvedValue(user);
     mockUserDAO.findAll.mockResolvedValue([user]);
 
     await chatroomController.handleGet(req, res);
@@ -90,7 +92,7 @@ describe("Test Get Chatroom and contact lists", () => {
   });
 
   test("Should return 1 username only", async () => {
-    req = { body: { username: "testuser1" }, auth: { username: "testuser1" } };
+    req = { body: { username: "testuser1" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -99,15 +101,17 @@ describe("Test Get Chatroom and contact lists", () => {
     const user1 = {
       username: "testuser1",
       status: "Undefined",
+      userId: 1,
       chatrooms: []
     };
 
     const user2 = {
       username: "testuser2",
       status: "Undefined",
+      userId: 2,
       chatrooms: []
     };
-    mockUserDAO.findByUsername.mockResolvedValue(user1);
+    mockUserDAO.findById.mockResolvedValue(user1);
     mockUserDAO.findAll.mockResolvedValue([user1, user2]);
 
     await chatroomController.handleGet(req, res);
@@ -120,7 +124,7 @@ describe("Test Get Chatroom and contact lists", () => {
   });
 
   test("Should return public chatroom only", async () => {
-    req = { body: { username: "testuser1" }, auth: { username: "testuser1" } };
+    req = { body: { username: "testuser1" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -129,10 +133,11 @@ describe("Test Get Chatroom and contact lists", () => {
     const user1 = {
       username: "testuser1",
       status: "Undefined",
+      userId: 1,
       chatrooms: [{ id: "00000000-0000-0000-0000-000000000000" }]
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(user1);
+    mockUserDAO.findById.mockResolvedValue(user1);
     mockUserDAO.findAll.mockResolvedValue([user1]);
 
     await chatroomController.handleGet(req, res);
@@ -150,7 +155,7 @@ describe("Test Get Chatroom and contact lists", () => {
   });
 
   test("Should return public chatroom and 1 username", async () => {
-    req = { body: { username: "testuser1" }, auth: { username: "testuser1" } };
+    req = { body: { username: "testuser1" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -159,16 +164,18 @@ describe("Test Get Chatroom and contact lists", () => {
     const user1 = {
       username: "testuser1",
       status: "Undefined",
+      userId: 1,
       chatrooms: [{ id: "00000000-0000-0000-0000-000000000000" }]
     };
 
     const user2 = {
       username: "testuser2",
       status: "Undefined",
+      userId: 2,
       chatrooms: [{ id: "00000000-0000-0000-0000-000000000000" }]
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(user1);
+    mockUserDAO.findById.mockResolvedValue(user1);
     mockUserDAO.findAll.mockResolvedValue([user1, user2]);
 
     await chatroomController.handleGet(req, res);
@@ -195,7 +202,7 @@ describe("Test Get Chatroom and contact lists", () => {
         findAll: jest.fn()
       }
     };
-    req = { body: { username: "testuser1" }, auth: { username: "testuser1" } };
+    req = { body: { username: "testuser1" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -204,13 +211,14 @@ describe("Test Get Chatroom and contact lists", () => {
     const user1 = {
       username: "testuser1",
       status: "Undefined",
+      userId: 1,
       chatrooms: [
         {
           id: "00000000-0000-0000-0000-000000000000"
         },
         {
           id: "00000000-0000-0000-0000-000000000001",
-          receiver: "testuser2"
+          receiver: 2
         }
       ]
     };
@@ -218,25 +226,26 @@ describe("Test Get Chatroom and contact lists", () => {
     const user2 = {
       username: "testuser2",
       status: "Undefined",
+      userId: 2,
       chatrooms: [
         {
           id: "00000000-0000-0000-0000-000000000000"
         },
         {
           id: "00000000-0000-0000-0000-000000000001",
-          receiver: "testuser1"
+          receiver: 1
         }
       ]
     };
 
     const message = {
       chatroomId: "00000000-0000-0000-0000-000000000001",
-      readBy: ["testuser1"],
-      sender: "user2",
+      readBy: [1],
+      sender: 2,
       title: "00000000-0000-0000-0000-000000000001"
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(user1);
+    mockUserDAO.findById.mockResolvedValue(user2);
     mockUserDAO.findAll.mockResolvedValue([user1, user2]);
     messageModelMocks[
       "00000000-0000-0000-0000-000000000001"
@@ -269,7 +278,7 @@ describe("Test Get Chatroom and contact lists", () => {
         findAll: jest.fn()
       }
     };
-    req = { body: { username: "testuser1" }, auth: { username: "testuser1" } };
+    req = { body: { username: "testuser1" }, auth: { userId: 1 } };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -278,13 +287,14 @@ describe("Test Get Chatroom and contact lists", () => {
     const user1 = {
       username: "testuser1",
       status: "Undefined",
+      userId: 1,
       chatrooms: [
         {
           id: "00000000-0000-0000-0000-000000000000"
         },
         {
           id: "00000000-0000-0000-0000-000000000001",
-          receiver: "testuser2"
+          receiver: 2
         }
       ]
     };
@@ -292,13 +302,14 @@ describe("Test Get Chatroom and contact lists", () => {
     const user2 = {
       username: "testuser2",
       status: "Undefined",
+      userId: 2,
       chatrooms: [
         {
           id: "00000000-0000-0000-0000-000000000000"
         },
         {
           id: "00000000-0000-0000-0000-000000000001",
-          receiver: "testuser1"
+          receiver: 1
         }
       ]
     };
@@ -307,11 +318,11 @@ describe("Test Get Chatroom and contact lists", () => {
       chatroomId: "00000000-0000-0000-0000-000000000001",
       readBy: [],
       status: "Undefined",
-      sender: "testuser2",
+      sender: 2,
       title: "00000000-0000-0000-0000-000000000001"
     };
 
-    mockUserDAO.findByUsername.mockResolvedValue(user1);
+    mockUserDAO.findById.mockResolvedValue(user2);
     mockUserDAO.findAll.mockResolvedValue([user1, user2]);
     messageModelMocks[
       "00000000-0000-0000-0000-000000000001"

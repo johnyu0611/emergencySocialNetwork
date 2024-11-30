@@ -7,7 +7,7 @@ export const MedicalCenterSchema = new Schema({
     required: true
   },
   author: {
-    type: String,
+    type: Number,
     required: true
   },
   title: {

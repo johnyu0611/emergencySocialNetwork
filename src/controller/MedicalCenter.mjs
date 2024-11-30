@@ -23,11 +23,13 @@ import { v7 as uuid } from "uuid";
 import { DeleteResponseSchema } from "./schema/Token.mjs";
 import { validateTitle } from "@/util/ValidateTitle.mjs";
 import { validateLocation } from "@/util/ValidateLocation.mjs";
+import { UserDataAccess } from "@/model/User.mjs";
 
 export class MedicalCenterController extends AbstractController {
   static #initializationSymbol = Symbol("");
   static #instance = null;
   #medicalDAO = null;
+  #userDAO = null;
 
   constructor({ upstreamRouter, path, middlewareMap, context, symbol }) {
     if (symbol !== MedicalCenterController.#initializationSymbol) {
@@ -35,6 +37,7 @@ export class MedicalCenterController extends AbstractController {
     }
     super({ upstreamRouter, path, middlewareMap, context });
     this.#medicalDAO = MedicalCenterDataAccess.getInstance();
+    this.#userDAO = UserDataAccess.getInstance();
   }
 
   static getInstance(
@@ -55,13 +58,14 @@ export class MedicalCenterController extends AbstractController {
     return MedicalCenterController.#instance;
   }
 
-  setUserDAO(medicalDAO) {
+  setUserDAO(medicalDAO, userDAO) {
     this.#medicalDAO = medicalDAO;
+    this.#userDAO = userDAO;
   }
 
   async handlePost(req, res) {
     const loggerContext = "MedicalCenterControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
 
     const payload = PostRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
@@ -92,6 +96,9 @@ export class MedicalCenterController extends AbstractController {
       }
     }
 
+    const user = await this.#userDAO.findById({ userId });
+    const { username } = user;
+
     const existingMedical = await this.#medicalDAO.findByAddress({ address });
 
     if (existingMedical) {
@@ -102,7 +109,7 @@ export class MedicalCenterController extends AbstractController {
     const mcId = uuid();
     await this.#medicalDAO.create({
       mcId,
-      author: username,
+      author: userId,
       location: location,
       title: title,
       introduction: introduction,
@@ -123,7 +130,7 @@ export class MedicalCenterController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "MedicalCenterControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
@@ -132,7 +139,7 @@ export class MedicalCenterController extends AbstractController {
       const { _doc } = center;
       return {
         ..._doc,
-        isUser: _doc.author === username
+        isUser: _doc.author === userId
       };
     });
     const responseBody = GetResponseSchema.parse({
@@ -161,7 +168,7 @@ export class MedicalCenterController extends AbstractController {
 
   async handlePut(req, res) {
     const loggerContext = "MedicalCenterControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
 
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
@@ -173,13 +180,16 @@ export class MedicalCenterController extends AbstractController {
         throw new HTTPError(HTTP_BAD_REQUEST, "Address is required");
       }
 
+      const user = await this.#userDAO.findById({ userId });
+      const { username } = user;
+
       const existingMedical = await this.#medicalDAO.findByMCID({ mcId });
 
       if (!existingMedical) {
         throw new HTTPError(HTTP_NOT_FOUND, "Medical Center not found");
       }
 
-      if (existingMedical.author !== username) {
+      if (existingMedical.author !== userId) {
         throw new HTTPError(
           HTTP_FORBIDDEN,
           "You do not have permission to update this Medical Center"

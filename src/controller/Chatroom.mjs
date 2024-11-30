@@ -53,16 +53,17 @@ export class ChatroomController extends AbstractController {
 
   async handleGet(req, res) {
     const loggerContext = "ChatroomControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     // console.log(username);
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const user = await this.#userDAO.findByUsername({ username });
+    const user = await this.#userDAO.findById({ userId });
     if (!user) {
       throw new HTTPError(HTTP_NOT_FOUND, "User not found");
     }
-
+    // const { username } = user;
+    //console.log(username);
     const chatroomIds = user.chatrooms.map((chatroom) => chatroom.id);
     const chatroom = await Promise.all(
       chatroomIds.map(async (chatroomId) => {
@@ -79,36 +80,37 @@ export class ChatroomController extends AbstractController {
             title: "Announcement"
           };
         }
-
+        //console.log(chatroomId);
         const messageModel = MessageFactory.getModel(chatroomId);
         const messages = await messageModel.findAll();
         // console.log(messages);
         const hasUnread = messages.some(
           (message) =>
-            !message.readBy.includes(user.username) &&
-            message.sender !== username
+            !message.readBy.includes(userId) && message.sender !== userId
         );
         // console.log(`hasUread ${hasUnread}`);
         const chatroomData = user.chatrooms.find(
           (chatroom) => chatroom.id === chatroomId
         );
         const { receiver } = chatroomData;
-        const { status } = await this.#userDAO.findByUsername({
-          username: receiver
+        const receiverUser = await this.#userDAO.findById({
+          userId: receiver
         });
+        //console.log(receiverUser);
         const title = messages.length > 0 ? messages[0].title : chatroomId;
 
         return {
           id: chatroomId,
           title: title,
-          receiver: receiver,
-          status: status,
+          receiver: receiverUser ? receiverUser.username : "undefined",
+          status: receiverUser ? receiverUser.status : "undefined",
           hasUnread: hasUnread
         };
       })
     );
 
     const allUsers = await this.#userDAO.findAll();
+    //console.log(allUsers);
     const receiversInChatrooms = new Set(
       chatroom.map((c) => c.receiver).filter(Boolean)
     );
@@ -118,7 +120,9 @@ export class ChatroomController extends AbstractController {
 
     if (usersNotInReceivers.length > 0) {
       usersNotInReceivers.forEach((user) => {
-        if (user.username !== username) {
+        //console.log(user);
+        //console.log(userId);
+        if (user.userId !== userId) {
           chatroom.push({
             receiver: user.username,
             status: user.status
@@ -127,7 +131,7 @@ export class ChatroomController extends AbstractController {
       });
     }
 
-    // console.log(chatroom);
+    //console.log(chatroom);
     const responseBody = GetResponseSchema.parse({
       chatrooms: chatroom
     });
@@ -137,19 +141,27 @@ export class ChatroomController extends AbstractController {
 
   async handlePost(req, res) {
     const loggerContext = "ChatroomControllerPOSTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PostRequestSchema.parse(req.body);
     const { receiver } = payload;
+
+    const user = await this.#userDAO.findById({ userId });
+    const { username } = user;
 
     logger.debug(
       { context: loggerContext },
       `Created a new private room for ${username} and ${receiver}`
     );
 
+    const temp = await this.#userDAO.findByUsername({ username: receiver });
+    const receiverId = temp.userId;
+
     const existChatroom = await this.#privateChatroomsDAO.findByUser({
-      username,
-      receiver
+      userId,
+      receiverId
     });
+
+    console.log(existChatroom);
 
     if (existChatroom) {
       const response = PostResponseSchema.parse({
@@ -169,21 +181,21 @@ export class ChatroomController extends AbstractController {
         chatroomId = uuid();
       }
 
-      await this.#userDAO.update(
-        { username },
-        { $push: { chatrooms: { id: chatroomId, receiver: receiver } } }
+      await this.#userDAO.updateById(
+        { userId },
+        { $push: { chatrooms: { id: chatroomId, receiver: receiverId } } }
       );
 
       await this.#userDAO.update(
         { username: receiver },
-        { $push: { chatrooms: { id: chatroomId, receiver: username } } }
+        { $push: { chatrooms: { id: chatroomId, receiver: userId } } }
       );
 
       const { chatroom } = this.context.channel;
       chatroom.emit("newRoom", { chatroomId });
       this.#privateChatroomsDAO.create({
         roomId: chatroomId,
-        participants: [username, receiver]
+        participants: [userId, receiverId]
       });
 
       const responseBody = PostResponseSchema.parse({

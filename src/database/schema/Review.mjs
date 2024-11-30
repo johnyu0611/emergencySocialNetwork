@@ -6,7 +6,7 @@ export const ReviewSchema = new Schema({
     required: true
   },
   author: {
-    type: String,
+    type: Number,
     required: true
   },
   rate: {

@@ -120,3 +120,5 @@ export const DescriptionSchema = z
 export const AnswerSchema = z.boolean({
   message: "Answer must be a boolean (true/false)"
 });
+
+export const UserIdSchema = z.number("UserId must be a number");

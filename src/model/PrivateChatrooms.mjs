@@ -35,9 +35,9 @@ export class PrivateChatroomsDataAccess extends AbstractModel {
     return await this.model.find({}).sort({ username: 1 });
   }
 
-  async findByUser({ username, receiver }) {
+  async findByUser({ userId, receiverId }) {
     return await this.model.findOne({
-      participants: { $all: [username, receiver] }
+      participants: { $all: [userId, receiverId] }
     });
   }
 

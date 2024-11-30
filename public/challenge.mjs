@@ -9,6 +9,7 @@ import {
 } from "./lib/endpoints.mjs";
 import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 import { getJWTPayload } from "./common/utils.mjs";
+import { getUsernameById } from "./lib/get-username.mjs";
 import { decideWinner } from "./lib/decide-winner.mjs";
 
 const banner = new Banner($("#banner"));
@@ -32,31 +33,27 @@ $(document).ready(async () => {
     }
   });
 
-  socket.on("result_available", (data) => {
+  socket.on("result_available", async (data) => {
     const { results, questionID, participants } = data;
 
     const token = localStorage.getItem(KEY_TOKEN);
-    const { username: currentUsername } = getJWTPayload(token);
+    const { userId } = getJWTPayload(token);
+    const { username: currentUsername } = await getUsernameById({
+      userId,
+      token
+    });
 
     if (participants.includes(currentUsername)) {
       const resultMessages = Object.entries(results)
         .map(([username, result]) => `${username}: ${result}`)
         .join("<br>");
 
+      console.log(results);
       const currentUserResult = results[currentUsername];
       const opponent = participants.find(
         (participant) => participant !== currentUsername
       );
       const opponentResult = results[opponent];
-
-      // let additionalMessage = "";
-      // if (currentUserResult === "correct" && opponentResult === "wrong") {
-      //     additionalMessage = "You win :)";
-      // } else if (currentUserResult === "wrong" && opponentResult === "correct") {
-      //     additionalMessage = "You lose :(";
-      // } else if (currentUserResult === opponentResult) {
-      //     additionalMessage = "It is a draw!";
-      // }
 
       const additionalMessage = decideWinner(currentUserResult, opponentResult);
 
@@ -143,9 +140,6 @@ function displayQuestion(question) {
     }
 
     try {
-      //   $("#submit-answer").hide();
-      //   $("input[name='answer']").closest("div").hide();
-
       $("#submit-answer").css("visibility", "hidden");
       $("input[name='answer']").closest("div").css("visibility", "hidden");
       void banner.showSuccessMessage("Submitted!");
@@ -168,8 +162,6 @@ function displayQuestion(question) {
       };
 
       await submitAnswer({ payload, token });
-
-      // window.location.href = "directory.html";
     } catch (error) {
       console.error("Failed to submit answer:", error);
       alert("Failed to submit your answer. Please try again.");

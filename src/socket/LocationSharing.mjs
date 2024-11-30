@@ -14,7 +14,7 @@ export function registerLocationSharingChannel(
 
   function handleConnect(socket) {
     const loggerContext = "LocationSharingChannelOnConnectHandler";
-    const { username } = socket.handshake.auth;
+    const { userId } = socket.handshake.auth;
 
     try {
       const sessionId = LocationSharingSessionIdSchema.parse(
@@ -23,7 +23,7 @@ export function registerLocationSharingChannel(
       socket.join(sessionId);
       logger.info(
         { context: loggerContext },
-        `User ${username} joined location sharing session ${sessionId}`
+        `User ${userId} joined location sharing session ${sessionId}`
       );
     } catch (error) {
       logger.error({ context: loggerContext }, String(error));
@@ -33,8 +33,8 @@ export function registerLocationSharingChannel(
 
   async function handleDisconnect(socket) {
     const loggerContext = "LocationSharingChannelOnDisconnectHandler";
-    const { username } = socket.handshake.auth;
-    logger.info({ context: loggerContext }, `User ${username} disconnected`);
+    const { userId } = socket.handshake.auth;
+    logger.info({ context: loggerContext }, `User ${userId} disconnected`);
   }
 
   subChannel.on("connection", (socket) => {

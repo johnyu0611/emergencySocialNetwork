@@ -27,7 +27,7 @@ export class UserLocationSharingSessionController extends AbstractController {
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/location-sharing-session"
+    path = "/:userId/location-sharing-session"
   ) {
     if (!UserLocationSharingSessionController.#instance) {
       UserLocationSharingSessionController.#instance =
@@ -44,16 +44,16 @@ export class UserLocationSharingSessionController extends AbstractController {
 
   async handlePut(req, res) {
     const loggerContext = "UserLocationSharingSessionControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== req.params.userId) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's session");
     }
 
     await this.#userDao.updateLocationSharingSession({
-      username,
+      userId,
       session: payload
     });
 
@@ -63,21 +63,21 @@ export class UserLocationSharingSessionController extends AbstractController {
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated location sharing session ${payload}`
+      `User ${userId} has updated location sharing session ${payload}`
     );
   }
 
   async handleGet(req, res) {
     const loggerContext = "UserLocationSharingSessionControllerGETHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { locationSharingSession } = await this.#userDao.findByUsername({
-      username
+    const { locationSharingSession } = await this.#userDao.findById({
+      userId
     });
     if (!locationSharingSession) {
-      throw new HTTPError(HTTP_NOT_FOUND, `Cannot find user ${username}`);
+      throw new HTTPError(HTTP_NOT_FOUND, `Cannot find user ${userId}`);
     }
 
     const responseBody = GetResponseSchema.parse(locationSharingSession);

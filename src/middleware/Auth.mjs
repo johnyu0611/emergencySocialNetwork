@@ -27,7 +27,7 @@ export function auth(jwt) {
 
     try {
       const authPayload = jwt.decode(token);
-      request.auth = { username: authPayload.username };
+      request.auth = { userId: authPayload.userId };
       next();
     } catch (error) {
       logger.error({ context: loggerContext }, String(error));
@@ -42,11 +42,11 @@ export function authSocketIO(jwt) {
     const { token } = socket.handshake.auth;
 
     try {
-      const { username } = jwt.decode(token);
-      if (!username) {
+      const { userId } = jwt.decode(token);
+      if (!userId) {
         throw new Error(`Invalid token: ${token}`);
       }
-      socket.handshake.auth = { token, username };
+      socket.handshake.auth = { token, userId };
       next();
     } catch (error) {
       logger.error({ context: loggerContext }, String(error));

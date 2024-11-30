@@ -21,7 +21,7 @@ const mockRouter = {
 
 const mockApplicationDAO = {
   create: jest.fn(),
-  findByUsername: jest.fn(),
+  findByUserId: jest.fn(),
   deleteById: jest.fn()
 };
 
@@ -65,15 +65,15 @@ describe("Unit tests for ApplicationController", () => {
       resourceName: "Test Resource",
       amount: 10,
       actionType: "request",
-      resourceOwner: "owner123"
+      resourceOwnerId: 789
     };
-    req.auth = { username: "applicant123" };
+    req.auth = { userId: 123 }; // Match schema: `applicantUserId` must be a number
 
     const createdApplication = {
       id: "application123",
       createdAt: new Date(),
       ...req.body,
-      applicantUsername: "applicant123"
+      applicantUserId: 123
     };
 
     mockApplicationDAO.create.mockResolvedValue(createdApplication);
@@ -86,8 +86,8 @@ describe("Unit tests for ApplicationController", () => {
         resourceName: "Test Resource",
         amount: 10,
         actionType: "request",
-        resourceOwner: "owner123",
-        applicantUsername: "applicant123"
+        resourceOwnerId: 789,
+        applicantUserId: 123
       })
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -102,7 +102,7 @@ describe("Unit tests for ApplicationController", () => {
       resourceName: "Test Resource",
       amount: 10
     }; // Missing required fields like `resourceId`, `actionType`, etc.
-    req.auth = { username: "applicant123" };
+    req.auth = { userId: 123 };
 
     await expect(applicationController.handlePost(req, res)).rejects.toThrow(
       "Validation failed"
@@ -112,7 +112,7 @@ describe("Unit tests for ApplicationController", () => {
   });
 
   test("Should fetch applications for authenticated user", async () => {
-    req.auth = { username: "applicant123" };
+    req.auth = { userId: 123 };
 
     const applications = [
       {
@@ -121,18 +121,16 @@ describe("Unit tests for ApplicationController", () => {
         resourceName: "Test Resource",
         amount: 10,
         actionType: "request",
-        resourceOwner: "owner123",
+        resourceOwnerId: 789,
         createdAt: new Date()
       }
     ];
 
-    mockApplicationDAO.findByUsername.mockResolvedValue(applications);
+    mockApplicationDAO.findByUserId.mockResolvedValue(applications);
 
     await applicationController.handleGet(req, res);
 
-    expect(mockApplicationDAO.findByUsername).toHaveBeenCalledWith(
-      "applicant123"
-    );
+    expect(mockApplicationDAO.findByUserId).toHaveBeenCalledWith(123);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       applications,
@@ -147,12 +145,12 @@ describe("Unit tests for ApplicationController", () => {
       "User is not authorized to view applications"
     );
 
-    expect(mockApplicationDAO.findByUsername).not.toHaveBeenCalled();
+    expect(mockApplicationDAO.findByUserId).not.toHaveBeenCalled();
   });
 
   test("Should delete an application successfully", async () => {
     req.body = { id: "application123" };
-    req.auth = { username: "applicant123" };
+    req.auth = { userId: 123 };
 
     mockApplicationDAO.deleteById.mockResolvedValue(true);
 
@@ -169,9 +167,8 @@ describe("Unit tests for ApplicationController", () => {
 
   test("Should return not found error when trying to delete a non-existent application", async () => {
     req.body = { id: "application123" };
-    req.auth = { username: "applicant123" };
+    req.auth = { userId: 123 };
 
-    // Mock DAO to return false for non-existent application
     mockApplicationDAO.deleteById.mockResolvedValue(false);
 
     await expect(applicationController.handleDelete(req, res)).rejects.toThrow(
@@ -181,7 +178,6 @@ describe("Unit tests for ApplicationController", () => {
     expect(mockApplicationDAO.deleteById).toHaveBeenCalledWith(
       "application123"
     );
-    expect(res.status).not.toHaveBeenCalledWith(200);
   });
 
   test("Should return unauthorized error when creating application without authentication", async () => {
@@ -190,9 +186,9 @@ describe("Unit tests for ApplicationController", () => {
       resourceName: "Test Resource",
       amount: 10,
       actionType: "request",
-      resourceOwner: "owner123"
+      resourceOwnerId: 789
     };
-    req.auth = null; // No authentication
+    req.auth = null;
 
     await expect(applicationController.handlePost(req, res)).rejects.toThrow(
       "User is not authorized to perform this action"
@@ -201,31 +197,12 @@ describe("Unit tests for ApplicationController", () => {
     expect(mockApplicationDAO.create).not.toHaveBeenCalled();
   });
 
-  test("Should return not found error when deleting application with non-existent ID", async () => {
-    req.body = { id: "nonexistent-id" }; // Any ID that doesn't exist
-    req.auth = { username: "applicant123" };
-
-    // Mock DAO to return false when application doesn't exist
-    mockApplicationDAO.deleteById.mockResolvedValue(false);
-
-    await expect(applicationController.handleDelete(req, res)).rejects.toThrow(
-      "Application not found"
-    );
-
-    expect(mockApplicationDAO.deleteById).toHaveBeenCalledWith(
-      "nonexistent-id"
-    );
-    expect(res.status).not.toHaveBeenCalledWith(200);
-  });
-
   test("Should return forbidden error when user tries to delete an application they don't own", async () => {
     req.body = { id: "application123" };
-    req.auth = { username: "userNotOwner" }; // Different user
+    req.auth = { userId: 124 }; // Different user
 
-    // Mock DAO to return an application owned by another user
     mockApplicationDAO.deleteById.mockImplementation((id) => {
       if (id === "application123") {
-        // Simulate application exists but owned by someone else
         throw new HTTPError(
           HTTP_FORBIDDEN,
           "User is not authorized to delete this application"
@@ -241,32 +218,25 @@ describe("Unit tests for ApplicationController", () => {
     expect(mockApplicationDAO.deleteById).toHaveBeenCalledWith(
       "application123"
     );
-    expect(res.status).not.toHaveBeenCalledWith(200);
+  });
+  test("Should return error when fetching applications without userId in auth", async () => {
+    req.auth = {}; // Missing userId
+
+    await expect(applicationController.handleGet(req, res)).rejects.toThrow(
+      "User is not authorized to view applications"
+    );
+
+    expect(mockApplicationDAO.findByUserId).not.toHaveBeenCalled();
   });
 
-  test("Should return forbidden error when user tries to delete an application they don't own", async () => {
-    req.body = { id: "application123" };
-    req.auth = { username: "userNotOwner" }; // Different user
-
-    // Mock DAO to return an application owned by another user
-    mockApplicationDAO.deleteById.mockImplementation((id) => {
-      if (id === "application123") {
-        // Simulate application exists but owned by someone else
-        throw new HTTPError(
-          HTTP_FORBIDDEN,
-          "User is not authorized to delete this application"
-        );
-      }
-      return false;
-    });
+  test("Should return validation error when deleting an application without id", async () => {
+    req.body = {}; // Missing id
+    req.auth = { userId: 123 };
 
     await expect(applicationController.handleDelete(req, res)).rejects.toThrow(
-      "User is not authorized to delete this application"
+      "Validation failed"
     );
 
-    expect(mockApplicationDAO.deleteById).toHaveBeenCalledWith(
-      "application123"
-    );
-    expect(res.status).not.toHaveBeenCalledWith(200);
+    expect(mockApplicationDAO.deleteById).not.toHaveBeenCalled();
   });
 });

@@ -67,14 +67,14 @@ export async function addUserToSession(
 }
 
 export async function getUserLocation(
-  { token, sessionId, username },
+  { token, sessionId, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
     endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_LOCATION(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -83,7 +83,7 @@ export async function getUserLocation(
 }
 
 export async function setUserLocation(
-  { token, sessionId, username, location },
+  { token, sessionId, userId, location },
   handlerMap = {}
 ) {
   const payload = { location };
@@ -91,7 +91,7 @@ export async function setUserLocation(
     method: "PUT",
     endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_LOCATION(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -100,14 +100,14 @@ export async function setUserLocation(
 }
 
 export async function getUserLastSeenTimestamp(
-  { token, sessionId, username },
+  { token, sessionId, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_LAST_SEEN(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -116,7 +116,7 @@ export async function getUserLastSeenTimestamp(
 }
 
 export async function setUserLastSeenTimestamp(
-  { token, sessionId, username, lastSeen },
+  { token, sessionId, userId, lastSeen },
   handlerMap = {}
 ) {
   const payload = { lastSeen };
@@ -124,7 +124,7 @@ export async function setUserLastSeenTimestamp(
     method: "PUT",
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_LAST_SEEN(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -133,14 +133,14 @@ export async function setUserLastSeenTimestamp(
 }
 
 export async function getUserResourceRequest(
-  { token, sessionId, username },
+  { token, sessionId, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_REQUEST(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -149,7 +149,7 @@ export async function getUserResourceRequest(
 }
 
 export async function setUserResourceRequest(
-  { token, sessionId, username, resourceRequest },
+  { token, sessionId, userId, resourceRequest },
   handlerMap = {}
 ) {
   const payload = {
@@ -159,7 +159,7 @@ export async function setUserResourceRequest(
     method: "PUT",
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_REQUEST(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -168,14 +168,14 @@ export async function setUserResourceRequest(
 }
 
 export async function getUserResourceResponse(
-  { token, sessionId, username },
+  { token, sessionId, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_RESPONSE(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -184,7 +184,7 @@ export async function getUserResourceResponse(
 }
 
 export async function setUserResourceResponse(
-  { token, sessionId, username, resourceResponse },
+  { token, sessionId, userId, resourceResponse },
   handlerMap = {}
 ) {
   const payload = {
@@ -194,7 +194,7 @@ export async function setUserResourceResponse(
     method: "PUT",
     endpoint: ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_RESPONSE(
       sessionId,
-      username
+      userId
     ),
     payload,
     token,
@@ -203,12 +203,12 @@ export async function setUserResourceResponse(
 }
 
 export async function getUserRole(
-  { token, sessionId, username },
+  { token, sessionId, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
-    endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE(sessionId, username),
+    endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE(sessionId, userId),
     payload,
     token,
     handlerMap: handlerMap
@@ -216,7 +216,7 @@ export async function getUserRole(
 }
 
 export async function setUserRole(
-  { token, sessionId, username, role },
+  { token, sessionId, userId, role },
   handlerMap = {}
 ) {
   const payload = {
@@ -224,7 +224,7 @@ export async function setUserRole(
   };
   return await callRestfulApi({
     method: "PUT",
-    endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE(sessionId, username),
+    endpoint: ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE(sessionId, userId),
     payload,
     token,
     handlerMap: handlerMap
@@ -232,12 +232,12 @@ export async function setUserRole(
 }
 
 export async function getUserLocationSharingSession(
-  { token, username },
+  { token, userId },
   handlerMap = {}
 ) {
   const payload = {};
   return await callRestfulApiGet({
-    endpoint: `${ENDPOINT_USERS}/${username}/location-sharing-session`,
+    endpoint: `${ENDPOINT_USERS}/${userId}/location-sharing-session`,
     payload,
     token,
     handlerMap: handlerMap
@@ -245,7 +245,7 @@ export async function getUserLocationSharingSession(
 }
 
 export async function setUserLocationSharingSession(
-  { token, username, sessionId, role },
+  { token, userId, sessionId, role },
   handlerMap = {}
 ) {
   const payload = {
@@ -254,7 +254,7 @@ export async function setUserLocationSharingSession(
   };
   return await callRestfulApi({
     method: "PUT",
-    endpoint: `${ENDPOINT_USERS}/${username}/location-sharing-session`,
+    endpoint: `${ENDPOINT_USERS}/${userId}/location-sharing-session`,
     payload,
     token,
     handlerMap: handlerMap

@@ -45,9 +45,9 @@ export class ApplicationDataAccess extends AbstractModel {
       .select("-__v");
   }
 
-  async findByUsername(resourceOwner) {
+  async findByUserId(resourceOwnerId) {
     return await this.model
-      .find({ resourceOwner }) // Use `resourceOwner` for filtering
+      .find({ resourceOwnerId }) // Use `resourceOwner` for filtering
       .sort({ createdAt: -1 })
       .select("-__v");
   }

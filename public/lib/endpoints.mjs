@@ -1,5 +1,7 @@
 export const API_ROOT = "/api";
 export const ENDPOINT_USERS = `${API_ROOT}/users`;
+export const ENDPOINT_USER_USERNAME = (userId) =>
+  `${ENDPOINT_USERS}/${userId}/username`;
 export const ENDPOINT_TOKENS = `${API_ROOT}/tokens`;
 export const ENDPOINT_CHATROOM = `${API_ROOT}/chatrooms`;
 export const ENDPOINT_STATUS = `${API_ROOT}/status`;
@@ -24,28 +26,27 @@ export const ENDPOINT_LOCATION_SHARING_SESSION_USERS = (sessionId) =>
   `${ENDPOINT_LOCATION_SHARING_SESSIONS}/${sessionId}/users`;
 export const ENDPOINT_LOCATION_SHARING_SESSION_USER_LOCATION = (
   sessionId,
-  username
-) =>
-  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/location`;
+  userId
+) => `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${userId}/location`;
 export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_LAST_SEEN = (
   sessionId,
-  username
+  userId
 ) =>
-  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/last-seen`;
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${userId}/last-seen`;
 export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_REQUEST = (
   sessionId,
-  username
+  userId
 ) =>
-  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/resource-request`;
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${userId}/resource-request`;
 export const ENDPOINT_LOCATION_SHARING_SESSIONS_USER_RESOURCE_RESPONSE = (
   sessionId,
-  username
+  userId
 ) =>
-  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/resource-response`;
+  `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${userId}/resource-response`;
 export const ENDPOINT_LOCATION_SHARING_SESSION_USER_ROLE = (
   sessionId,
-  username
-) => `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${username}/role`;
+  userId
+) => `${ENDPOINT_LOCATION_SHARING_SESSION_USERS(sessionId)}/${userId}/role`;
 
 export const ENDPOINT_QUIZZES = `${API_ROOT}/quizzes`;
 export const ENDPOINT_QUIZZES_CHALLENGES = `${API_ROOT}/quizzes/challenges`;

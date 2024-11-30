@@ -31,6 +31,7 @@ import { ResourceController } from "@/controller/PostResource.mjs";
 import { ApplicationController } from "@/controller/Application.mjs";
 import { MedicalCenterController } from "@/controller/MedicalCenter.mjs";
 import { ReviewController } from "@/controller/Review.mjs";
+import { UserUsernameController } from "@/controller/UserUsername.mjs";
 
 const loggerContext = "RouteRegistrar";
 
@@ -49,6 +50,14 @@ export function registerRoutes(context) {
     all: [jsonMiddleware, testMiddleware],
     get: [authMiddleware, getWithBodyMiddleware]
   });
+  UserUsernameController.getInstance(
+    UserController.getInstance().router,
+    context,
+    {
+      all: [authMiddleware, jsonMiddleware],
+      get: [getWithBodyMiddleware]
+    }
+  );
   UserLocationSharingSessionController.getInstance(
     UserController.getInstance().router,
     context,

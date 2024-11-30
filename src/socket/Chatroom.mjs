@@ -10,14 +10,14 @@ export function registerChatroomChannel(io, jwt, namespace = "/chatroom") {
 
   function handleConnect(socket) {
     const loggerContext = "ChatroomChannelOnConnectHandler";
-    const { username } = socket.handshake.auth;
+    const { userId } = socket.handshake.auth;
 
     try {
       const roomId = ChatroomIdSchema.parse(socket.handshake.query.roomId);
       socket.join(roomId);
       logger.info(
         { context: loggerContext },
-        `User ${username} joined room ${roomId}`
+        `User ${userId} joined room ${roomId}`
       );
     } catch (error) {
       logger.error({ context: loggerContext }, String(error));
@@ -27,8 +27,8 @@ export function registerChatroomChannel(io, jwt, namespace = "/chatroom") {
 
   async function handleDisconnect(socket) {
     const loggerContext = "ChatroomChannelOnDisconnectHandler";
-    const { username } = socket.handshake.auth;
-    logger.info({ context: loggerContext }, `User ${username} disconnected`);
+    const { userId } = socket.handshake.auth;
+    logger.info({ context: loggerContext }, `User ${userId} disconnected`);
   }
 
   subChannel.on("connection", (socket) => {

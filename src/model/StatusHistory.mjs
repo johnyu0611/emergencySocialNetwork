@@ -27,13 +27,13 @@ export class StatusHistoryDataAccess extends AbstractModel {
     return StatusHistoryDataAccess.#instance;
   }
 
-  async addStatusEntry({ username, status, timestamp }) {
-    return await new this.model({ username, status, timestamp }).save();
+  async addStatusEntry({ userId, status, timestamp }) {
+    return await new this.model({ userId, status, timestamp }).save();
   }
 
-  async getStatusHistoryByUsername(username) {
+  async getStatusHistoryByUserId(userId) {
     return await this.model
-      .find({ username })
+      .find({ userId })
       .sort({ timestamp: -1 })
       .select("username status timestamp");
   }

@@ -37,7 +37,7 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
     upstreamRouter = undefined,
     context = {},
     middlewareMap = {},
-    path = "/:username/resource-response"
+    path = "/:userId/resource-response"
   ) {
     if (!LocationSharingSessionUserResourceResponseController.#instance) {
       LocationSharingSessionUserResourceResponseController.#instance =
@@ -57,11 +57,11 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
   async handlePut(req, res) {
     const loggerContext =
       "LocationSharingSessionUserResourceResponseControllerPUTHandler";
-    const { username } = req.auth;
+    const { userId } = req.auth;
     const payload = PutRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    if (username !== req.params.username) {
+    if (userId !== parseInt(req.params.userId)) {
       throw new HTTPError(HTTP_FORBIDDEN, "Cannot set other user's property");
     }
 
@@ -71,7 +71,7 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
     if (role !== "responder") {
       throw new HTTPError(
         HTTP_BAD_REQUEST,
@@ -82,13 +82,13 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
     const { resourceResponse } = payload;
     await this.#dao.setResourceResponse({
       sessionId,
-      username,
+      userId,
       resourceResponse
     });
 
     const { locationSharing } = this.context.channel;
     locationSharing.to(sessionId).emit("update", {
-      username,
+      userId,
       resourceResponse
     });
 
@@ -98,7 +98,7 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
 
     logger.info(
       { context: loggerContext },
-      `User ${username} has updated their resource response to ${resourceResponse}`
+      `User ${userId} has updated their resource response to ${resourceResponse}`
     );
   }
 
@@ -108,17 +108,17 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
     const payload = GetRequestSchema.parse(req.body);
     logger.debug({ context: loggerContext }, "Request received: %o", payload);
 
-    const { sessionId, username } = req.params;
+    const { sessionId, userId } = req.params;
 
     if (!(await this.#dao.isValidSession({ sessionId }))) {
       throw new HTTPError(HTTP_BAD_REQUEST, `Invalid session ID ${sessionId}`);
     }
 
-    if (!(await this.#userDao.isValidUsername({ username }))) {
-      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid username ${username}`);
+    if (!(await this.#userDao.isValidUserId({ userId }))) {
+      throw new HTTPError(HTTP_BAD_REQUEST, `Invalid userId ${userId}`);
     }
 
-    const role = await this.#dao.getRole({ sessionId, username });
+    const role = await this.#dao.getRole({ sessionId, userId });
     if (role !== "responder") {
       throw new HTTPError(
         HTTP_BAD_REQUEST,
@@ -128,7 +128,7 @@ export class LocationSharingSessionUserResourceResponseController extends Abstra
 
     const resourceResponse = await this.#dao.getResourceResponse({
       sessionId,
-      username
+      userId
     });
 
     const responseBody = GetResponseSchema.parse({

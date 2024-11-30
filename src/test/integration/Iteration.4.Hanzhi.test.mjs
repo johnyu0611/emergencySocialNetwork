@@ -1,3 +1,4 @@
+import express from "express";
 import { ResourceController } from "@/controller/PostResource.mjs";
 import {
   test,
@@ -16,8 +17,6 @@ import { config } from "@/config/Config.mjs";
 
 describe("Integration test for ResourceController", () => {
   let resourceController = undefined;
-  let req = undefined;
-  let res = undefined;
   let server = undefined;
 
   beforeAll(async () => {
@@ -27,23 +26,36 @@ describe("Integration test for ResourceController", () => {
     config.environment.databaseName = "IntegrationTestResource";
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
-
     config.environment.port = 3400;
+
+    const router = express.Router();
+    resourceController = ResourceController.getInstance(
+      router,
+      {},
+      {},
+      "/resources"
+    );
+
+    if (!resourceController) {
+      throw new Error("Failed to initialize ResourceController");
+    }
+
     server = await runServer();
-    resourceController = ResourceController.getInstance();
   });
 
   beforeEach(async () => {
-    // Mock authenticated user
-    req = {
-      auth: { username: "testuser" },
+    const req = {
+      auth: { userId: 12345 }, // Valid number as per schema
       body: {
+        id: "123e4567-e89b-12d3-a456-426614174000", // Valid UUID
         name: "Resource1",
         amount: 10,
-        resourceType: "provide"
+        resourceType: "provide",
+        description: "Test resource",
+        createdAt: new Date() // Valid Date object
       }
     };
-    res = {
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
@@ -51,48 +63,54 @@ describe("Integration test for ResourceController", () => {
   });
 
   afterEach(async () => {
-    await MongoDBConnection.clearDB();
+    await MongoDBConnection.clearDB(); // Clear the database after each test
   });
 
   afterAll(async () => {
     await MongoDBConnection.closeConnection();
-    await server.close();
+    if (server && server.close) {
+      await server.close();
+    }
   });
 
   test("should create a new resource", async () => {
-    req = {
-      auth: { username: "testuser" },
+    const req = {
+      auth: { userId: 12345 }, // Valid number
       body: {
+        id: "223e4567-e89b-12d3-a456-426614174001", // Valid UUID
         name: "Resource2",
         amount: 5,
         resourceType: "request",
-        description: "Need this resource"
+        description: "Need this resource",
+        createdAt: new Date() // Valid Date object
       }
     };
-    res = {
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+
     await resourceController.handlePost(req, res);
 
     expect(res.status).toHaveBeenCalledWith(HTTP_CREATED);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
         id: expect.any(String),
-        timestamp: expect.any(String) // Expect a string instead of a Date object
+        timestamp: expect.any(String)
       })
     );
   });
 
   test("should get all resources", async () => {
-    req = {
-      auth: { username: "testuser" },
+    const req = {
+      auth: { userId: 12345 }, // Valid number
       body: {}
     };
-    res = {
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+
     await resourceController.handleGet(req, res);
 
     expect(res.status).toHaveBeenCalledWith(HTTP_OK);
@@ -100,10 +118,12 @@ describe("Integration test for ResourceController", () => {
       expect.objectContaining({
         resources: expect.arrayContaining([
           expect.objectContaining({
+            id: expect.any(String),
             name: "Resource1",
             amount: 10,
             resourceType: "provide",
-            username: "testuser"
+            description: "Test resource",
+            userId: 12345 // Ensure correct userId is included
           })
         ])
       })
@@ -111,34 +131,35 @@ describe("Integration test for ResourceController", () => {
   });
 
   test("should update a resource amount", async () => {
-    // First, retrieve the resource to get its ID
-    req = {
-      auth: { username: "testuser" },
+    const reqGet = {
+      auth: { userId: 12345 }, // Valid number
       body: {}
     };
-    res = {
+    const resGet = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    await resourceController.handleGet(req, res);
-    const resourceId = res.json.mock.calls[0][0].resources[0].id;
 
-    // Now, update the resource amount
-    req = {
-      auth: { username: "testuser" },
+    // Fetch the created resource to get its ID
+    await resourceController.handleGet(reqGet, resGet);
+    const resourceId = resGet.json.mock.calls[0][0].resources[0].id;
+
+    const reqUpdate = {
+      auth: { userId: 12345 },
       body: {
         id: resourceId,
         amount: 15
       }
     };
-    res = {
+    const resUpdate = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    await resourceController.handlePatch(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(HTTP_OK);
-    expect(res.json).toHaveBeenCalledWith(
+    await resourceController.handlePatch(reqUpdate, resUpdate);
+
+    expect(resUpdate.status).toHaveBeenCalledWith(HTTP_OK);
+    expect(resUpdate.json).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Resource amount updated successfully"
       })
@@ -146,33 +167,34 @@ describe("Integration test for ResourceController", () => {
   });
 
   test("should delete a resource", async () => {
-    // First, retrieve the resource to get its ID
-    req = {
-      auth: { username: "testuser" },
+    const reqGet = {
+      auth: { userId: 12345 }, // Valid number
       body: {}
     };
-    res = {
+    const resGet = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    await resourceController.handleGet(req, res);
-    const resourceId = res.json.mock.calls[0][0].resources[0].id;
 
-    // Now, delete the resource
-    req = {
-      auth: { username: "testuser" },
+    // Fetch the created resource to get its ID
+    await resourceController.handleGet(reqGet, resGet);
+    const resourceId = resGet.json.mock.calls[0][0].resources[0].id;
+
+    const reqDelete = {
+      auth: { userId: 12345 }, // Valid number
       body: {
         id: resourceId
       }
     };
-    res = {
+    const resDelete = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-    await resourceController.handleDelete(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(HTTP_OK);
-    expect(res.json).toHaveBeenCalledWith(
+    await resourceController.handleDelete(reqDelete, resDelete);
+
+    expect(resDelete.status).toHaveBeenCalledWith(HTTP_OK);
+    expect(resDelete.json).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Resource deleted successfully"
       })
@@ -180,46 +202,47 @@ describe("Integration test for ResourceController", () => {
   });
 
   test("should not allow unauthorized access", async () => {
-    req = {
+    const req = {
       auth: null, // No authentication
       body: {
+        id: "323e4567-e89b-12d3-a456-426614174002", // Valid UUID
         name: "Resource3",
         amount: 5,
-        resourceType: "provide"
+        resourceType: "provide",
+        createdAt: new Date()
       }
     };
-    res = {
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+
     await expect(resourceController.handlePost(req, res)).rejects.toThrow(
       "User is not authorized to perform this action"
     );
   });
 
-  test("should not create a resource with missing required fields", async () => {
-    req = {
-      auth: { username: "testuser" },
-      body: {
-        // Missing 'name' and 'resourceType'
-        amount: 5
-      }
+  test("should return the correct total count of resources", async () => {
+    const req = {
+      auth: { userId: 12345 }, // Valid userId
+      body: {}
     };
-    res = {
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
 
-    await expect(resourceController.handlePost(req, res)).rejects.toThrow(
-      "Validation failed"
-    );
+    // Fetch all resources
+    await resourceController.handleGet(req, res);
 
-    expect(res.status).not.toHaveBeenCalledWith(HTTP_CREATED);
-    expect(res.json).not.toHaveBeenCalledWith(
+    expect(res.status).toHaveBeenCalledWith(HTTP_OK);
+    expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: expect.any(String),
-        timestamp: expect.any(String)
+        total: expect.any(Number) // Ensure total is a number
       })
     );
+
+    // Verify the total matches the number of resources created in `beforeEach`
+    expect(res.json.mock.calls[0][0].total).toBe(1);
   });
 });

@@ -69,7 +69,7 @@ export class ApplicationController extends AbstractController {
   async handlePost(req, res) {
     const loggerContext = "ApplicationControllerPOSTHandler";
 
-    if (!req.auth || !req.auth.username) {
+    if (!req.auth || !req.auth.userId) {
       logger.error({ context: loggerContext }, "Unauthorized access attempt");
       throw new HTTPError(
         HTTP_FORBIDDEN,
@@ -77,22 +77,21 @@ export class ApplicationController extends AbstractController {
       );
     }
 
-    const { username: applicantUsername } = req.auth;
+    const { userId: applicantUserId } = req.auth;
     const payload = {
       id: uuidv4(), // Generate unique ID
       resourceId: req.body.resourceId, // Resource ID from the frontend
       resourceName: req.body.resourceName,
       amount: req.body.amount,
       actionType: req.body.actionType,
-      applicantUsername, // From auth token
-      resourceOwner: req.body.resourceOwner, // From the frontend
+      applicantUserId, // From auth token
+      resourceOwnerId: req.body.resourceOwnerId, // From the frontend
       createdAt: new Date()
     };
 
     try {
       // Validate the payload
       const validatedPayload = PostApplicationRequestSchema.parse(payload);
-
       const savedApplication =
         await this.#applicationDAO.create(validatedPayload);
       res.status(HTTP_OK).json({
@@ -102,7 +101,7 @@ export class ApplicationController extends AbstractController {
 
       logger.info(
         { context: loggerContext },
-        `Application for resource "${validatedPayload.resourceName}" submitted by ${applicantUsername}`
+        `Application for resource "${validatedPayload.resourceName}" submitted by ${applicantUserId}`
       );
     } catch (error) {
       if (error instanceof ZodError) {
@@ -125,7 +124,7 @@ export class ApplicationController extends AbstractController {
   async handleGet(req, res) {
     const loggerContext = "ApplicationControllerGETHandler";
 
-    if (!req.auth) {
+    if (!req.auth || !req.auth.userId) {
       logger.error({ context: loggerContext }, "Unauthorized access attempt");
       throw new HTTPError(
         HTTP_FORBIDDEN,
@@ -133,10 +132,10 @@ export class ApplicationController extends AbstractController {
       );
     }
 
-    const { username } = req.auth;
+    const { userId } = req.auth;
 
     try {
-      const applications = await this.#applicationDAO.findByUsername(username);
+      const applications = await this.#applicationDAO.findByUserId(userId);
       res.status(HTTP_OK).json({ applications, total: applications.length });
       logger.info(
         { context: loggerContext },
@@ -155,7 +154,7 @@ export class ApplicationController extends AbstractController {
   async handleDelete(req, res) {
     const loggerContext = "ApplicationControllerDELETEHandler";
 
-    if (!req.auth || !req.auth.username) {
+    if (!req.auth || !req.auth.userId) {
       logger.error({ context: loggerContext }, "Unauthorized access attempt");
       throw new HTTPError(
         HTTP_FORBIDDEN,
@@ -176,7 +175,7 @@ export class ApplicationController extends AbstractController {
       res.status(HTTP_OK).json({ message: "Application successfully deleted" });
       logger.info(
         { context: loggerContext },
-        `Application ${id} deleted by ${req.auth.username}`
+        `Application ${id} deleted by ${req.auth.userId}`
       );
     } catch (error) {
       if (error instanceof ZodError) {

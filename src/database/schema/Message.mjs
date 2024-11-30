@@ -21,11 +21,11 @@ export const MessageSchema = new Schema({
     default: "Undefined"
   },
   sender: {
-    type: String,
+    type: Number,
     required: true
   },
   receiver: {
-    type: String
+    type: Number
   },
   content: {
     type: String,
@@ -37,6 +37,6 @@ export const MessageSchema = new Schema({
     required: true
   },
   readBy: {
-    type: [String]
+    type: [Number]
   }
 });
