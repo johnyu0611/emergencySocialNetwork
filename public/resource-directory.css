@@ -1,3 +1,8 @@
+#resource-container {
+  min-width: 300px;
+  max-width: 600px;
+}
+
 .resource-item.provide {
   background-color: #e0f8e0; /* Light green background */
   padding: 10px;

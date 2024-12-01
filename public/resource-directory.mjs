@@ -1,90 +1,16 @@
-import { Banner } from "./common/banner.mjs";
 import { KEY_TOKEN } from "./common/constants.mjs";
-import { logout } from "./lib/logout.mjs";
-import { updateStatus as apiUpdateStatus } from "./lib/change-status.mjs";
-import { performSearch } from "./common/perform-search.mjs";
 import { submitResource } from "./lib/post-resources.mjs";
 import { getResources } from "./lib/get-resources.mjs";
 import { submitApplication } from "./lib/post-application.mjs";
 import { getUsernameById } from "./lib/get-username.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
 
-const banner = new Banner($("#banner"));
-const $buttonLogout = $("#button-logout");
-const $statusButton = $("#share-status");
 const $postResourceButton = $("#post-resource-button");
 const $submitResourceButton = $("#submitResourceButton");
-let statusModal, searchModal, postResourceModal, applicationModal;
-
-function parseJwt(token) {
-  try {
-    const base64Url = token.split(".")[1]; // Get the Payload part
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Replace URL-safe characters
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload); // Parse the JSON payload
-  } catch (error) {
-    console.error("Failed to parse JWT:", error);
-    return null;
-  }
-}
-
-async function onLogout() {
-  banner.reset();
-  $buttonLogout.prop("disabled", true);
-
-  const token = localStorage.getItem(KEY_TOKEN);
-  try {
-    await logout({ token });
-  } catch (e) {
-    console.error(e);
-  }
-
-  postLogout();
-}
-
-function postLogout() {
-  localStorage.removeItem(KEY_TOKEN);
-  location.href = "index.html";
-}
-
-async function updateStatus(status) {
-  console.log("User selected status:", status);
-
-  const token = localStorage.getItem(KEY_TOKEN);
-
-  if (!token) {
-    console.error("No authorization token found.");
-    void banner.showErrorMessage("You must log in first");
-    return;
-  }
-
-  try {
-    const response = await apiUpdateStatus({ status, token });
-    void banner.showSuccessMessage(`Status updated to: ${response.status}`);
-  } catch (error) {
-    console.error("Error during status update:", error);
-    if (error.response) {
-      console.error("Response details:", error.response);
-    }
-    void banner.showErrorMessage("Failed to update status. Please try again.");
-  }
-}
+let postResourceModal, applicationModal;
 
 // Initialize modals only if elements are found
 function initializeModals() {
-  if ($("#modal-status").length) {
-    statusModal = new bootstrap.Modal($("#modal-status")[0]);
-  }
-  if ($("#resourceModal").length) {
-    resourceModal = new bootstrap.Modal($("#resourceModal")[0]);
-  }
-  if ($("#modal-search").length) {
-    searchModal = new bootstrap.Modal($("#modal-search")[0]);
-  }
   if ($("#postResourceModal").length) {
     postResourceModal = new bootstrap.Modal($("#postResourceModal")[0]);
   }
@@ -105,7 +31,7 @@ async function submitResourceForm() {
   const imageFile = $("#resourceImage")[0].files[0];
   const resourceType = $("input[name='resourceType']:checked").val(); // Get selected resource type
   const token = localStorage.getItem(KEY_TOKEN);
-  const p = parseJwt(token);
+  const p = getJWTPayload(token);
 
   const currentUserID = p?.userId || p?.sub; // Adjust based on your token's structure
   const username = getUsernameById({ token, userId: currentUserID });
@@ -188,7 +114,7 @@ async function renderResources(filterType = "all") {
   const resourceList = $("#resource-list");
   resourceList.empty();
   const token = localStorage.getItem(KEY_TOKEN);
-  const p = parseJwt(token);
+  const p = getJWTPayload(token);
   const currentUserID = p?.userId || p?.sub; // Adjust based on your token's structure
 
   // Filter resources based on the selected filter type
@@ -202,7 +128,7 @@ async function renderResources(filterType = "all") {
   });
 
   // Iterate through the filtered resources and render them
-  filteredResources.forEach(async (resource) => {
+  for (const resource of filteredResources) {
     const resourceData = resource._doc || resource; // Use _doc if present, fallback to resource
     const resourceOwnerId = resourceData.userId;
     // Check if the resource belongs to the current user
@@ -254,7 +180,7 @@ async function renderResources(filterType = "all") {
       </div>
     `;
     resourceList.append(resourceContent);
-  });
+  }
 }
 
 async function fetchAndDisplayResources() {
@@ -324,40 +250,6 @@ $(document).ready(async () => {
   // Initialize modals after DOM is fully loaded
   initializeModals();
   fetchAndDisplayResources();
-  // Logout button setup
-  $buttonLogout.click(onLogout);
-
-  // Status button and modal setup
-  $statusButton.on("click", (event) => {
-    event.preventDefault();
-    statusModal?.show();
-  });
-
-  $("#modal-status .modal-body").on("click", ".status-btn", function () {
-    const status = $(this).data("status");
-    updateStatus(status);
-    statusModal?.hide();
-  });
-
-  // Search button setup
-  $("#button-search").on("click", (event) => {
-    event.preventDefault();
-    searchModal?.show();
-    $("#searchResults").empty();
-    $("#searchInput").val("");
-  });
-
-  $("#perform-search-button").on("click", () => {
-    const selectedOption = $("input[name='searchOption']:checked").val();
-    const query = $("#searchInput").val();
-    const token = localStorage.getItem(KEY_TOKEN);
-    if (!token) {
-      location.href = "register.html";
-      return;
-    }
-
-    performSearch(selectedOption, query, "resource-directory", token);
-  });
 
   // Open Post Resource modal when button is clicked
   $postResourceButton.on("click", openResourceForm);
