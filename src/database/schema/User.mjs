@@ -5,6 +5,11 @@ export const UserSchema = new Schema({
   userId: {
     type: Number
   },
+  privilege: {
+    type: String,
+    enum: ["citizen", "coordinator", "administrator"],
+    default: "citizen"
+  },
   username: {
     unique: true,
     type: String,
@@ -15,6 +20,10 @@ export const UserSchema = new Schema({
     required: true
   },
   isOnline: {
+    type: Boolean,
+    default: true
+  },
+  isActive: {
     type: Boolean,
     default: true
   },

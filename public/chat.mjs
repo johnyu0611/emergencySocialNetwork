@@ -2,7 +2,8 @@ import { Banner } from "./common/banner.mjs";
 import {
   KEY_TOKEN,
   ANNOUCEMENT_SPACE_ID,
-  PUBLIC_CHATROOM_ID
+  PUBLIC_CHATROOM_ID,
+  PRIVILEGE_LEVEL
 } from "./common/constants.mjs";
 import { parseQueryParameters } from "./common/utils.mjs";
 import {
@@ -17,6 +18,7 @@ import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socke
 import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
 
 await fetchComponents();
 
@@ -296,6 +298,36 @@ function onSystemMaintenance(...channels) {
   };
 }
 
+function onUserLogout(roomId, ...channels) {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    $chatHistoryContainer.empty();
+    await populateHistoryMessages(roomId);
+    await getChatRoomList(roomId);
+    if (citizenId === userId) {
+      alert("You are set to inactive account");
+      location.href = "index.html";
+    }
+  };
+}
+
+function onUserActive(roomId, ...channels) {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    $chatHistoryContainer.empty();
+    await populateHistoryMessages(roomId);
+    await getChatRoomList(roomId);
+  };
+}
+
 $viewButton.on("click", function (event) {
   event.preventDefault();
   location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
@@ -343,6 +375,13 @@ $(document).ready(async () => {
   $buttonroomid.click(() => {
     getChatRoomList(roomId);
   });
+
+  if (roomId == ANNOUCEMENT_SPACE_ID) {
+    const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
+    if (privilege == "citizen") {
+      document.getElementById("input-area").style.display = "none";
+    }
+  }
 
   $buttonLogout.click(onLogout);
   $buttonPost.click(onPost(roomId));
@@ -437,6 +476,14 @@ $(document).ready(async () => {
   socketSystem.on(
     "system_maintenance",
     onSystemMaintenance(socketChatroom, socketSystem)
+  );
+  socketSystem.on(
+    "user_logout",
+    onUserLogout(roomId, socketChatroom, socketSystem)
+  );
+  socketSystem.on(
+    "user_active",
+    onUserActive(roomId, socketChatroom, socketSystem)
   );
 
   socketSystem.on("new_announcement", onNewAnnouncement(roomId));

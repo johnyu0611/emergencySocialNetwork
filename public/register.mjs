@@ -1,6 +1,6 @@
 import { bannedUsernameSet } from "./common/banned-username-set.mjs";
 import { Banner } from "./common/banner.mjs";
-import { KEY_TOKEN } from "./common/constants.mjs";
+import { KEY_TOKEN, PRIVILEGE_LEVEL } from "./common/constants.mjs";
 import { FormValidator } from "./common/form-validator.mjs";
 import { createUser } from "./lib/create-user.mjs";
 import { login } from "./lib/login.mjs";
@@ -43,8 +43,9 @@ async function onSubmit(event) {
   const password = $inputPassword.val();
   const payload = { username, password };
   try {
-    const { token } = await login(payload);
+    const { token, privilege } = await login(payload);
     localStorage.setItem(KEY_TOKEN, token);
+    localStorage.setItem(PRIVILEGE_LEVEL, privilege);
     location.href = "directory.html";
   } catch (error) {
     if (error.status === 404) {
@@ -70,6 +71,7 @@ async function onConfirmJoin(event) {
     modalConfirmJoin.hide();
     modalWelcome.show();
     localStorage.setItem(KEY_TOKEN, token);
+    localStorage.setItem(PRIVILEGE_LEVEL, "citizen");
   } catch (error) {
     void banner.showError(error);
     console.error(error);
@@ -86,7 +88,7 @@ function onUsernameInputChange() {
   $inputUsername.val(
     $inputUsername
       .val()
-      .replace(/[^a-z0-9]/gu, "")
+      .replace(/[^a-zA-Z0-9]/gu, "")
       .substring(0, 32)
   );
 }

@@ -64,6 +64,7 @@ export class UserController extends AbstractController {
     let { username } = payload;
     let { password } = payload;
     const { status } = payload;
+    const { privilege } = payload;
 
     // console.log("11111111111");
     try {
@@ -97,7 +98,8 @@ export class UserController extends AbstractController {
     const newUser = await this.#userDAO.create({
       username,
       password: await passwordHasher.hash(password),
-      status: status ? status : "Undefined"
+      status: status ? status : "Undefined",
+      privilege: privilege ? privilege : "citizen"
     });
 
     const token = jwt.encode({ userId: newUser.userId });
@@ -127,8 +129,14 @@ export class UserController extends AbstractController {
       ]
     });
 
+    const filteredUsers =
+      searchByUsername !== ".*" || searchByStatus !== ".*"
+        ? users.filter((user) => user.isActive === true)
+        : users;
+
+    console.log(filteredUsers);
     const responseBody = GetResponseSchema.parse({
-      users
+      users: filteredUsers
     });
     res.json(responseBody);
     res.status(HTTP_OK);

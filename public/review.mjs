@@ -2,6 +2,11 @@ import { getReview } from "./lib/get-review.mjs";
 import { parseQueryParameters } from "./common/utils.mjs";
 import { KEY_TOKEN } from "./common/constants.mjs";
 import { postReview } from "./lib/post-review.mjs";
+import {
+  ENDPOINT_SOCKET_IO,
+  NAMESPACE_SOCKET_IO_SYSTEM
+} from "./lib/endpoints.mjs";
+import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 
 const modalCreate = new bootstrap.Modal($("#addressModal"));
 
@@ -122,5 +127,16 @@ $(document).ready(async () => {
   $("#save-address").on("click", function (event) {
     event.preventDefault();
     onPostReview(mcId);
+  });
+
+  const socketSystem = io(NAMESPACE_SOCKET_IO_SYSTEM, {
+    path: ENDPOINT_SOCKET_IO,
+    auth: {
+      token: localStorage.getItem(KEY_TOKEN)
+    }
+  });
+
+  socketSystem.on("connect", () => {
+    void banner.showSuccessMessage("Connected");
   });
 });

@@ -2,13 +2,13 @@ import { Banner } from "./common/banner.mjs";
 import {
   KEY_TOKEN,
   ANNOUCEMENT_SPACE_ID,
-  PUBLIC_CHATROOM_ID
+  PUBLIC_CHATROOM_ID,
+  PRIVILEGE_LEVEL
 } from "./common/constants.mjs";
 import { sleep } from "./common/utils.mjs";
 import {
   ENDPOINT_SOCKET_IO,
-  NAMESPACE_SOCKET_IO_SYSTEM,
-  NAMESPACE_SOCKET_IO_CHATROOM
+  NAMESPACE_SOCKET_IO_SYSTEM
 } from "./lib/endpoints.mjs";
 import { getESNDirectory } from "./lib/get-esndirectory.mjs";
 import { logout } from "./lib/logout.mjs";
@@ -61,11 +61,15 @@ async function onPost() {
     await sleep(50);
     const token = localStorage.getItem(KEY_TOKEN);
     const response = await getESNDirectory({ token });
-    const users = response.users;
+    let users = response.users;
     console.log(users);
-    const uniqueUsers = Array.from(
+    /*const uniqueUsers = Array.from(
       new Map(users.map((user) => [user.username, user])).values()
-    );
+    );*/
+    const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
+    if (privilege !== "administrator") {
+      users = users.filter((user) => user.isActive);
+    }
     await getChatRoomList({ token });
     displayUsers(users);
   } catch (e) {
@@ -76,6 +80,7 @@ async function onPost() {
 function displayUsers(users) {
   const userList = document.getElementById("user-list");
   userList.innerHTML = "";
+  const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
   const sortedUsers = users.sort((a, b) => {
     if (a.isOnline === true && b.isOnline === false) {
       return -1;
@@ -145,6 +150,7 @@ function displayUsers(users) {
     //messageIcon.style.color = "blue"; // Set the color of the message icon
     messageIcon.style.marginLeft = "15px";
     messageIcon.setAttribute("data-username", user.username);
+    messageIcon.style.cursor = "pointer";
 
     // Add spacing between the icon and the text
     //userStatusSpan.style.marginRight = "10px"; // Space between username and status
@@ -155,6 +161,9 @@ function displayUsers(users) {
 
     const token = localStorage.getItem(KEY_TOKEN);
     const { userId } = getJWTPayload(token);
+    if (user.userId === userId) {
+      messageIcon.style.visibility = "hidden";
+    }
     //const { username: currentUsername } = await getUsernameById({userId, token});
 
     // *** NEW: Add the "Versus" icon for all online users ***
@@ -181,8 +190,26 @@ function displayUsers(users) {
     });
 
     listItem.appendChild(versusIcon);
-
     listItem.appendChild(messageIcon);
+
+    console.log(privilege);
+    if (privilege === "administrator") {
+      const profileIcon = document.createElement("i");
+      profileIcon.style.cursor = "pointer";
+      profileIcon.classList.add("fa-regular", "fa-user");
+
+      /*profileIcon.addEventListener("click", () => {
+        location.href = `profile.html`;
+        alert("Click detected");
+      });*/
+      profileIcon.setAttribute("data-userId", user.userId);
+      profileIcon.style.marginRight = "5px";
+      profileIcon.style.marginLeft = "20px";
+
+      listItem.appendChild(profileIcon);
+    }
+
+    //listItem.appendChild(messageIcon);
     listItem.appendChild(statusDot);
     userList.appendChild(listItem);
   });
@@ -203,6 +230,10 @@ async function openChat(user) {
   } catch (e) {
     console.error(e);
   }
+}
+
+async function openProfile(userId) {
+  location.href = `profile.html?userId=${userId}`;
 }
 
 async function onLogout() {
@@ -460,6 +491,30 @@ async function onNewChallenge(data) {
   }
 }
 
+function onUserLogout() {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    console.log(citizenId);
+    console.log(userId);
+    await onPost();
+    if (citizenId === userId) {
+      alert("You are set to inactive account");
+      await onLogout();
+    }
+  };
+}
+
+function onUserActive() {
+  return async function (socketIOMessage) {
+    //alert("active");
+    await onPost();
+  };
+}
+
 async function onChallengeAccepted(data) {
   const { challenger, challenged, questionID } = data;
 
@@ -481,6 +536,11 @@ async function onChallengeAccepted(data) {
 
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
+
+  const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
+  if (privilege !== "administrator") {
+    document.getElementById("test-administrator").style.display = "none";
+  }
 
   $statusButton.on("click", function (event) {
     event.preventDefault();
@@ -582,11 +642,19 @@ $(document).ready(async () => {
     openChat(username);
   });
 
+  $("#user-list").on("click", ".fa-user", async function () {
+    const userId = $(this).attr("data-userid");
+    openProfile(userId);
+  });
+
   socket.on("connect", onSystemConnect);
   socket.on("connect_error", onSystemConnectError(socket));
   socket.on("user_join", reloadPage);
   socket.on("status_change", reloadPage);
   socket.on("user_leave", reloadPage);
+  socket.on("username_change", reloadPage);
+  socket.on("user_logout", onUserLogout(socket));
+  socket.on("user_active", onUserActive(socket));
   socket.on("system_maintenance", onSystemMaintenance(socket));
 
   socket.on("new_announcement", onNewAnnouncement());

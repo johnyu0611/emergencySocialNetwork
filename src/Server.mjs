@@ -9,6 +9,7 @@ import cors from "cors";
 import express from "express";
 import { createServer as createHTTPServer } from "http";
 import { createServer as createHTTPSServer } from "https";
+import { createDefaultAdmin } from "@/util/CreateDefaultAdministrator.mjs";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
 import fs from "fs";
@@ -67,6 +68,8 @@ export async function runServer() {
 
   // Create password hasher instance
   const passwordHasher = new PasswordHasher(config.security.passwordHash);
+
+  await createDefaultAdmin(passwordHasher);
 
   const channel = registerChannel({ io, jwt });
 

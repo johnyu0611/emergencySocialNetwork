@@ -21,7 +21,8 @@ export const PostRequestSchema = z.object({
  * Response payload schema
  */
 export const PostResponseSchema = z.object({
-  token: TokenSchema
+  token: TokenSchema,
+  privilege: z.string().optional()
 });
 
 /**

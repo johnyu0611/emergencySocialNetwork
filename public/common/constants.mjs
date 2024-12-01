@@ -11,3 +11,5 @@ export const ANNOUCEMENT_SPACE_ID = "11111111-1111-1111-1111-111111111111";
 export const TEST_POST_PORTION = 0.5;
 
 export const TEST_GET_PORTION = 0.5;
+
+export const PRIVILEGE_LEVEL = "privilege";

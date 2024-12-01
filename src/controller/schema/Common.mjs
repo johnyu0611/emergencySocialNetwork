@@ -9,7 +9,7 @@ export const UsernameSchema = z
   .toLowerCase()
   .min(3, { message: "Username should be at least 3 characters long" })
   .max(32, { message: "Username exceeded maximum length limit" })
-  .regex(/^[a-z0-9]+$/u, {
+  .regex(/^[a-zA-Z0-9]+$/u, {
     message: "Username contains illegal characters"
   })
   .refine((username) => !bannedUsernameSet.has(username), {

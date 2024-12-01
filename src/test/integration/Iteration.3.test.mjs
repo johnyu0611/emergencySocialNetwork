@@ -200,8 +200,20 @@ describe("Integration test for PostAnnouncement & SearchInformation", () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
         users: [
-          { isOnline: true, status: "OK", userId: 1, username: "user303" },
-          { isOnline: true, status: "Help", userId: 2, username: "user404" }
+          {
+            isActive: true,
+            isOnline: true,
+            status: "OK",
+            userId: 1,
+            username: "user303"
+          },
+          {
+            isActive: true,
+            isOnline: true,
+            status: "Help",
+            userId: 2,
+            username: "user404"
+          }
         ]
       })
     );

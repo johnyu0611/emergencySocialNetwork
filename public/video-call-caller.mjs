@@ -14,6 +14,7 @@ import { Banner } from "./common/banner.mjs";
 import { postEmergencyHistory } from "./lib/post-emergency-history.mjs";
 import { getEmergencyHistory } from "./lib/get-emergency-history.mjs";
 import { deleteEmergencyHistory } from "./lib/delete-emergency-history.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
 
 const token = localStorage.getItem(KEY_TOKEN);
 const res = await getEmergencyContact({ token });
@@ -290,6 +291,36 @@ document
 //   });
 // });
 
+function onNewAnnouncement() {
+  return function () {
+    alert("New Annoucement available.");
+    console.log("HERE");
+    // location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+    // annoucementModal.show();
+  };
+}
+
+function onSystemMaintenance() {
+  return function () {
+    alert("System is in maintenance. Jumping to home page...");
+    location.href = "index.html";
+  };
+}
+
+function onUserLogout() {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    if (citizenId === userId) {
+      alert("You are set to inactive account");
+      location.href = "index.html";
+    }
+  };
+}
+
 //on connection get all available offers and call createOfferEls
 socket.on("availableOffers", (offers) => {
   // console.log(offers)
@@ -315,3 +346,8 @@ socket.on("new_emergency_history", (e) => {
   $historyContainer.empty();
   populateEmergencyHistory();
 });
+
+socket.on("system_maintenance", onSystemMaintenance(socket));
+socket.on("user_logout", onUserLogout(socket));
+
+socket.on("new_announcement", onNewAnnouncement());

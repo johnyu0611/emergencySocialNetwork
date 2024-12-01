@@ -73,10 +73,13 @@ export class ChatroomMessageController extends AbstractController {
       }
     }
 
-    const messages = await Promise.all(
+    let messages = await Promise.all(
       messagesId.map(async (message) => {
         const userId = message.sender;
         const user = await this.#userDAO.findById({ userId });
+        if (user.isActive === false) {
+          return null;
+        }
         return {
           // eslint-disable-next-line no-underscore-dangle
           ...message._doc,
@@ -85,6 +88,7 @@ export class ChatroomMessageController extends AbstractController {
       })
     );
 
+    messages = messages.filter((message) => message !== null);
     const responseBody = GetResponseSchema.parse({
       messages
     });

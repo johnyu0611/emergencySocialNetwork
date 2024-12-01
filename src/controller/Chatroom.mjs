@@ -65,7 +65,7 @@ export class ChatroomController extends AbstractController {
     // const { username } = user;
     //console.log(username);
     const chatroomIds = user.chatrooms.map((chatroom) => chatroom.id);
-    const chatroom = await Promise.all(
+    let chatroom = await Promise.all(
       chatroomIds.map(async (chatroomId) => {
         if (chatroomId === "00000000-0000-0000-0000-000000000000") {
           return {
@@ -96,6 +96,10 @@ export class ChatroomController extends AbstractController {
         const receiverUser = await this.#userDAO.findById({
           userId: receiver
         });
+
+        // if (receiverUser.isActive === false) {
+        //   return null;
+        // }
         //console.log(receiverUser);
         const title = messages.length > 0 ? messages[0].title : chatroomId;
 
@@ -108,6 +112,8 @@ export class ChatroomController extends AbstractController {
         };
       })
     );
+
+    chatroom = chatroom.filter((room) => room !== null);
 
     const allUsers = await this.#userDAO.findAll();
     //console.log(allUsers);
@@ -122,7 +128,8 @@ export class ChatroomController extends AbstractController {
       usersNotInReceivers.forEach((user) => {
         //console.log(user);
         //console.log(userId);
-        if (user.userId !== userId) {
+        // console.log(user.isActi);
+        if (user.userId !== userId && user.isActive !== false) {
           chatroom.push({
             receiver: user.username,
             status: user.status

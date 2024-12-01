@@ -64,3 +64,5 @@ export const NAMESPACE_SOCKET_IO_CHATROOM = "/chatroom";
 export const NAMESPACE_SOCKET_IO_LOCATION_SHARING = "/location-sharing";
 
 export const NAMESPACE_SOCKET_IO_SYSTEM = "/system";
+
+export const ENDPOINT_ADMINISTRATOR = `${API_ROOT}/administration`;

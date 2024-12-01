@@ -16,7 +16,8 @@ import { z } from "zod";
 export const PostRequestSchema = z.object({
   username: UsernameSchema,
   password: PasswordSchema,
-  status: StatusSchema.optional()
+  status: StatusSchema.optional(),
+  privilege: z.string().optional()
 });
 
 /**
@@ -53,7 +54,8 @@ export const GetResponseSchema = z.object({
       username: UsernameSchema,
       isOnline: IsOnlineSchema,
       status: StatusSchema,
-      userId: UserIdSchema
+      userId: UserIdSchema,
+      isActive: z.boolean().optional()
     })
   )
 });

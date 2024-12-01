@@ -67,11 +67,17 @@ export class TokenController extends AbstractController {
       throw new HTTPError(HTTP_FORBIDDEN, "Incorrect password");
     }
 
+    if (!existingUser.isActive) {
+      throw new HTTPError(HTTP_FORBIDDEN, "Account is inactive");
+    }
+
     await this.#userDAO.update({ username }, { isOnline: true });
 
     const token = jwt.encode({ userId: existingUser.userId });
+    const { privilege } = existingUser;
     const responseBody = PostResponseSchema.parse({
-      token
+      token,
+      privilege
     });
     res.status(HTTP_CREATED);
     res.json(responseBody);

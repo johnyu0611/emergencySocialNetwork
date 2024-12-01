@@ -7,6 +7,16 @@
     <!-- <link href="common/common.css" rel="stylesheet" /> -->
     <link href="video-call-callee.css" rel="stylesheet" />
     <title>Emergency Video Call</title>
+    <script>
+      async function fetchComponents() {
+        document.getElementById("modal-container").innerHTML = await (
+          await fetch("component/modal-announcement.html")
+        ).text();
+        document.getElementById("modal-container-search").innerHTML = await (
+          await fetch("component/search-box.html")
+        ).text();
+      }
+    </script>
     <script src="common/common.mjs" type="module"></script>
   </head>
   <body>

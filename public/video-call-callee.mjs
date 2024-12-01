@@ -13,6 +13,7 @@ import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socke
 import { Banner } from "./common/banner.mjs";
 import { postEmergencyHistory } from "./lib/post-emergency-history.mjs";
 import { getEmergencyHistory } from "./lib/get-emergency-history.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
 
 const token = localStorage.getItem(KEY_TOKEN);
 const res = await getEmergencyContact({ token });
@@ -24,6 +25,7 @@ const $inputBox = $("#input-box");
 const $buttonPost = $("#button-post");
 
 const $historyContainer = $("#history-container");
+// const annoucementModal = new bootstrap.Modal($("#modal-announcement"));
 
 function messageBox(username, timestampMillis, message) {
   const time = new Date(timestampMillis).toLocaleString();
@@ -236,6 +238,35 @@ const saveEmergencyHistory = async () => {
   }
 };
 
+function onNewAnnouncement() {
+  return function () {
+    alert("New Annoucement available");
+    // location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+    // annoucementModal.show();
+  };
+}
+
+function onSystemMaintenance() {
+  return function () {
+    alert("System is in maintenance. Jumping to home page...");
+    location.href = "index.html";
+  };
+}
+
+function onUserLogout() {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    if (citizenId === userId) {
+      alert("You are set to inactive account");
+      location.href = "index.html";
+    }
+  };
+}
+
 document.querySelector("#call").addEventListener("click", call);
 
 document.querySelector("#hangup").addEventListener("click", (e) => {
@@ -275,3 +306,8 @@ socket.on("new_emergency_history", (e) => {
   $historyContainer.empty();
   populateEmergencyHistory();
 });
+
+socket.on("system_maintenance", onSystemMaintenance(socket));
+socket.on("user_logout", onUserLogout(socket));
+
+socket.on("new_announcement", onNewAnnouncement());

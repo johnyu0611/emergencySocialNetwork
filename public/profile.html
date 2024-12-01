@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="asset/sos-icon.png" rel="icon" type="image/x-icon" />
+    <title>User Profile</title>
+    <link href="common/common.css" rel="stylesheet" />
+    <script src="common/common.mjs" type="module"></script>
+    <link href="medicalmap.css" rel="stylesheet" />
+    <script src="profile.mjs" type="module"></script>
+  </head>
+  <body>
+    <div class="alert" id="banner" role="banner"></div>
+    <div id="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <img
+            alt="Logo"
+            class="align-text-top"
+            height="30"
+            src="asset/sos.gif"
+            width="30"
+          />
+          <a class="navbar-brand" id="title">User Profile</a>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            id="button-directoty"
+            type="button"
+            onclick="location.href='directory.html'"
+          >
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <button
+            class="btn btn-outline-success btn-sm"
+            id="button-edit"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-edit"
+          >
+            <i class="fa-regular fa-pen-to-square"></i>
+          </button>
+        </div>
+      </nav>
+
+      <div class="container py-4">
+        <div class="mx-auto" style="max-width: 600px">
+          <h3 class="fs-5 fw-semibold text-dark text-center">
+            User Information
+          </h3>
+          <p class="mt-1 text-muted text-center" id="text-name">
+            Personal information details
+          </p>
+
+          <div class="mt-4 border-top pt-3">
+            <dl class="row">
+              <div class="mb-3 row">
+                <dt class="col-sm-4 col-5 text-dark fw-medium">Username</dt>
+                <dd class="col-sm-8 col-7 text-muted" id="text-username"></dd>
+              </div>
+              <div class="mb-3 row">
+                <dt class="col-sm-4 col-5 text-dark fw-medium">Password</dt>
+                <dd class="col-sm-8 col-7 text-muted">*</dd>
+              </div>
+              <div class="mb-3 row">
+                <dt class="col-sm-4 col-5 text-dark fw-medium">
+                  Privilege Level
+                </dt>
+                <dd class="col-sm-8 col-7 text-muted" id="text-privilege-level">
+                  Administrator
+                </dd>
+              </div>
+              <div class="mb-3 row">
+                <dt class="col-sm-4 col-5 text-dark fw-medium">
+                  Active/Inactive
+                </dt>
+                <dd class="col-sm-8 col-7 text-muted" id="text-active">
+                  Active
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modal-edit"
+      tabindex="-1"
+      aria-labelledby="editModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit User Profile</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+              id="close-button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="edit-form" action="" method="get" autocomplete="off">
+              <p class="note" id="note">
+                <em>You can edit specific elements and leave other blank</em>
+              </p>
+              <label class="form-label" id="label-username">
+                Username
+                <input class="form-control" id="edit-username" required />
+              </label>
+              <label class="form-label" id="label-password">
+                Password
+                <input class="form-control" id="edit-password" required />
+              </label>
+              <label class="form-label" id="label-privilege">
+                Privilege Level
+                <select id="privilege">
+                  <option value="undefined" selected>Edit Privilege</option>
+                  <option value="citizen">Citizen</option>
+                  <option value="coordinator">Coordinator</option>
+                  <option value="administrator">Administrator</option>
+                </select>
+              </label>
+              <label class="form-label" id="label-active">
+                Active / Inactive
+                <select id="active">
+                  <option value="undefined" selected>Edit Status</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </label>
+              <div class="mt-3">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  id="edit-validate"
+                >
+                  Validate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      aria-hidden="true"
+      aria-labelledby="exampleModalLabel"
+      class="modal fade"
+      data-bs-backdrop="static"
+      id="modal-confirm"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Edit User Profile</h1>
+            <button
+              aria-label="Close"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              type="button"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Confirm to edit user profile?</p>
+            <p id="confirm"></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              id="modal-confirm-join-btn-cancel"
+              type="button"
+            >
+              No
+            </button>
+            <button
+              class="btn btn-primary"
+              id="modal-confirm-join-btn-confirm"
+              type="button"
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="modal-announcement-container"></div>
+  </body>
+</html>

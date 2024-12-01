@@ -28,7 +28,7 @@ export const GetRequestSchema = z.object({
 export const GetResponseSchema = z.object({
   messages: z.array(
     z.object({
-      id: MessageIdSchema,
+      id: MessageIdSchema.optional(),
       sender: UsernameSchema.optional(),
       receiver: UsernameSchema.optional(), // not need for public
       status: StatusSchema.optional(),

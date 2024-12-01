@@ -6,11 +6,18 @@ import { deleteMedicalCenter } from "./lib/delete-medicalcenter.mjs";
 import { Banner } from "./common/banner.mjs";
 import { bannedUsernameSet } from "./common/banned-username-set.mjs";
 import { updateMedical } from "./lib/update-medicalcenter.mjs";
+import { getJWTPayload } from "./common/utils.mjs";
+import {
+  ENDPOINT_SOCKET_IO,
+  NAMESPACE_SOCKET_IO_SYSTEM
+} from "./lib/endpoints.mjs";
+import { io } from "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.esm.min.js";
 const modalValidate = new bootstrap.Modal($("#addressModal"));
 const modalConfirm = new bootstrap.Modal($("#modal-confirm"));
 const modalEdit = new bootstrap.Modal($("#editModal"));
 const banner = new Banner($("#banner"));
 let lat, lon;
+const $modalAnnouncementContainer = $("#modal-announcement-container");
 
 async function validate() {
   const token = localStorage.getItem(KEY_TOKEN);
@@ -264,6 +271,67 @@ async function markMedicalCenter() {
   }
 }
 
+function onSystemConnectError(socket) {
+  return async function (error) {
+    console.error(error);
+    // From https://socket.io/docs/v4/client-socket-instance/#connect_error
+    if (socket.active) {
+      // Temporary failure, the socket will automatically try to reconnect
+      void banner.showWarningMessage(
+        "Cannot establish connection to server, retrying..."
+      );
+    } else {
+      // The connection was denied by the server
+      // In that case, `socket.connect()` must be manually called in order to reconnect
+      void banner.showErrorMessage(
+        "Server rejected the connection, please log in again"
+      );
+    }
+  };
+}
+
+function onSystemMaintenance(...channels) {
+  return async function () {
+    channels.forEach((channel) => {
+      channel.disconnect();
+    });
+    await banner.showWarningMessage(
+      "System is in maintenance. Jumping to home page..."
+    );
+    location.href = "index.html";
+  };
+}
+
+function onNewAnnouncement(announcementModal, $viewButton) {
+  $viewButton.on("click", function (event) {
+    event.preventDefault();
+    location.href = `chat.html?roomId=${ANNOUCEMENT_SPACE_ID}`;
+  });
+
+  return async function () {
+    await banner.showWarningMessage(
+      "New Annoucement available. Action needed..."
+    );
+    announcementModal.show();
+  };
+}
+
+function onUserLogout() {
+  return async function (socketIOMessage) {
+    console.log("here");
+    const token = localStorage.getItem(KEY_TOKEN);
+    const { citizenId } = socketIOMessage;
+    const { userId } = getJWTPayload(token);
+
+    console.log(citizenId);
+    console.log(userId);
+    if (citizenId === userId) {
+      alert("You are set to inactive account");
+      location.href = "index.html";
+    }
+  };
+}
+
 $(document).ready(async () => {
   const mapElement = document.getElementById("map");
   $("#modal-confirm-join-btn-confirm").on("click", onConfirmJoin);
@@ -319,4 +387,30 @@ $(document).ready(async () => {
       .text("* = required field")
       .css({ "color": "black", "font-style": "italic" });
   });
+
+  $modalAnnouncementContainer.html(
+    await (await fetch("component/modal-announcement.html")).text()
+  );
+  const modalAnnouncement = new bootstrap.Modal(
+    $modalAnnouncementContainer.find("#modal-announcement")
+  );
+  const $viewButton = $modalAnnouncementContainer.find("#viewButton");
+
+  const socketSystem = io(NAMESPACE_SOCKET_IO_SYSTEM, {
+    path: ENDPOINT_SOCKET_IO,
+    auth: {
+      token: localStorage.getItem(KEY_TOKEN)
+    }
+  });
+
+  socketSystem.on("connect", () => {
+    void banner.showSuccessMessage("Connected");
+  });
+  socketSystem.on("connect_error", onSystemConnectError(socketSystem));
+  socketSystem.on("system_maintenance", onSystemMaintenance(socketSystem));
+  socketSystem.on(
+    "new_announcement",
+    onNewAnnouncement(modalAnnouncement, $viewButton)
+  );
+  socketSystem.on("user_logout", onUserLogout(socketSystem));
 });
