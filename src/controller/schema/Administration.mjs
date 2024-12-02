@@ -51,6 +51,7 @@ export const PostResponseSchema = z.object({
   citizenId: UserIdSchema,
   userFlag: z.string().optional(),
   passwordFlag: z.string().optional(),
+  privilegeFlag: z.string().optional(),
   privilege: z.string().optional(),
   status: StatusSchema.optional(),
   isOnline: z.boolean().optional(),

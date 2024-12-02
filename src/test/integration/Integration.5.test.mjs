@@ -94,7 +94,8 @@ describe("Test validate and administration user profile", () => {
     expect(res.json).toHaveBeenCalledWith({
       citizenId: 1,
       userFlag: "",
-      passwordFlag: ""
+      passwordFlag: "",
+      privilegeFlag: ""
     });
   });
 
@@ -120,7 +121,8 @@ describe("Test validate and administration user profile", () => {
       citizenId: 1,
       userFlag:
         "Username should be longer than 2 chars and shorter than 32 chars with no banned words",
-      passwordFlag: ""
+      passwordFlag: "",
+      privilegeFlag: ""
     });
   });
 
@@ -145,7 +147,8 @@ describe("Test validate and administration user profile", () => {
     expect(res.json).toHaveBeenCalledWith({
       citizenId: 1,
       userFlag: "Username unavailable",
-      passwordFlag: ""
+      passwordFlag: "",
+      privilegeFlag: ""
     });
   });
 
@@ -171,9 +174,9 @@ describe("Test validate and administration user profile", () => {
     expect(res.status).toHaveBeenCalledWith(HTTP_OK);
     expect(res.json).toHaveBeenCalledWith({
       citizenId: 1,
-      privilege: "coordinator",
       isActive: false,
       isOnline: true,
+      privilege: "coordinator",
       status: "OK",
       username: "rrrrr"
     });

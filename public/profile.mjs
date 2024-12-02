@@ -49,16 +49,23 @@ async function validate(userId) {
     const password = $("#edit-password").val()
       ? $("#edit-password").val()
       : null;
+    const privilege =
+      $("#privilege").val() !== "undefined" ? $("#privilege").val() : null;
 
     const res = await changeUserInfo({
       citizenId,
       validation,
       username,
       password,
+      privilege,
       token
     });
     console.log(res);
-    if (res.userFlag !== "" || res.passwordFlag !== "") {
+    if (
+      res.userFlag !== "" ||
+      res.passwordFlag !== "" ||
+      res.privilegeFlag !== ""
+    ) {
       let error_message = "";
       if (res.userFlag !== "") {
         error_message = res.userFlag;
@@ -70,6 +77,13 @@ async function validate(userId) {
         }
         error_message += res.passwordFlag;
       }
+      if (res.privilegeFlag !== "") {
+        if (res.userFlag !== "" || res.passwordFlag !== "") {
+          error_message += " AND ";
+        }
+        error_message += res.privilegeFlag;
+      }
+
       $("#note")
         .text(error_message)
         .css({ "color": "red", "font-style": "italic" });

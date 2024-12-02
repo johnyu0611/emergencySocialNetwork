@@ -60,6 +60,7 @@ export class AdministrationController extends AbstractController {
     if (validation === true) {
       let userFlag = "";
       let passwordFlag = "";
+      let privilegeFlag = "";
       if (username !== undefined) {
         try {
           username = validateUsername(username);
@@ -86,10 +87,23 @@ export class AdministrationController extends AbstractController {
         }
       }
 
+      if (privilege !== undefined) {
+        if (privilege !== "administrator") {
+          const admin = await this.#userDAO.findById({ userId: citizenId });
+          const totalAdmin = await this.#userDAO.find({
+            privilege: "administrator"
+          });
+          if (admin.privilege === "administrator" && totalAdmin.length === 1) {
+            privilegeFlag = "You are the only admin";
+          }
+        }
+      }
+
       const responseBody = PostResponseSchema.parse({
         citizenId: citizenId,
         userFlag,
-        passwordFlag
+        passwordFlag,
+        privilegeFlag
       });
 
       res.status(HTTP_OK);
@@ -122,7 +136,7 @@ export class AdministrationController extends AbstractController {
       this.context.channel.system.emit("username_change");
     }
 
-    console.log(privilege);
+    // console.log(privilege);
     if (privilege !== undefined) {
       update.privilege = privilege;
     }
