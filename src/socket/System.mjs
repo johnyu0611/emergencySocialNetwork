@@ -58,6 +58,10 @@ export function registerSystemChannel(io, jwt, namespace = "/system") {
     void handleConnect(socket);
     const { userId } = socket.handshake.auth;
     const temp = await userDAO.findById({ userId });
+    if (!temp) {
+      return;
+    }
+
     const { username } = temp;
     const userName = username;
 
