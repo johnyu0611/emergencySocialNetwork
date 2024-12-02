@@ -205,11 +205,19 @@ $(document).ready(async () => {
     //document.getElementById("address-form").reset();
   });
 
-  $("#addressModal").on("hidden.bs.modal", function () {
-    $("#address-form")[0].reset();
+  $("#close-button").on("click", function () {
+    $("#edit-form")[0].reset();
     $("#note")
-      .text("* = required field")
+      .text("You can edit specific elements and leave other blank")
       .css({ "color": "black", "font-style": "italic" });
+  });
+
+  $("#modal-confirm-join-btn-cancel").on("click", function () {
+    modalValidate.show();
+  });
+
+  $("#close-confirm").on("click", function () {
+    modalValidate.show();
   });
 
   $modalAnnouncementContainer.html(

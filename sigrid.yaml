@@ -5,12 +5,7 @@ languages:
       exclude: [".*[.]test[.]mjs"]
     test:
       include: [".*[.]test[.]mjs"]
-  - name: html
-  - name: css
 components:
-  - name: Frontend
-    include:
-      - ".*/public/.*"
   - name: Backend
     include:
       - ".*/src/.*"

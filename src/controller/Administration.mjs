@@ -66,7 +66,7 @@ export class AdministrationController extends AbstractController {
         } catch (error) {
           logger.debug({ context: loggerContext }, "Error received: %o", error);
           userFlag =
-            "Username should be longer than 2 chars and shorter than 32 chars without banned names";
+            "Username should be longer than 2 chars and shorter than 32 chars with no banned words";
         }
 
         const user = await this.#userDAO.findByUsername({ username });

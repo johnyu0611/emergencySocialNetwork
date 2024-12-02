@@ -39,7 +39,7 @@ export const PostRequestSchema = z.object({
   validation: z.boolean(),
   isActive: z.boolean().optional(),
   password: z.string().optional(),
-  username: UsernameSchema.optional()
+  username: z.string().optional()
 });
 
 /**
