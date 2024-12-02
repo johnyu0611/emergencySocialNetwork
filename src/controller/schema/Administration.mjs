@@ -37,6 +37,7 @@ export const PostRequestSchema = z.object({
   citizenId: UserIdSchema,
   privilege: z.string().optional(),
   validation: z.boolean(),
+  status: StatusSchema.optional(),
   isActive: z.boolean().optional(),
   password: z.string().optional(),
   username: z.string().optional()

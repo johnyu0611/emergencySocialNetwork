@@ -45,6 +45,10 @@ export class TokenController extends AbstractController {
     return TokenController.#instance;
   }
 
+  setUserDAO(userDAO) {
+    this.#userDAO = userDAO;
+  }
+
   async handlePost(req, res) {
     const loggerContext = "TokenControllerPOSTHandler";
     const { jwt, passwordHasher } = this.context;

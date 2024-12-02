@@ -23,6 +23,7 @@ import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
 import { getJWTPayload } from "./common/utils.mjs";
 import { getUsernameById } from "./lib/get-username.mjs";
+import { updateComponentVisibility } from "./common/update-visible.mjs";
 
 await fetchComponents();
 
@@ -527,10 +528,7 @@ async function onChallengeAccepted(data) {
 $(document).ready(async () => {
   $buttonLogout.click(onLogout);
 
-  const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
-  if (privilege !== "administrator") {
-    document.getElementById("test-administrator").style.display = "none";
-  }
+  updateComponentVisibility();
 
   $statusButton.on("click", function (event) {
     event.preventDefault();

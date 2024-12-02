@@ -19,6 +19,7 @@ import { getChatroom } from "./lib/get-chatroom.mjs";
 import { postChatroom } from "./lib/post-new-chatroom.mjs";
 import { performSearch } from "./common/perform-search.mjs";
 import { getJWTPayload } from "./common/utils.mjs";
+import { updateAnnouncementVisibility } from "./common/update-announcement-visible.mjs";
 
 await fetchComponents();
 
@@ -377,10 +378,7 @@ $(document).ready(async () => {
   });
 
   if (roomId == ANNOUCEMENT_SPACE_ID) {
-    const privilege = localStorage.getItem(PRIVILEGE_LEVEL);
-    if (privilege == "citizen") {
-      document.getElementById("input-area").style.display = "none";
-    }
+    updateAnnouncementVisibility();
   }
 
   $buttonLogout.click(onLogout);
