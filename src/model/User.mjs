@@ -80,4 +80,8 @@ export class UserDataAccess extends AbstractModel {
     user.locationSharingSession = session;
     await this.updateById({ userId }, user);
   }
+
+  async getAllAdmins() {
+    return await this.model.find({ privilege: "administrator" });
+  }
 }
