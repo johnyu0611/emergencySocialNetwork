@@ -30,7 +30,7 @@ describe("Test validate and administration user profile", () => {
     config.environment.databaseAppName = "FSE";
     config.environment.jwtPreSharedKey = "FSE-SB1";
 
-    config.environment.port = 3402;
+    config.environment.port = 3436;
     server = await runServer();
     userController = UserController.getInstance();
     administrationController = AdministrationController.getInstance();
