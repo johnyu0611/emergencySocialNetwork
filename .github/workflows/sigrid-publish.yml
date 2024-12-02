@@ -17,4 +17,4 @@ jobs:
       - name: "Run Sigrid CI"
         env:
           SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_TOKEN }}"
-        run: "./sigridci/sigridci/sigridci.py --customer cmusvfse --system f24-fse-sb1 --source . --publish"
+        run: "./sigridci/sigridci/sigridci.py --customer cmusvfse --system f24-fse-sb1 --source . --publish --exclude public"

@@ -109,15 +109,6 @@ function displayUsers(users) {
     usernameSpan.textContent = user.username;
     usernameSpan.style.marginLeft = "10px";
 
-    // Create a span for the status dot
-    const statusDot = document.createElement("span");
-    statusDot.style.height = "10px";
-    statusDot.style.width = "10px";
-    statusDot.style.borderRadius = "50%";
-    statusDot.style.display = "inline-block";
-    statusDot.style.marginLeft = "15px";
-    statusDot.style.backgroundColor = user.isOnline === true ? "green" : "grey";
-
     const userStatusIcon = document.createElement("i");
 
     // Set the appropriate icon and color based on the user's status
@@ -210,7 +201,6 @@ function displayUsers(users) {
     }
 
     //listItem.appendChild(messageIcon);
-    listItem.appendChild(statusDot);
     userList.appendChild(listItem);
   });
 }
